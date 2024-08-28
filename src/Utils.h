@@ -10,9 +10,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifndef UTILS_H
+#define UTILS_H
+
 class Utils
 {
 private:
+	static int screenWidth, screenHeight;
+
 	static std::string readShaderFile(const char *filePath);
 	static void printProgramLog(int prog);
 	static GLuint prepareShader(int shaderTYPE, const char *shaderPath);
@@ -20,8 +25,24 @@ private:
 
 public:
 	Utils();
+	static float pixelToScreenX(int x);
+	static float pixelToScreenY(int y);
+
+	static float pixelsToScreenWidth(int w);
+	static float pixelsToScreenHeight(int h);
+
+	static int screenToPixelX(float x);
+	static int screenToPixelY(float y);
+
+	static int screenWidthToPixels(float w);
+	static int screenHeightToPixels(float h);
+
+	static void setScreenDimensions(int width, int height);
+	
 	static bool checkOpenGLError();
 	static void printShaderLog(GLuint shader);
 	static GLuint createShaderProgram(const char *cs);
 	static GLuint loadTexture(const char *texImagePath);
 };
+
+#endif
