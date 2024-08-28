@@ -6,3 +6,6 @@ track limits detection:
     - if x, y changes sides of a track limit then violation
     - possibly think of some way to optimize this to not have to check all track limits
 
+create genetic algorithm :)
+train genetic algorithm :)
+succeed in life :)
