@@ -24,8 +24,17 @@ using namespace std;
 #define numCars 1
 #define numCarFloats 3
 
+// Car definitions
 #define carWidth 0.02f
 #define carHeight 0.03f
+
+// Physics definitions
+#define frictionMax 0.05f
+#define carMass 1.0f
+#define carForce 0.1f
+#define breakingForce 0.2f
+#define vMax 1.0f
+#define maxTurningRate 1.2f
 
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -40,6 +49,9 @@ double deltaTime = 0.0l;
 double lastTime = 0.0l;
 
 glm::mat4 viewMat;
+
+float appliedForce, totalForce, airResistance;
+float appliedTurning, totalTurning;
 
 const char *track = "assets/tracks/track1.tr";
 vector<float> insideTrack;
@@ -223,6 +235,45 @@ void runFrame(GLFWwindow *window, double currentTime) {
     lastTime = currentTime;
 
     // move car / read input
+    for (int i = 0; i < numCars; i++) {
+
+        Car *car = &cars[i];
+
+        appliedForce = 0.0f;
+
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            appliedForce = carForce;
+        }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            appliedForce = -carForce;
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            appliedForce = breakingForce * (car->speed > 0 ? -1 : 1);
+        }
+        appliedTurning = 0.0f;
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            appliedTurning += maxTurningRate;
+        } 
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            appliedTurning -= maxTurningRate;
+        }
+
+        float vvmaxS = (car->speed / vMax) * (car->speed / vMax);
+
+        airResistance = vvmaxS * carForce;
+        totalForce = appliedForce - airResistance;
+
+        totalTurning = appliedTurning * (1 - vvmaxS);
+
+        car->acceleration = totalForce / carMass;
+        car->angle += totalTurning * deltaTime;
+        car->speed += car->acceleration * deltaTime;
+
+        car->x += car->speed * cos(car->angle) * deltaTime;
+        car->y += car->speed * sin(car->angle) * deltaTime;
+    }
+    
+    loadCars();
 
     display(window);
     glfwSwapBuffers(window);
