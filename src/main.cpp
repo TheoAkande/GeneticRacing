@@ -18,17 +18,23 @@ using namespace std;
 // OpenGL definitions
 #define numVBOs 3
 #define numVAOs 1
+#define numCBs 2
 #define windowWidth 2000
 #define windowHeight 1500
 #define numCars 1
 #define numCarFloats 3
 
+#define carWidth 0.015f
+#define carHeight 0.03f
+
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
-GLuint vMatLoc;
-GLuint trackRenderingProgram, carRenderingProgram;
+GLuint cbo[numCBs];
+GLuint vMatLoc, cwLoc, chLoc, ncfLoc;
+GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader;
 
 float carPos[numCars * numCarFloats];
+float carPoints[numCars * 5 * 2];
 
 double deltaTime = 0.0l;
 double lastTime = 0.0l;
@@ -49,6 +55,35 @@ struct Car {
 
 vector<Car> cars;
 
+void calculateCarWheels(void) {
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * 5 * 2, NULL, GL_STATIC_READ);
+
+    glUseProgram(wheelComputeShader);
+
+    ncfLoc = glGetUniformLocation(wheelComputeShader, "numCarFloats");
+    glUniform1i(ncfLoc, numCarFloats);
+    cwLoc = glGetUniformLocation(wheelComputeShader, "carWidth");
+    glUniform1f(cwLoc, carWidth);
+    chLoc = glGetUniformLocation(wheelComputeShader, "carHeight");
+    glUniform1f(chLoc, carHeight);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[0]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[1]);
+
+    glDispatchCompute(numCars, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * 5 * 2, &carPoints[0]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * 5 * 2, &carPoints[0], GL_STATIC_DRAW);
+}
+
 void loadCars(void) {
     for (int i = 0; i < numCars; i++) {
         carPos[i * numCarFloats] = cars[i].x;
@@ -56,9 +91,8 @@ void loadCars(void) {
         carPos[i * numCarFloats + 2] = cars[i].angle;
     }
 
-    // Load car into vbo
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
+    glGenBuffers(numCBs, cbo);
+    calculateCarWheels();
 }
 
 void loadTrack(const char *track) {
@@ -119,6 +153,7 @@ void init(void) {
     Utils::setScreenDimensions(windowWidth, windowHeight);
     trackRenderingProgram = Utils::createShaderProgram("shaders/trackVert.glsl", "shaders/trackFrag.glsl");
     carRenderingProgram = Utils::createShaderProgram("shaders/carVert.glsl", "shaders/carFrag.glsl");
+    wheelComputeShader = Utils::createShaderProgram("shaders/carPointsCS.glsl");
 
     setupScene(track);
 }
@@ -153,9 +188,9 @@ void display(GLFWwindow *window) {
     glUseProgram(carRenderingProgram);
     glPointSize(5.0f);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
-    glDrawArrays(GL_POINTS, 0, numCars);
+    glDrawArrays(GL_POINTS, 0, numCars * 5);
 }
 
 void runFrame(GLFWwindow *window, double currentTime) {

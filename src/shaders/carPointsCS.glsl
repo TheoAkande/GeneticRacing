@@ -5,7 +5,7 @@ layout(local_size_x = 1) in;
 layout(binding = 0) buffer inputBuffer { float carData[]; };
 layout(binding = 1) buffer outputBuffer {float carPoints[]; };
 
-uniform int numCarFloats
+uniform int numCarFloats;
 uniform float carWidth;
 uniform float carHeight;
 
@@ -40,8 +40,8 @@ void main()
     carPoints[outIndex + 3] = frontLeft.y;
     carPoints[outIndex + 4] = backRight.x;
     carPoints[outIndex + 5] = backRight.y;
-    carPoints[outIndex + 6] = backRight.x;
-    carPoints[outIndex + 7] = backRight.y;
+    carPoints[outIndex + 6] = backLeft.x;
+    carPoints[outIndex + 7] = backLeft.y;
     carPoints[outIndex + 8] = x;
     carPoints[outIndex + 9] = y;
 }
