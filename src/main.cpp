@@ -18,15 +18,17 @@ using namespace std;
 // OpenGL definitions
 #define numVBOs 3
 #define numVAOs 1
-#define numCBs 2
+#define numCBs 5
 #define windowWidth 2000
 #define windowHeight 1500
 #define numCars 1
-#define numCarFloats 3
+#define numCarFloats 5
 
 // Car definitions
 #define carWidth 0.02f
 #define carHeight 0.03f
+
+#define numInputs 5
 
 // Physics definitions
 #define frictionMax 0.05f
@@ -40,8 +42,9 @@ GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
 GLuint vMatLoc, cwLoc, chLoc, ncfLoc, colLoc;
-GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader;
+GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, physicsComputeShader;
 
+float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
 float carPoints[numCars * 5 * 2];
 
@@ -56,16 +59,57 @@ float appliedTurning, totalTurning;
 const char *track = "assets/tracks/track1.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
-float carX, carY, carAngle; // angle 0 = right, 90 = up
+float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
+GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc;
 
 struct Car {
     float x, y, angle;
     float speed;
     float acceleration;
-    float accelerationAngle;
 };
 
 vector<Car> cars;
+
+void calculateCarPhysics(void) {
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[3]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numInputs, &inputs[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, NULL, GL_STATIC_READ);
+
+    glUseProgram(physicsComputeShader);
+
+    ncfLoc = glGetUniformLocation(physicsComputeShader, "numCarFloats");
+    glUniform1i(ncfLoc, numCarFloats);
+    niLoc = glGetUniformLocation(physicsComputeShader, "numInputs");
+    glUniform1i(niLoc, numInputs);
+
+    efLoc = glGetUniformLocation(physicsComputeShader, "engineForce");
+    glUniform1f(efLoc, carForce);
+    bfLoc = glGetUniformLocation(physicsComputeShader, "brakeForce");
+    glUniform1f(bfLoc, breakingForce);
+    mtrLoc = glGetUniformLocation(physicsComputeShader, "maxTurnRate");
+    glUniform1f(mtrLoc, maxTurningRate);
+    msLoc = glGetUniformLocation(physicsComputeShader, "maxSpeed");
+    glUniform1f(msLoc, vMax);
+    cmLoc = glGetUniformLocation(physicsComputeShader, "carMass");
+    glUniform1f(cmLoc, carMass);
+    dtLoc = glGetUniformLocation(physicsComputeShader, "deltaTime");
+    glUniform1f(dtLoc, deltaTime);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[3]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[4]);
+
+    glDispatchCompute(numCars, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFloats, &carPos[0]);
+}
 
 void calculateCarWheels(void) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[0]);
@@ -101,6 +145,8 @@ void loadCars(void) {
         carPos[i * numCarFloats] = cars[i].x;
         carPos[i * numCarFloats + 1] = cars[i].y;
         carPos[i * numCarFloats + 2] = cars[i].angle;
+        carPos[i * numCarFloats + 3] = cars[i].speed;
+        carPos[i * numCarFloats + 4] = cars[i].acceleration;
     }
 
     glGenBuffers(numCBs, cbo);
@@ -132,7 +178,7 @@ void loadTrack(const char *track) {
         } else if (line.c_str()[0] == 'c') {
             sscanf(line.c_str(), "c %f %f %f", &carX, &carY, &carAngle);
             for (int i = 0; i < numCars; i++) {
-                cars.push_back({carX, carY, carAngle, 0.0f, 0.0f, 0.0f});
+                cars.push_back({carX, carY, carAngle, 0.0f, 0.0f});
             }
         }
     }
@@ -166,6 +212,7 @@ void init(void) {
     trackRenderingProgram = Utils::createShaderProgram("shaders/trackVert.glsl", "shaders/trackFrag.glsl");
     carRenderingProgram = Utils::createShaderProgram("shaders/carVert.glsl", "shaders/carFrag.glsl");
     wheelComputeShader = Utils::createShaderProgram("shaders/carPointsCS.glsl");
+    physicsComputeShader = Utils::createShaderProgram("shaders/carPhysicsCS.glsl");
 
     setupScene(track);
 }
@@ -230,11 +277,44 @@ void display(GLFWwindow *window) {
     glDrawArrays(GL_POINTS, 0, numCars);
 }
 
+void setInput(int offset, float value) {
+    for (int i = 0; i < numCars; i++) {
+        inputs[i * numInputs + offset] = value;
+    }
+}
+
 void runFrame(GLFWwindow *window, double currentTime) {
     deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        setInput(0, 1.0f);
+    } else {
+        setInput(0, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        setInput(1, 1.0f);
+    } else {
+        setInput(1, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        setInput(4, 1.0f);
+    } else {
+        setInput(4, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        setInput(2, 1.0f);
+    } else {
+        setInput(2, 0.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        setInput(3, 1.0f);
+    } else {
+        setInput(3, 0.0f);
+    }
+
     // move car / read input
+    /*
     for (int i = 0; i < numCars; i++) {
 
         Car *car = &cars[i];
@@ -242,13 +322,13 @@ void runFrame(GLFWwindow *window, double currentTime) {
         appliedForce = 0.0f;
 
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            appliedForce = carForce;
+            appliedForce += carForce;
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            appliedForce = -carForce;
+            appliedForce -= carForce;
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            appliedForce = breakingForce * (car->speed > 0 ? -1 : 1);
+            appliedForce += breakingForce * (car->speed > 0 ? -1 : 1);
         }
         appliedTurning = 0.0f;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
@@ -272,8 +352,11 @@ void runFrame(GLFWwindow *window, double currentTime) {
         car->x += car->speed * cos(car->angle) * deltaTime;
         car->y += car->speed * sin(car->angle) * deltaTime;
     }
+    */
     
-    loadCars();
+    // loadCars();
+    calculateCarPhysics();
+    calculateCarWheels();
 
     display(window);
     glfwSwapBuffers(window);
