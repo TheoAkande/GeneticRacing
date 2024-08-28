@@ -19,7 +19,7 @@ using namespace std;
 #define deterministicDt 0.015l
 
 // OpenGL definitions
-#define numVBOs 3
+#define numVBOs 4
 #define numVAOs 1
 #define numCBs 5
 #define windowWidth 2000
@@ -45,7 +45,7 @@ GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
 GLuint vMatLoc, cwLoc, chLoc, ncfLoc, colLoc;
-GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, physicsComputeShader;
+GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, physicsComputeShader, driverRenderingProgram;
 
 float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
@@ -56,12 +56,17 @@ int carInputs[] = {
     GLFW_KEY_DOWN,
     GLFW_KEY_LEFT,
     GLFW_KEY_RIGHT,
-    GLFW_KEY_SPACE//,
-    // GLFW_KEY_W,
-    // GLFW_KEY_S,
-    // GLFW_KEY_A,
-    // GLFW_KEY_D,
-    // GLFW_KEY_LEFT_SHIFT,
+    GLFW_KEY_SPACE,
+    GLFW_KEY_W,
+    GLFW_KEY_S,
+    GLFW_KEY_A,
+    GLFW_KEY_D,
+    GLFW_KEY_LEFT_SHIFT,
+};
+
+float carColours[] = {
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 0.0f, 1.0f
 };
 
 double deltaTime = 0.0l;
@@ -167,6 +172,10 @@ void loadCars(void) {
     }
 
     glGenBuffers(numCBs, cbo);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, vbo[3]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(carColours), &carColours[0], GL_STATIC_DRAW);
+
     calculateCarWheels();
 }
 
@@ -230,6 +239,7 @@ void init(void) {
     carRenderingProgram = Utils::createShaderProgram("shaders/carVert.glsl", "shaders/carFrag.glsl");
     wheelComputeShader = Utils::createShaderProgram("shaders/carPointsCS.glsl");
     physicsComputeShader = Utils::createShaderProgram("shaders/carPhysicsCS.glsl");
+    driverRenderingProgram = Utils::createShaderProgram("shaders/driverVert.glsl", "shaders/driverFrag.glsl");
 
     setupScene(track);
 }
@@ -287,24 +297,25 @@ void display(GLFWwindow *window) {
     glDrawArrays(GL_POINTS, 0, numCars);
 
     // Driver
-    glUniform4f(colLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+    glUseProgram(driverRenderingProgram);
     glPointSize(5.0f);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 *sizeof(float), (void*)(4 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
     glDrawArrays(GL_POINTS, 0, numCars);
 }
 
 void setInput(int offset, float value) {
-    for (int i = 0; i < numCars; i++) {
-        inputs[i * numInputs + offset] = value;
-    }
+    inputs[offset] = value;
 }
 
 void runFrame(GLFWwindow *window, double currentTime) {
     deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
-    for (int i = 0; i < numInputs; i++) {
+    for (int i = 0; i < numInputs * numCars; i++) {
         if (glfwGetKey(window, carInputs[i]) == GLFW_PRESS) {
             setInput(i, 1.0f);
         } else {
@@ -321,7 +332,7 @@ void runFrame(GLFWwindow *window, double currentTime) {
 }
 
 int main(void) {
-    if (numInputs != sizeof(carInputs) / sizeof(int)) {
+    if (numInputs * numCars != sizeof(carInputs) / sizeof(int)) {
         cout << "Number of inputs does not match input array size" << endl;
         exit(EXIT_FAILURE);
     }
