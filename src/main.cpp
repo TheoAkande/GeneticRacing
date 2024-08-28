@@ -59,8 +59,6 @@ void loadCars(void) {
     // Load car into vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
-    // glVertexAttribPointer(0, numCarFloats, GL_FLOAT, GL_FALSE, 0, 0);
-    // glEnableVertexAttribArray(0);
 }
 
 void loadTrack(const char *track) {
@@ -77,7 +75,7 @@ void loadTrack(const char *track) {
         } 
         
         if (line.c_str()[0] == 'p') {
-            sscanf(line.c_str(), "%f %f", &x, &y);
+            sscanf(line.c_str(), "p %f %f", &x, &y);
             if (track1) {
                 insideTrack.push_back(x);
                 insideTrack.push_back(y);
@@ -97,12 +95,10 @@ void loadTrack(const char *track) {
     // Load inside track into vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * insideTrack.size(), insideTrack.data(), GL_STATIC_DRAW);
-    // glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     // Load outside track into vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
-    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     loadCars();
 }
