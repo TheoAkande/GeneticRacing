@@ -24,8 +24,8 @@ using namespace std;
 #define numCBs 5
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars 1
-#define numCarFloats 5
+#define numCars 2
+#define numCarFloats 6
 
 // Car definitions
 #define carWidth 0.02f
@@ -56,7 +56,12 @@ int carInputs[] = {
     GLFW_KEY_DOWN,
     GLFW_KEY_LEFT,
     GLFW_KEY_RIGHT,
-    GLFW_KEY_SPACE
+    GLFW_KEY_SPACE//,
+    // GLFW_KEY_W,
+    // GLFW_KEY_S,
+    // GLFW_KEY_A,
+    // GLFW_KEY_D,
+    // GLFW_KEY_LEFT_SHIFT,
 };
 
 double deltaTime = 0.0l;
@@ -158,6 +163,7 @@ void loadCars(void) {
         carPos[i * numCarFloats + 2] = cars[i].angle;
         carPos[i * numCarFloats + 3] = cars[i].speed;
         carPos[i * numCarFloats + 4] = cars[i].acceleration;
+        carPos[i * numCarFloats + 5] = cars[i].angle;
     }
 
     glGenBuffers(numCBs, cbo);
@@ -263,27 +269,27 @@ void display(GLFWwindow *window) {
     glUniform4f(colLoc, 0.6f, 0.6f, 0.6f, 1.0f);
     glPointSize(6.0f);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0 * 2 * sizeof(float)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 * sizeof(float), (void*)(0 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, numCars);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(1 * 2 * sizeof(float)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 * sizeof(float), (void*)(1 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, numCars);
 
     // Rear wheels
     glUniform4f(colLoc, 0.9f, 0.9f, 0.9f, 1.0f);
     glPointSize(8.0f);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * 2 * sizeof(float)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 * sizeof(float), (void*)(2 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, numCars);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * 2 * sizeof(float)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 * sizeof(float), (void*)(3 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, numCars);
 
     // Driver
     glUniform4f(colLoc, 0.0f, 1.0f, 0.0f, 1.0f);
     glPointSize(5.0f);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * 2 * sizeof(float)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * 2 *sizeof(float), (void*)(4 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, numCars);
 }

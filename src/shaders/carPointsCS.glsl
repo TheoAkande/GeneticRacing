@@ -36,6 +36,7 @@ void main()
     backLeft = rotation * backLeft + xy;
 
     uint outIndex = index * 10;
+    
     carPoints[outIndex] = frontRight.x;
     carPoints[outIndex + 1] = frontRight.y;
     carPoints[outIndex + 2] = frontLeft.x;
