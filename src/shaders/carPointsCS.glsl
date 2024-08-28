@@ -23,9 +23,11 @@ void main()
     vec2 backRight = vec2(-1.0 * carHeight / 3.0, carWidth / 2.0);
     vec2 backLeft = vec2(-1.0 * carHeight / 3.0, -1.0 * carWidth / 2.0);
 
+    float angle = -carData[inIndex + 2];
+
     mat2 rotation = mat2(
-        cos(carData[inIndex + 2]), -sin(carData[inIndex + 2]), 
-        sin(carData[inIndex + 2]), cos(carData[inIndex + 2])
+        cos(angle), -sin(angle), 
+        sin(angle), cos(angle)
     );
 
     frontRight = rotation * frontRight + xy;
