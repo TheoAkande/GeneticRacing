@@ -15,6 +15,9 @@
 
 using namespace std;
 
+#define deterministic false
+#define deterministicDt 0.015l
+
 // OpenGL definitions
 #define numVBOs 3
 #define numVAOs 1
@@ -47,6 +50,14 @@ GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, physicsCo
 float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
 float carPoints[numCars * 5 * 2];
+
+int carInputs[] = {
+    GLFW_KEY_UP,
+    GLFW_KEY_DOWN,
+    GLFW_KEY_LEFT,
+    GLFW_KEY_RIGHT,
+    GLFW_KEY_SPACE
+};
 
 double deltaTime = 0.0l;
 double lastTime = 0.0l;
@@ -98,7 +109,7 @@ void calculateCarPhysics(void) {
     cmLoc = glGetUniformLocation(physicsComputeShader, "carMass");
     glUniform1f(cmLoc, carMass);
     dtLoc = glGetUniformLocation(physicsComputeShader, "deltaTime");
-    glUniform1f(dtLoc, deltaTime);
+    glUniform1f(dtLoc, deterministic ? deterministicDt : deltaTime);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[3]);
@@ -312,49 +323,7 @@ void runFrame(GLFWwindow *window, double currentTime) {
     } else {
         setInput(3, 0.0f);
     }
-
-    // move car / read input
-    /*
-    for (int i = 0; i < numCars; i++) {
-
-        Car *car = &cars[i];
-
-        appliedForce = 0.0f;
-
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            appliedForce += carForce;
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            appliedForce -= carForce;
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            appliedForce += breakingForce * (car->speed > 0 ? -1 : 1);
-        }
-        appliedTurning = 0.0f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-            appliedTurning += maxTurningRate;
-        } 
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            appliedTurning -= maxTurningRate;
-        }
-
-        float vvmaxS = (car->speed / vMax) * (car->speed / vMax);
-
-        airResistance = vvmaxS * carForce;
-        totalForce = appliedForce - airResistance;
-
-        totalTurning = appliedTurning * (1 - vvmaxS);
-
-        car->acceleration = totalForce / carMass;
-        car->angle += totalTurning * deltaTime;
-        car->speed += car->acceleration * deltaTime;
-
-        car->x += car->speed * cos(car->angle) * deltaTime;
-        car->y += car->speed * sin(car->angle) * deltaTime;
-    }
-    */
     
-    // loadCars();
     calculateCarPhysics();
     calculateCarWheels();
 
