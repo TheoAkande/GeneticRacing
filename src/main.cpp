@@ -24,13 +24,13 @@ using namespace std;
 #define numCars 1
 #define numCarFloats 3
 
-#define carWidth 0.015f
+#define carWidth 0.02f
 #define carHeight 0.03f
 
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
-GLuint vMatLoc, cwLoc, chLoc, ncfLoc;
+GLuint vMatLoc, cwLoc, chLoc, ncfLoc, colLoc;
 GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader;
 
 float carPos[numCars * numCarFloats];
@@ -186,11 +186,36 @@ void display(GLFWwindow *window) {
 
     // Draw the cars - in future get car points from a compute shader and draw that buffer instead
     glUseProgram(carRenderingProgram);
-    glPointSize(5.0f);
+
+    colLoc = glGetUniformLocation(carRenderingProgram, "colourIn");
+
+    // Front wheels
+    glUniform4f(colLoc, 0.6f, 0.6f, 0.6f, 1.0f);
+    glPointSize(6.0f);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0 * 2 * sizeof(float)));
     glEnableVertexAttribArray(0);
-    glDrawArrays(GL_POINTS, 0, numCars * 5);
+    glDrawArrays(GL_POINTS, 0, numCars);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(1 * 2 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_POINTS, 0, numCars);
+
+    // Rear wheels
+    glUniform4f(colLoc, 0.9f, 0.9f, 0.9f, 1.0f);
+    glPointSize(8.0f);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * 2 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_POINTS, 0, numCars);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * 2 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_POINTS, 0, numCars);
+
+    // Driver
+    glUniform4f(colLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+    glPointSize(5.0f);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * 2 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_POINTS, 0, numCars);
 }
 
 void runFrame(GLFWwindow *window, double currentTime) {
