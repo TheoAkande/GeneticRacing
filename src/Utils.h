@@ -38,10 +38,11 @@ public:
 	static int screenHeightToPixels(float h);
 
 	static void setScreenDimensions(int width, int height);
-	
+
 	static bool checkOpenGLError();
 	static void printShaderLog(GLuint shader);
 	static GLuint createShaderProgram(const char *cs);
+	static GLuint createShaderProgram(const char *vs, const char *fs);
 	static GLuint loadTexture(const char *texImagePath);
 };
 
