@@ -298,30 +298,12 @@ void runFrame(GLFWwindow *window, double currentTime) {
     deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        setInput(0, 1.0f);
-    } else {
-        setInput(0, 0.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        setInput(1, 1.0f);
-    } else {
-        setInput(1, 0.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        setInput(4, 1.0f);
-    } else {
-        setInput(4, 0.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        setInput(2, 1.0f);
-    } else {
-        setInput(2, 0.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        setInput(3, 1.0f);
-    } else {
-        setInput(3, 0.0f);
+    for (int i = 0; i < numInputs; i++) {
+        if (glfwGetKey(window, carInputs[i]) == GLFW_PRESS) {
+            setInput(i, 1.0f);
+        } else {
+            setInput(i, 0.0f);
+        }
     }
     
     calculateCarPhysics();
@@ -333,7 +315,12 @@ void runFrame(GLFWwindow *window, double currentTime) {
 }
 
 int main(void) {
-if (!glfwInit()) { 
+    if (numInputs != sizeof(carInputs) / sizeof(int)) {
+        cout << "Number of inputs does not match input array size" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (!glfwInit()) { 
         exit(EXIT_FAILURE); 
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
