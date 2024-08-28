@@ -20,7 +20,7 @@ layout(local_size_x = 1) in;
 
 layout(binding = 0) buffer inputBuffer1 { float carData[]; };
 layout(binding = 1) buffer inputBuffer2 { float carInputs[]; };
-layout(binding = 1) buffer outputBuffer {float carOutputs[]; };
+layout(binding = 2) buffer outputBuffer {float carOutputs[]; };
 
 uniform int numCarFloats;
 uniform int numInputs;
@@ -54,7 +54,7 @@ void main()
     appliedTurning += carInputs[in2Index + 2] * maxTurnRate;
     appliedTurning -= carInputs[in2Index + 3] * maxTurnRate;
 
-    float vvmaxS = (speed / maxSpeed) * (speed / maxSPeed);
+    float vvmaxS = (speed / maxSpeed) * (speed / maxSpeed);
 
     float airResistance = vvmaxS * engineForce;
     float totalForce = appliedForce - airResistance;
@@ -64,13 +64,13 @@ void main()
     
     acceleration = totalForce / carMass;
     angle += totalTurning * deltaTime;
-    speed += car->acceleration * deltaTime;
+    speed += acceleration * deltaTime;
     x += speed * cos(angle) * deltaTime;
     y += speed * sin(angle) * deltaTime;
 
-    carData[in1Index] = x;
-    carData[in1Index + 1] = y;
-    carData[in1Index + 2] = angle;
-    carData[in1Index + 3] = speed;
-    carData[in1Index + 4] = acceleration;
+    carOutputs[in1Index] = x;
+    carOutputs[in1Index + 1] = y;
+    carOutputs[in1Index + 2] = angle;
+    carOutputs[in1Index + 3] = speed;
+    carOutputs[in1Index + 4] = acceleration;
 }
