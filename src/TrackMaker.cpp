@@ -95,25 +95,32 @@ void TrackMaker::exportTrack(void) {
     numTracksFile.close();
 
     string trackName = "../../../src/assets/tracks/track" + to_string(numTracks + 1) + ".tr";
+    string localTrackName = "assets/tracks/track" + to_string(numTracks + 1) + ".tr";
     glm::vec2 start = glm::vec2((insideStart.x + outsideStart.x) / 2.0f, (insideStart.y + outsideStart.y) / 2.0f);
-    glm::vec2 startNormal = glm::normalize(glm::vec2(outsideStart.y - insideStart.y, insideStart.x - outsideStart.x));
-    float startAngle = atan2(-startNormal.y, -startNormal.x);
+    glm::vec2 startNormal = -glm::normalize(glm::vec2(outsideStart.y - insideStart.y, insideStart.x - outsideStart.x));
+    float startAngle = atan2(startNormal.y, startNormal.x);
 
-    ofstream trackFile;
+    ofstream trackFile, localFile;
     trackFile.open(trackName);
+    localFile.open(localTrackName);
 
-    trackFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl; 
+    trackFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl;
+    localFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl; 
 
     for (int i = 0; i < inside.size(); i += 2) {
         trackFile << "p " << inside[i] << " " << inside[i + 1] << endl;
+        localFile << "p " << inside[i] << " " << inside[i + 1] << endl;
     }
 
     trackFile << "-" << endl;
+    localFile << "-" << endl;
 
     for (int i = 0; i < outside.size(); i += 2) {
         trackFile << "p " << outside[i] << " " << outside[i + 1] << endl;
+        localFile << "p " << outside[i] << " " << outside[i + 1] << endl;
     }
     trackFile.close();
+    localFile.close();
 
     ofstream numTracksFileOut;
     numTracksFileOut.open("assets/tracks/numTracks.txt");

@@ -79,7 +79,7 @@ glm::mat4 viewMat;
 float appliedForce, totalForce, airResistance;
 float appliedTurning, totalTurning;
 
-const char *track = "assets/tracks/track1.tr";
+const char *track = "assets/tracks/track6.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
 float trackStartLine[4];
@@ -87,6 +87,11 @@ glm::vec2 trackStartNormal;
 float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
 GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc, nt1Loc, nt2Loc;
 float active[numCars];
+
+bool cHeld = false;
+
+int numTracks;
+int curTrack = 0;
 
 bool shouldCreateTrack = false;
 
@@ -96,7 +101,7 @@ struct Car {
     float acceleration;
 };
 
-vector<Car> cars;
+Car cars[numCars];
 
 void calculateCarPhysics(void) {
     // Original car data
@@ -199,7 +204,7 @@ void calculateCarWheels(void) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * 5 * 2, &carPoints[0], GL_STATIC_DRAW);
 }
 
-void loadCars(void) {
+void loadCars(bool createBuffers) {
     for (int i = 0; i < numCars; i++) {
         carPos[i * numCarFloats] = cars[i].x;
         carPos[i * numCarFloats + 1] = cars[i].y;
@@ -211,7 +216,9 @@ void loadCars(void) {
         active[i] = 1.0f;
     }
 
-    glGenBuffers(numCBs, cbo);
+    if (createBuffers) {
+        glGenBuffers(numCBs, cbo);
+    }
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, vbo[3]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(carColours), &carColours[0], GL_STATIC_DRAW);
@@ -219,7 +226,7 @@ void loadCars(void) {
     calculateCarWheels();
 }
 
-void loadTrack(const char *track) {
+void loadTrack(string track, bool createBuffers = true) {
     // Load track from file
     insideTrack.clear();
     outsideTrack.clear();
@@ -256,7 +263,11 @@ void loadTrack(const char *track) {
         } else if (line.c_str()[0] == 'c') {
             sscanf(line.c_str(), "c %f %f %f", &carX, &carY, &carAngle);
             for (int i = 0; i < numCars; i++) {
-                cars.push_back({carX, carY, carAngle, 0.0f, 0.0f});
+                cars[i].x = carX;
+                cars[i].y = carY;
+                cars[i].angle = carAngle;
+                cars[i].speed = 0.0f;
+                cars[i].acceleration = 0.0f;
             }
         }
     }
@@ -276,7 +287,18 @@ void loadTrack(const char *track) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(trackStartLine), trackStartLine, GL_STATIC_DRAW);
 
-    loadCars();
+    loadCars(createBuffers);
+}
+
+void cycleTracks(bool createBuffers) {
+    ifstream numTracksFile;
+    numTracksFile.open("assets/tracks/numTracks.txt");
+    numTracksFile >> numTracks;
+    numTracksFile.close();
+    curTrack = curTrack % numTracks + 1;
+    string trackName = "assets/tracks/track" + to_string(curTrack) + ".tr";
+
+    loadTrack(trackName, createBuffers);
 }
 
 void setupScene(const char *curTrack) {
@@ -286,9 +308,6 @@ void setupScene(const char *curTrack) {
 
     // Create vbos
     glGenBuffers(numVBOs, vbo);
-
-    // Load track
-    loadTrack(curTrack);
 }
 
 void init(void) {
@@ -301,6 +320,7 @@ void init(void) {
     tsRenderingProgram = Utils::createShaderProgram("shaders/startVert.glsl", "shaders/startFrag.glsl");
 
     setupScene(track);
+    cycleTracks(true);
 }
 
 void display(GLFWwindow *window) {
@@ -398,6 +418,13 @@ void runFrame(GLFWwindow *window, double currentTime) {
             setInput(i, 0.0f);
         }
     }
+
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !cHeld) {
+        cycleTracks(false);
+        cHeld = true;
+    } else if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE) {
+        cHeld = false;
+    }
     
     calculateCarPhysics();
     determineCarIntersects();
@@ -433,6 +460,9 @@ int main(void) {
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
+            if (!shouldCreateTrack) {
+                cycleTracks(false);
+            }
         } else {
             runFrame(window, glfwGetTime());
         }
