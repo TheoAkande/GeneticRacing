@@ -79,10 +79,11 @@ glm::mat4 viewMat;
 float appliedForce, totalForce, airResistance;
 float appliedTurning, totalTurning;
 
-const char *track = "assets/tracks/track4.tr";
+const char *track = "assets/tracks/track1.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
 float trackStartLine[4];
+glm::vec2 trackStartNormal;
 float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
 GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc, nt1Loc, nt2Loc;
 float active[numCars];
@@ -145,6 +146,12 @@ void calculateCarPhysics(void) {
     glUniform1f(cmLoc, carMass);
     dtLoc = glGetUniformLocation(physicsComputeShader, "deltaTime");
     glUniform1f(dtLoc, deterministic ? deterministicDt : deltaTime);
+    dtLoc = glGetUniformLocation(physicsComputeShader, "insideStart");
+    glUniform2f(dtLoc, insideTrack[0], insideTrack[1]);
+    dtLoc = glGetUniformLocation(physicsComputeShader, "outsideStart");
+    glUniform2f(dtLoc, outsideTrack[0], outsideTrack[1]);
+    dtLoc = glGetUniformLocation(physicsComputeShader, "startNormal");
+    glUniform2f(dtLoc, trackStartNormal.x, trackStartNormal.y);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[3]);
@@ -254,6 +261,8 @@ void loadTrack(const char *track) {
         }
     }
     fileStream.close();
+
+    trackStartNormal = -glm::normalize(glm::vec2(trackStartLine[3] - trackStartLine[1], trackStartLine[0] - trackStartLine[2]));
 
     // Load inside track into vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -372,6 +381,8 @@ void determineCarIntersects(void) {
             carPos[i * numCarFloats + 2] = 0.0f;
             carPos[i * numCarFloats + 3] = 0.0f;
             carPos[i * numCarFloats + 4] = 0.0f;
+        } else if (active[i] == -1.0f) {
+            cout << "Car " << i << " has completed a lap" << endl;
         }
     }
 }
