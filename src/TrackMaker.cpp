@@ -102,7 +102,7 @@ void TrackMaker::exportTrack(void) {
     ofstream trackFile;
     trackFile.open(trackName);
 
-    trackFile << "c " << start.x << " " << start.y << " " << startAngle << endl; 
+    trackFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl; 
 
     for (int i = 0; i < inside.size(); i += 2) {
         trackFile << "p " << inside[i] << " " << inside[i + 1] << endl;
