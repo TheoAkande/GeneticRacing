@@ -172,9 +172,9 @@ void calculateComputerVision(void) {
     glUniform1i(ncfLoc, numCarFloats);
     ncfLoc = glGetUniformLocation(computerVisionComputeShader, "numComputerVisionAngles");
     glUniform1i(ncfLoc, numComputerVisionAngles);
-    nt1Loc = glGetUniformLocation(computerVisionComputeShader, "numInsideTrackPoints");
+    nt1Loc = glGetUniformLocation(computerVisionComputeShader, "numInsidePoints");
     glUniform1i(nt1Loc, insideTrack.size() / 2);
-    nt2Loc = glGetUniformLocation(computerVisionComputeShader, "numOutsideTrackPoints");
+    nt2Loc = glGetUniformLocation(computerVisionComputeShader, "numOutsidePoints");
     glUniform1i(nt2Loc, outsideTrack.size() / 2);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
@@ -183,11 +183,16 @@ void calculateComputerVision(void) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[8]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[9]);
 
-    glDispatchCompute(numCars, 1, 1);
+    glDispatchCompute(numCars, numComputerVisionAngles, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0]);
+
+    // for (int i = 0; i < numCars * numComputerVisionAngles; i++) {
+    //     cout << computerVisionDistances[i] << " ";
+    // }
+    // cout << endl;
 }
 
 void calculateCarPhysics(void) {
