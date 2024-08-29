@@ -12,6 +12,7 @@
 #include <cstdlib>
 
 #include "Utils.h"
+#include "TrackMaker.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ using namespace std;
 #define deterministicDt 0.015l
 
 // OpenGL definitions
-#define numVBOs 4
+#define numVBOs 5
 #define numVAOs 1
 #define numCBs 8
 #define windowWidth 2000
@@ -44,8 +45,9 @@ using namespace std;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
-GLuint vMatLoc, cwLoc, chLoc, ncfLoc, colLoc;
-GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, physicsComputeShader, driverRenderingProgram;
+GLuint cwLoc, chLoc, ncfLoc, colLoc;
+GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, 
+    physicsComputeShader, driverRenderingProgram, tsRenderingProgram;
 
 float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
@@ -80,9 +82,12 @@ float appliedTurning, totalTurning;
 const char *track = "assets/tracks/track1.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
+float trackStartLine[4];
 float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
 GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc, nt1Loc, nt2Loc;
 float active[numCars];
+
+bool shouldCreateTrack = false;
 
 struct Car {
     float x, y, angle;
@@ -212,12 +217,15 @@ void loadTrack(const char *track) {
     insideTrack.clear();
     outsideTrack.clear();
     ifstream fileStream(track, ios::in);
-    string line = "";    bool track1 = true;
+    string line = "";    
+    bool track1 = true;
+    bool started = false;
     float x, y;
     while (!fileStream.eof()) {
         getline(fileStream, line);
         if (line.c_str()[0] == '-') {
             track1 = false;
+            started = false;
         } 
         
         if (line.c_str()[0] == 'p') {
@@ -228,6 +236,15 @@ void loadTrack(const char *track) {
             } else {
                 outsideTrack.push_back(x);
                 outsideTrack.push_back(y);
+            }
+            if (!started && track1) {
+                trackStartLine[0] = x;
+                trackStartLine[1] = y;
+                started = true;
+            } else if (!track1 && !started) {
+                trackStartLine[2] = x;
+                trackStartLine[3] = y;
+                started = true;
             }
         } else if (line.c_str()[0] == 'c') {
             sscanf(line.c_str(), "c %f %f %f", &carX, &carY, &carAngle);
@@ -245,6 +262,10 @@ void loadTrack(const char *track) {
     // Load outside track into vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
+
+    // Load start line into vbo
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(trackStartLine), trackStartLine, GL_STATIC_DRAW);
 
     loadCars();
 }
@@ -268,6 +289,7 @@ void init(void) {
     wheelComputeShader = Utils::createShaderProgram("shaders/carPointsCS.glsl");
     physicsComputeShader = Utils::createShaderProgram("shaders/carPhysicsCS.glsl");
     driverRenderingProgram = Utils::createShaderProgram("shaders/driverVert.glsl", "shaders/driverFrag.glsl");
+    tsRenderingProgram = Utils::createShaderProgram("shaders/startVert.glsl", "shaders/startFrag.glsl");
 
     setupScene(track);
 }
@@ -281,11 +303,6 @@ void display(GLFWwindow *window) {
 
     glUseProgram(trackRenderingProgram);
 
-    // Set the view matrix
-    viewMat = glm::mat4(1.0f);
-    vMatLoc = glGetUniformLocation(trackRenderingProgram, "vMatrix");
-    glUniformMatrix4fv(vMatLoc, 1, GL_FALSE, glm::value_ptr(viewMat));
-
     // Draw the inside track
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -297,6 +314,13 @@ void display(GLFWwindow *window) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(outsideTrack.size() / 2));
+
+    // Draw the start line
+    glUseProgram(tsRenderingProgram);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
 
     // Draw the cars - in future get car points from a compute shader and draw that buffer instead
     glUseProgram(carRenderingProgram);
@@ -371,6 +395,10 @@ void runFrame(GLFWwindow *window, double currentTime) {
     display(window);
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+        shouldCreateTrack = true;
+    }
 }
 
 int main(void) {
@@ -392,7 +420,11 @@ int main(void) {
     glfwSwapInterval(1);
     init();
     while (!glfwWindowShouldClose(window)) {
-        runFrame(window, glfwGetTime());
+        if (shouldCreateTrack) {
+            shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
+        } else {
+            runFrame(window, glfwGetTime());
+        }
     }
     glfwDestroyWindow(window);
     glfwTerminate();
