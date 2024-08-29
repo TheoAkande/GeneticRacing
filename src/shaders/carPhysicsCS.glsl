@@ -167,7 +167,7 @@ void main()
                 break;
             }
         }
-        for (uint i = 0; i < numInsideTrackPoints; i++) {
+        for (uint i = 0; i < numOutsideTrackPoints; i++) {
             uint inIndex = i * 2;
             Line trackLine = Line(vec2(outsideTrack[inIndex], outsideTrack[inIndex + 1]), vec2(outsideTrack[(inIndex + 2) % (numOutsideTrackPoints * 2)], outsideTrack[(inIndex + 3) % (numOutsideTrackPoints * 2)]));
             if (intersect(carLine, trackLine)) {
