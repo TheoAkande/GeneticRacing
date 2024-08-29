@@ -21,7 +21,7 @@ using namespace std;
 // OpenGL definitions
 #define numVBOs 4
 #define numVAOs 1
-#define numCBs 5
+#define numCBs 8
 #define windowWidth 2000
 #define windowHeight 1500
 #define numCars 2
@@ -81,7 +81,8 @@ const char *track = "assets/tracks/track1.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
 float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
-GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc;
+GLuint efLoc, bfLoc, mtrLoc, msLoc, cmLoc, dtLoc, niLoc, nt1Loc, nt2Loc;
+float active[numCars];
 
 struct Car {
     float x, y, angle;
@@ -92,14 +93,29 @@ struct Car {
 vector<Car> cars;
 
 void calculateCarPhysics(void) {
+    // Original car data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
 
+    // Inputs
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[3]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numInputs, &inputs[0], GL_STATIC_DRAW);
 
+    // New car data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, NULL, GL_STATIC_READ);
+
+    // Inside Track
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * insideTrack.size(), insideTrack.data(), GL_STATIC_DRAW);
+
+    // Outside Track
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[6]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
+
+    // Car active
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[7]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, NULL, GL_STATIC_READ);
 
     glUseProgram(physicsComputeShader);
 
@@ -107,6 +123,10 @@ void calculateCarPhysics(void) {
     glUniform1i(ncfLoc, numCarFloats);
     niLoc = glGetUniformLocation(physicsComputeShader, "numInputs");
     glUniform1i(niLoc, numInputs);
+    nt1Loc = glGetUniformLocation(physicsComputeShader, "numInsideTrackPoints");
+    glUniform1i(nt1Loc, insideTrack.size() / 2);
+    nt2Loc = glGetUniformLocation(physicsComputeShader, "numOutsideTrackPoints");
+    glUniform1i(nt2Loc, outsideTrack.size() / 2);
 
     efLoc = glGetUniformLocation(physicsComputeShader, "engineForce");
     glUniform1f(efLoc, carForce);
@@ -124,12 +144,18 @@ void calculateCarPhysics(void) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[3]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[4]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[5]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[6]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, cbo[7]);
 
     glDispatchCompute(numCars, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFloats, &carPos[0]);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[7]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars, &active[0]);
 }
 
 void calculateCarWheels(void) {
@@ -168,7 +194,9 @@ void loadCars(void) {
         carPos[i * numCarFloats + 2] = cars[i].angle;
         carPos[i * numCarFloats + 3] = cars[i].speed;
         carPos[i * numCarFloats + 4] = cars[i].acceleration;
-        carPos[i * numCarFloats + 5] = cars[i].angle;
+        carPos[i * numCarFloats + 5] = 1.0f;
+
+        active[i] = 1.0f;
     }
 
     glGenBuffers(numCBs, cbo);
@@ -311,6 +339,19 @@ void setInput(int offset, float value) {
     inputs[offset] = value;
 }
 
+void determineCarIntersects(void) {
+    for (int i = 0; i < numCars; i++) {
+        carPos[i * numCarFloats + 5] = active[i];
+        if (active[i] == 0.0f) {
+            carPos[i * numCarFloats] = 0.0f;
+            carPos[i * numCarFloats + 1] = 0.0f;
+            carPos[i * numCarFloats + 2] = 0.0f;
+            carPos[i * numCarFloats + 3] = 0.0f;
+            carPos[i * numCarFloats + 4] = 0.0f;
+        }
+    }
+}
+
 void runFrame(GLFWwindow *window, double currentTime) {
     deltaTime = currentTime - lastTime;
     lastTime = currentTime;
@@ -324,6 +365,7 @@ void runFrame(GLFWwindow *window, double currentTime) {
     }
     
     calculateCarPhysics();
+    determineCarIntersects();
     calculateCarWheels();
 
     display(window);
