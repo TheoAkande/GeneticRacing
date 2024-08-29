@@ -31,6 +31,10 @@ uniform int numInputs;
 uniform int numInsideTrackPoints;
 uniform int numOutsideTrackPoints;
 
+uniform vec2 insideStart;
+uniform vec2 outsideStart;
+uniform vec2 startNormal;
+
 uniform float engineForce;
 uniform float brakeForce;
 uniform float maxTurnRate;
@@ -114,8 +118,8 @@ void main()
     uint in1Index = index * numCarFloats;
     uint in2Index = index * numInputs;
 
-    carOutputs[in1Index + 5] = carData[in1Index + 5];
-    carCollisions[index] = carData[in1Index + 5];
+    carOutputs[in1Index + 5] = abs(carData[in1Index + 5]);
+    carCollisions[index] = abs(carData[in1Index + 5]);
 
     if (carData[in1Index + 5] == 0.0) {
         return;
@@ -149,8 +153,9 @@ void main()
 
         float oldX = x;
         float oldY = y;
-        x += speed * cos(angle) * deltaTime;
-        y += speed * sin(angle) * deltaTime;
+        vec2 change = vec2(speed * cos(angle) * deltaTime, speed * sin(angle) * deltaTime);
+        x += change.x;
+        y += change.y;
 
         carOutputs[in1Index] = x;
         carOutputs[in1Index + 1] = y;
@@ -158,7 +163,19 @@ void main()
         carOutputs[in1Index + 3] = speed;
         carOutputs[in1Index + 4] = acceleration;
 
+        Line startLine = Line(insideStart, outsideStart);
         Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
+        if (intersect(startLine, carLine)) {
+            float newL = length(change + startNormal);
+            float maxL = max(length(change), length(startNormal));
+            if (newL > maxL) {
+                carCollisions[index] = -1.0;
+            } else if (newL < maxL) {
+                carCollisions[index] = 0.0;
+                return;
+            }
+        }
+
         for (uint i = 0; i < numInsideTrackPoints; i++) {
             uint inIndex = i * 2;
             Line trackLine = Line(vec2(insideTrack[inIndex], insideTrack[inIndex + 1]), vec2(insideTrack[(inIndex + 2) % (numInsideTrackPoints * 2)], insideTrack[(inIndex + 3) % (numInsideTrackPoints * 2)]));
