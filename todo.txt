@@ -1,11 +1,4 @@
 do
-track generation from image:
-    - sample verticle pixels at regular intervals, if colour (line) then outside, inside, inside, outside, outside ...
-
-lap timing:
-    - possibly add start/finish line to track file
-    - do not allow to pass back over finish line
-    - count frames rather than time when deterministic
 
 computer vision:
     - select inputs for genetic algorithm
@@ -24,3 +17,12 @@ track limits detection:
     - calculate using compute shader to iterate over cars
     - if x, y changes sides of a track limit then violation
     - possibly think of some way to optimize this to not have to check all track limits
+
+track generation from image:
+    - sample verticle pixels at regular intervals, if colour (line) then outside, inside, inside, outside, outside ...
+    - decided to track generator instead
+
+lap timing:
+    - possibly add start/finish line to track file
+    - do not allow to pass back over finish line
+    - count frames rather than time when deterministic
