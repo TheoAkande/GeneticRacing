@@ -42,7 +42,7 @@ using namespace std;
 #define vMax 1.0f
 #define maxTurningRate 1.2f
 
-#define numComputerVisionAngles 7
+#define numComputerVisionAngles 15
 
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -59,13 +59,23 @@ float carPoints[numCars * 5 * 2];
 float computerVisionAngles[] = {
     0.0f, // straight ahead
     0.785398f, // 45 degrees
-    1.5708f, // 90 degrees
     -0.785398f, // -45 degrees
+    1.5708f, // 90 degrees
     -1.5708f, // -90 degrees
-    0.05f, // 0.5 degrees
-    -0.05f, // -0.5 degrees
+    0.05f, // 3 degrees
+    -0.05f, // -3 degrees
+    0.1f, // 6 degrees
+    -0.1f, // -6 degrees
+    0.174533f, // 10 degrees
+    -0.174533f, // -10 degrees
+    0.698132f, // 40 degrees
+    -0.698132f, // -40 degrees
+    0.872665, // 50 degrees
+    -0.872665, // -50 degrees
 };
 float computerVisionDistances[numCars * numComputerVisionAngles];
+bool showTrack = true;
+bool sHeld = false;
 
 int carInputs[] = {
     GLFW_KEY_UP,
@@ -188,11 +198,6 @@ void calculateComputerVision(void) {
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0]);
-
-    // for (int i = 0; i < numCars * numComputerVisionAngles; i++) {
-    //     cout << computerVisionDistances[i] << " ";
-    // }
-    // cout << endl;
 }
 
 void calculateCarPhysics(void) {
@@ -424,19 +429,20 @@ void display(GLFWwindow *window) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUseProgram(trackRenderingProgram);
+    if (showTrack) {
+        glUseProgram(trackRenderingProgram);
+        // Draw the inside track
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(0);
+        glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(insideTrack.size() / 2));
 
-    // Draw the inside track
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(insideTrack.size() / 2));
-
-    // Draw the outside track
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(outsideTrack.size() / 2));
+        // Draw the outside track
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(0);
+        glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(outsideTrack.size() / 2));
+    }
 
     // Draw the start line
     glUseProgram(tsRenderingProgram);
@@ -521,6 +527,13 @@ void runFrame(GLFWwindow *window, double currentTime) {
         cHeld = true;
     } else if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE) {
         cHeld = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && !sHeld) {
+        showTrack = !showTrack;
+        sHeld = true;
+    } else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE) {
+        sHeld = false;
     }
     
     calculateCarPhysics();
