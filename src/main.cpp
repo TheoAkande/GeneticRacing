@@ -20,9 +20,9 @@ using namespace std;
 #define deterministicDt 0.015l
 
 // OpenGL definitions
-#define numVBOs 5
+#define numVBOs 6
 #define numVAOs 1
-#define numCBs 8
+#define numCBs 10
 #define windowWidth 2000
 #define windowHeight 1500
 #define numCars 2
@@ -42,16 +42,30 @@ using namespace std;
 #define vMax 1.0f
 #define maxTurningRate 1.2f
 
+#define numComputerVisionAngles 7
+
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
 GLuint cwLoc, chLoc, ncfLoc, colLoc;
 GLuint trackRenderingProgram, carRenderingProgram, wheelComputeShader, 
-    physicsComputeShader, driverRenderingProgram, tsRenderingProgram;
+    physicsComputeShader, driverRenderingProgram, tsRenderingProgram,
+    computerVisionComputeShader, computerVisionRenderingProgram;
 
 float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
 float carPoints[numCars * 5 * 2];
+
+float computerVisionAngles[] = {
+    0.0f, // straight ahead
+    0.785398f, // 45 degrees
+    1.5708f, // 90 degrees
+    -0.785398f, // -45 degrees
+    -1.5708f, // -90 degrees
+    0.05f, // 0.5 degrees
+    -0.05f, // -0.5 degrees
+};
+float computerVisionDistances[numCars * numComputerVisionAngles];
 
 int carInputs[] = {
     GLFW_KEY_UP,
@@ -102,6 +116,79 @@ struct Car {
 };
 
 Car cars[numCars];
+
+void renderComputerVision(void) {
+    glUseProgram(computerVisionRenderingProgram);
+
+    float visionPoints[numCars * numComputerVisionAngles * 2];
+
+    for (int i = 0; i < numCars; i++) {
+        for (int j = 0; j < numComputerVisionAngles; j++) {
+            float x = carPos[i * numCarFloats];
+            float y = carPos[i * numCarFloats + 1];
+            float angle = carPos[i * numCarFloats + 2] + computerVisionAngles[j];
+            float distance = computerVisionDistances[i * numComputerVisionAngles + j];
+            x += distance * cos(angle);
+            y += distance * sin(angle);
+
+            visionPoints[i * numComputerVisionAngles * 2 + j * 2] = x;
+            visionPoints[i * numComputerVisionAngles * 2 + j * 2 + 1] = y;
+        }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * numComputerVisionAngles * 2, visionPoints, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    glDrawArrays(GL_POINTS, 0, numCars * numComputerVisionAngles);
+}
+
+void calculateComputerVision(void) {
+    // Car data
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
+
+    // Inside Track
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * insideTrack.size(), insideTrack.data(), GL_STATIC_DRAW);
+
+    // Outside Track
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[6]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
+
+    // Computer Vision Angles
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[8]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numComputerVisionAngles, computerVisionAngles, GL_STATIC_DRAW);
+
+    // Computer Vision Distances
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numComputerVisionAngles, NULL, GL_STATIC_READ);
+
+    glUseProgram(computerVisionComputeShader);
+
+    ncfLoc = glGetUniformLocation(computerVisionComputeShader, "numCarFloats");
+    glUniform1i(ncfLoc, numCarFloats);
+    ncfLoc = glGetUniformLocation(computerVisionComputeShader, "numComputerVisionAngles");
+    glUniform1i(ncfLoc, numComputerVisionAngles);
+    nt1Loc = glGetUniformLocation(computerVisionComputeShader, "numInsideTrackPoints");
+    glUniform1i(nt1Loc, insideTrack.size() / 2);
+    nt2Loc = glGetUniformLocation(computerVisionComputeShader, "numOutsideTrackPoints");
+    glUniform1i(nt2Loc, outsideTrack.size() / 2);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[2]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[5]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[6]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[8]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[9]);
+
+    glDispatchCompute(numCars, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0]);
+}
 
 void calculateCarPhysics(void) {
     // Original car data
@@ -318,6 +405,8 @@ void init(void) {
     physicsComputeShader = Utils::createShaderProgram("shaders/carPhysicsCS.glsl");
     driverRenderingProgram = Utils::createShaderProgram("shaders/driverVert.glsl", "shaders/driverFrag.glsl");
     tsRenderingProgram = Utils::createShaderProgram("shaders/startVert.glsl", "shaders/startFrag.glsl");
+    computerVisionComputeShader = Utils::createShaderProgram("shaders/computerVisionCS.glsl");
+    computerVisionRenderingProgram = Utils::createShaderProgram("shaders/startVert.glsl", "shaders/startFrag.glsl");
 
     setupScene(track);
     cycleTracks(true);
@@ -386,6 +475,9 @@ void display(GLFWwindow *window) {
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
     glDrawArrays(GL_POINTS, 0, numCars);
+
+    // Computer Vision
+    renderComputerVision();
 }
 
 void setInput(int offset, float value) {
@@ -427,6 +519,10 @@ void runFrame(GLFWwindow *window, double currentTime) {
     }
     
     calculateCarPhysics();
+
+    // computer vision
+    calculateComputerVision();
+
     determineCarIntersects();
     calculateCarWheels();
 
