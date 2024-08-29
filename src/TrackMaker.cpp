@@ -87,6 +87,49 @@ void TrackMaker::initTrack(void) {
     trackSetup = true;
 }
 
+void TrackMaker::exportTrack(void) {
+    ifstream numTracksFile;
+    numTracksFile.open("assets/tracks/numTracks.txt");
+    int numTracks;
+    numTracksFile >> numTracks;
+    numTracksFile.close();
+
+    string trackName = "../../../src/assets/tracks/track" + to_string(numTracks + 1) + ".tr";
+    glm::vec2 start = glm::vec2((insideStart.x + outsideStart.x) / 2.0f, (insideStart.y + outsideStart.y) / 2.0f);
+    glm::vec2 startNormal = glm::normalize(glm::vec2(outsideStart.y - insideStart.y, insideStart.x - outsideStart.x));
+    float startAngle = atan2(-startNormal.y, -startNormal.x);
+
+    ofstream trackFile;
+    trackFile.open(trackName);
+
+    trackFile << "c " << start.x << " " << start.y << " " << startAngle << endl; 
+
+    for (int i = 0; i < inside.size(); i += 2) {
+        trackFile << "p " << inside[i] << " " << inside[i + 1] << endl;
+    }
+
+    trackFile << "-" << endl;
+
+    for (int i = 0; i < outside.size(); i += 2) {
+        trackFile << "p " << outside[i] << " " << outside[i + 1] << endl;
+    }
+    trackFile.close();
+
+    ofstream numTracksFileOut;
+    numTracksFileOut.open("assets/tracks/numTracks.txt");
+    numTracksFileOut << numTracks + 1;
+    numTracksFileOut.close();
+
+    ofstream perisitentTracksFileOut;
+    perisitentTracksFileOut.open("../../../src/assets/tracks/numTracks.txt");
+    if (perisitentTracksFileOut.is_open()) {
+        perisitentTracksFileOut << numTracks + 1;
+    } else {
+        cout << "Unable to open" << endl;
+    }
+    perisitentTracksFileOut.close();
+}
+
 bool TrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (!trackSetup) {
         initTrack();
@@ -135,6 +178,12 @@ bool TrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     } else if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
         enterHeld = false;
     }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        exportTrack();
+        return false;
+    }
+
     return true;
 }
 

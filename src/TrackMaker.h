@@ -50,7 +50,7 @@ class TrackMaker
 
         static void displayTrack(GLFWwindow *window);
         static void initTrack(void);
-    
+        static void exportTrack(void);
     public:
         TrackMaker();
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
