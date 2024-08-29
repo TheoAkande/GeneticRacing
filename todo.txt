@@ -2,12 +2,14 @@ do
 track generation from image:
     - sample verticle pixels at regular intervals, if colour (line) then outside, inside, inside, outside, outside ...
 
-
-
 lap timing:
     - possibly add start/finish line to track file
     - do not allow to pass back over finish line
     - count frames rather than time when deterministic
+
+computer vision:
+    - select inputs for genetic algorithm
+    - calculate vision points 
 
 create genetic algorithm :)
 train genetic algorithm :)
