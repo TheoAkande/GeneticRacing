@@ -1,10 +1,8 @@
+do
 track generation from image:
     - sample verticle pixels at regular intervals, if colour (line) then outside, inside, inside, outside, outside ...
 
-track limits detection:
-    - calculate using compute shader to iterate over cars
-    - if x, y changes sides of a track limit then violation
-    - possibly think of some way to optimize this to not have to check all track limits
+
 
 lap timing:
     - possibly add start/finish line to track file
@@ -14,3 +12,13 @@ lap timing:
 create genetic algorithm :)
 train genetic algorithm :)
 succeed in life :)
+
+
+doing
+
+
+done
+track limits detection:
+    - calculate using compute shader to iterate over cars
+    - if x, y changes sides of a track limit then violation
+    - possibly think of some way to optimize this to not have to check all track limits
