@@ -140,7 +140,7 @@ void main()
         float airResistance = vvmaxS * engineForce;
         float totalForce = appliedForce - airResistance;
 
-        float totalTurning = appliedTurning * (1 - vvmaxS);
+        float totalTurning = appliedTurning * (-2.5 * ((speed / maxSpeed) - 0.45) * ((speed / maxSpeed) - 0.45) + 1.0);
 
         
         acceleration = totalForce / carMass;
