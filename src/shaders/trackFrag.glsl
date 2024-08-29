@@ -2,7 +2,6 @@
 
 out vec4 colour;
 
-uniform mat4 vMatrix;
 
 void main() 
 {
