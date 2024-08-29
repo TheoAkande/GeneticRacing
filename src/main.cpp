@@ -79,7 +79,7 @@ glm::mat4 viewMat;
 float appliedForce, totalForce, airResistance;
 float appliedTurning, totalTurning;
 
-const char *track = "assets/tracks/track1.tr";
+const char *track = "assets/tracks/track3.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
 float trackStartLine[4];
