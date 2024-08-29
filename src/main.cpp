@@ -38,7 +38,7 @@ using namespace std;
 #define frictionMax 0.05f
 #define carMass 1.0f
 #define carForce 0.1f
-#define breakingForce 0.2f
+#define breakingForce 0.3f
 #define vMax 1.0f
 #define maxTurningRate 1.2f
 
