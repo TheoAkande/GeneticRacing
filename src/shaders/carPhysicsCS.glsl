@@ -10,6 +10,10 @@ layout(local_size_x = 1) in;
     3: speed
     4: acceleration
     5: active
+    6: past x
+    7: past y
+    8: total distance
+    9: total speed
 
     Car inputs:
     0: forward
@@ -41,6 +45,8 @@ uniform float maxTurnRate;
 uniform float maxSpeed;
 uniform float carMass;
 uniform float deltaTime;
+
+uniform int calNewDistance;
 
 struct Line {
     vec2 p1;
@@ -130,6 +136,18 @@ void main()
         float speed = carData[in1Index + 3];
         float acceleration = carData[in1Index + 4];
 
+        if (calNewDistance == 1) {
+            float dx = x - carData[in1Index + 6];
+            float dy = y - carData[in1Index + 7];
+            carOutputs[in1Index + 8] += sqrt(dx * dx + dy * dy);
+            carOutputs[in1Index + 6] = x;
+            carOutputs[in1Index + 7] = y;
+        } else {
+            carOutputs[in1Index + 6] = carData[in1Index + 6];
+            carOutputs[in1Index + 7] = carData[in1Index + 7];
+            carOutputs[in1Index + 8] = carData[in1Index + 8];
+        }
+
         float appliedForce = 0.0;
         float appliedTurning = 0.0;
 
@@ -181,7 +199,7 @@ void main()
             Line trackLine = Line(vec2(insideTrack[inIndex], insideTrack[inIndex + 1]), vec2(insideTrack[(inIndex + 2) % (numInsideTrackPoints * 2)], insideTrack[(inIndex + 3) % (numInsideTrackPoints * 2)]));
             if (intersect(carLine, trackLine)) {
                 carCollisions[index] = 0.0;
-                break;
+                return;
             }
         }
         for (uint i = 0; i < numOutsideTrackPoints; i++) {
@@ -189,7 +207,7 @@ void main()
             Line trackLine = Line(vec2(outsideTrack[inIndex], outsideTrack[inIndex + 1]), vec2(outsideTrack[(inIndex + 2) % (numOutsideTrackPoints * 2)], outsideTrack[(inIndex + 3) % (numOutsideTrackPoints * 2)]));
             if (intersect(carLine, trackLine)) {
                 carCollisions[index] = 0.0;
-                break;
+                return;
             }
         }
     }
