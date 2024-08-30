@@ -34,7 +34,7 @@ using namespace std;
 
 #define NUM_GENERATION_LEADERS 10
 
-#define NUM_NN_CBS 11
+#define NUM_NN_CBS 12
 
 class DeepNeuralNets
 {
@@ -43,6 +43,9 @@ class DeepNeuralNets
         static GLuint neuralNetComputeShader;
         static GLuint evolutionComputeShader;
         static GLuint nnCBOs[NUM_NN_CBS];
+
+        // Network random seeds
+        static float seeds[NUM_NEURAL_NETS];
 
         // Network inputs
         static float *carData;
