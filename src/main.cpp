@@ -555,11 +555,13 @@ void determineCarIntersects(void) {
     for (int i = 0; i < numCars; i++) {
         carPos[i * numCarFloats + 5] = active[i];
         if (active[i] == 0.0f) {
-            carPos[i * numCarFloats] = 0.0f;
-            carPos[i * numCarFloats + 1] = 0.0f;
-            carPos[i * numCarFloats + 2] = 0.0f;
+            carLaps[i] -= 2;
+            carPos[i * numCarFloats] = cars[i].x;
+            carPos[i * numCarFloats + 1] = cars[i].y;
+            carPos[i * numCarFloats + 2] = cars[i].angle;
             carPos[i * numCarFloats + 3] = 0.0f;
             carPos[i * numCarFloats + 4] = 0.0f;
+            carPos[i * numCarFloats + 5] = 1.0f;
         } else if (active[i] == -1.0f) {
             carLaps[i]++;
             laps = true;
