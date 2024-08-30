@@ -62,8 +62,6 @@ float computerVisionAngles[] = {
     -0.785398f, // -45 degrees
     1.5708f, // 90 degrees
     -1.5708f, // -90 degrees
-    0.05f, // 3 degrees
-    -0.05f, // -3 degrees
     0.1f, // 6 degrees
     -0.1f, // -6 degrees
     0.174533f, // 10 degrees
@@ -72,6 +70,8 @@ float computerVisionAngles[] = {
     -0.698132f, // -40 degrees
     0.872665, // 50 degrees
     -0.872665, // -50 degrees
+    2.35619, // 135 degrees
+    -2.35619 // -135 degrees
 };
 float computerVisionDistances[numCars * numComputerVisionAngles];
 bool showTrack = true;
