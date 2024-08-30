@@ -13,5 +13,5 @@ void main()
     uint index = gl_GlobalInvocationID.x;
     uint inIndex = index * numCarFloats;
     
-    fitness[index] = carData[inIndex + 8] + (float) carLaps[index] * 50.0;
+    fitness[index] = carData[inIndex + 8] + float(carLaps[index]) * 50.0;
 }
