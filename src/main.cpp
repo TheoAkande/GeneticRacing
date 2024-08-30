@@ -46,6 +46,10 @@ using namespace std;
 
 #define calculateDistanceInterval 60
 
+#define MAX_FLOATS 268435456
+#define MAX_SSBO_SIZE 1073741824
+#define MAX_SSBO 16
+
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 GLuint cbo[numCBs];
