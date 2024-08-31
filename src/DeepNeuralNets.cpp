@@ -121,8 +121,4 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData, f
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
-    while (true) {
-        // Placeholder
-        
-    }
 }
