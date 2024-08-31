@@ -37,4 +37,6 @@
 
 #define TRAINING true
 
+#define basePath "../../../"
+
 #endif
