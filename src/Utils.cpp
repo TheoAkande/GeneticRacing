@@ -96,7 +96,7 @@ string checkWorkgroupChange(string shaderStr, int workgroupSize) {
 	if (pos != string::npos) {
 		string workgroupStr = "layout(local_size_x = ";
 		workgroupStr += to_string(workgroupSize);
-		workgroupStr += ", local_size_y = 1, local_size_z = 1) in;\n";
+		workgroupStr += ", local_size_y = 1, local_size_z = 1) in;";
 		shaderStr.erase(pos, toReplace.length());
 		shaderStr.insert(pos, workgroupStr);
 	}
