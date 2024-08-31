@@ -12,7 +12,7 @@ GLuint DeepNeuralNets::randomPopulationComputeShader;
 GLuint DeepNeuralNets::nnCBOs[NUM_NN_CBS];
 
 // Network random seeds
-int DeepNeuralNets::seeds[NUM_NEURAL_NETS];
+float DeepNeuralNets::seeds[NUM_NEURAL_NETS];
 
 // Network inputs
 float *DeepNeuralNets::carData;
@@ -49,7 +49,7 @@ void DeepNeuralNets::createRandomPopulation(void) {
 
     // Set the seeds
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[0]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * NUM_NEURAL_NETS, DeepNeuralNets::seeds, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_NEURAL_NETS, DeepNeuralNets::seeds, GL_DYNAMIC_DRAW);
 
     // Set the output buffers
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[1]);
@@ -111,7 +111,7 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData, f
 
     // Set the seeds (note: might change to ints later)
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        DeepNeuralNets::seeds[i] = rand();
+        DeepNeuralNets::seeds[i] = (float)rand();
     }
 
     DeepNeuralNets::createRandomPopulation();

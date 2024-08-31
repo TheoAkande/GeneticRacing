@@ -61,7 +61,7 @@ class DeepNeuralNets
         static GLuint nnCBOs[NUM_NN_CBS];
 
         // Network random seeds
-        static int seeds[NUM_NEURAL_NETS];
+        static float seeds[NUM_NEURAL_NETS];
 
         // Network inputs
         static float *carData;
