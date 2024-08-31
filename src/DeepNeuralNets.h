@@ -76,6 +76,11 @@ class DeepNeuralNets
         // Evolution
         static void gatherGenerationLeaders(void);
         static void evolveGenerationLeaders(void);
+
+        // Eport utility
+        static void exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights);
+        static void exportPopulationModel(string filename, int index);  // Index in whole population
+        static void exportTopModel(string filename, int index);         // Index in generation leaders
     public:
         DeepNeuralNets();
 
@@ -83,6 +88,10 @@ class DeepNeuralNets
         static float *invokeNeuralNets(void); // return pointer to outputOutputs
         static void setFitness(float *fitnessData); // inform neural nets of their fitness
         static void evolveNeuralNets(void); // evolve neural nets
+
+        // Persistence
+        static void exportBestModel(string filename);
+        static void importModel(string filename, int index);
 };
 
 #endif
