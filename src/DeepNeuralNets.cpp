@@ -34,3 +34,32 @@ float DeepNeuralNets::genLeadersLayer2Weights[(NUM_HIDDEN_LAYER_1_NODES * NUM_HI
 float DeepNeuralNets::genLeadersLayer3Weights[(NUM_HIDDEN_LAYER_2_NODES * NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_GENERATION_LEADERS];
 float DeepNeuralNets::genLeadersOutputWeights[(NUM_HIDDEN_LAYER_3_NODES * NUM_OUTPUTS + 1) * NUM_GENERATION_LEADERS];
 float DeepNeuralNets::genLeadersFitness[NUM_GENERATION_LEADERS];
+
+// Private methods
+
+
+// Public methods
+
+DeepNeuralNets::DeepNeuralNets() {
+    // Empty constructor
+}
+
+void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData) {
+    // Set the pointers to the input buffers
+    DeepNeuralNets::carData = carData;
+    DeepNeuralNets::computerVisionData = computerVisionData;
+
+    // Create the compute shaders
+    DeepNeuralNets::neuralNetComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl");
+    DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
+
+    // Create the neural net compute buffer objects
+    glGenBuffers(NUM_NN_CBS, nnCBOs);
+
+    // Set the seeds (note: might change to ints later)
+    for (int i = 0; i < NUM_NEURAL_NETS; i++) {
+        DeepNeuralNets::seeds[i] = (float)rand() / (float)RAND_MAX;
+    }
+
+    DeepNeuralNets::createRandomPopulation();
+}
