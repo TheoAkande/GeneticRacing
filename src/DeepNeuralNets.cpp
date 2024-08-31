@@ -8,6 +8,7 @@ GLuint
     DeepNeuralNets::Layer3ComputeShader, 
     DeepNeuralNets::OutputComputeShader;
 GLuint DeepNeuralNets::evolutionComputeShader;
+GLuint DeepNeuralNets::randomPopulationComputeShader;
 GLuint DeepNeuralNets::nnCBOs[NUM_NN_CBS];
 
 // Network random seeds
@@ -62,6 +63,7 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData) {
     DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
     DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
     DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
+    DeepNeuralNets::randomPopulationComputeShader = Utils::createShaderProgram("shaders/neuralNet/randomPopulationCompute.glsl");
 
     // Create the neural net compute buffer objects
     glGenBuffers(NUM_NN_CBS, nnCBOs);
