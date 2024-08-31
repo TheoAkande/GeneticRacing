@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <SOIL2/soil2.h>
 #include <cstdlib>
+#include <chrono>
 
 #include "Defs.h"
 
@@ -17,10 +18,6 @@ using namespace std;
 
 #ifndef DEEPNEURALNETS_H
 #define DEEPNEURALNETS_H
-
-#define MAX_FLOATS 268435456
-#define MAX_SSBO_SIZE 1073741824
-#define MAX_SSBO 16
 
 #define NUM_NEURAL_NETS numCars
 

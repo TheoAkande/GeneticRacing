@@ -10,7 +10,7 @@
 #define numCBs 12
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars 2
+#define numCars 1000
 #define numCarFloats 9
 
 // Car definitions
@@ -34,5 +34,7 @@
 #define MAX_FLOATS 268435456
 #define MAX_SSBO_SIZE 1073741824
 #define MAX_SSBO 16
+
+#define TRAINING true
 
 #endif

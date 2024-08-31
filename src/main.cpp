@@ -14,6 +14,7 @@
 #include "Utils.h"
 #include "TrackMaker.h"
 #include "Defs.h"
+#include "DeepNeuralNets.h"
 
 using namespace std;
 
@@ -589,6 +590,28 @@ void runFrame(GLFWwindow *window, double currentTime) {
 }
 
 int main(void) {
+    if (TRAINING) {
+        if (!glfwInit()) {
+            throw std::runtime_error("Failed to initialize GLFW");
+        }
+
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        GLFWwindow* window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+        if (!window) {
+            throw std::runtime_error("Failed to create GLFW window");
+        }
+        glfwMakeContextCurrent(window);
+        if (glewInit() != GLEW_OK) {
+            cout << "Not ok" << endl;
+            exit(EXIT_FAILURE);
+        }
+        DeepNeuralNets::initNeuralNets(carPos, computerVisionDistances, trackStartLine);
+        exit(EXIT_SUCCESS);
+    }
+
     if (numInputs * numCars != sizeof(carInputs) / sizeof(int)) {
         cout << "Number of inputs does not match input array size" << endl;
         exit(EXIT_FAILURE);

@@ -99,11 +99,13 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData, f
     DeepNeuralNets::startLine = startLine;
 
     // Create the compute shaders
+    /*
     DeepNeuralNets::Layer1ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_1_NODES);
     DeepNeuralNets::Layer2ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_2_NODES);
     DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
     DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
     DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
+    */
     DeepNeuralNets::randomPopulationComputeShader = Utils::createShaderProgram("shaders/neuralNet/randomPopulationCompute.glsl");
 
     // Create the neural net compute buffer objects
@@ -114,5 +116,13 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData, f
         DeepNeuralNets::seeds[i] = (float)rand();
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
     DeepNeuralNets::createRandomPopulation();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
+    while (true) {
+        // Placeholder
+        
+    }
 }
