@@ -25,7 +25,7 @@ using namespace std;
 #define NUM_NEURAL_NETS numCars
 
 // Currently not an RNN -> if rnn then add numInputs to NUM_INPUTS
-#define NUM_INPUTS (numComputerVisionAngles + numCarFloats)
+#define NUM_INPUTS (numComputerVisionAngles + numCarFloats + 4) // 4 for start line
 #define NUM_OUTPUTS numInputs
 
 #define NUM_HIDDEN_LAYER_1_NODES 32
@@ -34,7 +34,22 @@ using namespace std;
 
 #define NUM_GENERATION_LEADERS 10
 
-#define NUM_NN_CBS 12
+#define NUM_NN_CBS 13
+/*
+    0: seeds
+    1: layer1Weights
+    2: layer2Weights
+    3: layer3Weights
+    4: outputWeights
+    5: layer1Outputs
+    6: layer2Outputs
+    7: layer3Outputs
+    8: outputOutputs
+    9: fitness
+    10: carData
+    11: computerVisionData
+    12: startLine
+*/
 
 class DeepNeuralNets
 {
@@ -46,11 +61,12 @@ class DeepNeuralNets
         static GLuint nnCBOs[NUM_NN_CBS];
 
         // Network random seeds
-        static float seeds[NUM_NEURAL_NETS];
+        static int seeds[NUM_NEURAL_NETS];
 
         // Network inputs
         static float *carData;
         static float *computerVisionData;
+        static float *startLine;
 
         // Neural network weights
         static float layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
@@ -88,7 +104,7 @@ class DeepNeuralNets
     public:
         DeepNeuralNets();
 
-        static void initNeuralNets(float *carData, float *computerVisionData); // pointers to buffers that will be used as inputs
+        static void initNeuralNets(float *carData, float *computerVisionData, float *startLine); // pointers to buffers that will be used as inputs
         static float *invokeNeuralNets(void); // return pointer to outputOutputs
         static void setFitness(float *fitnessData); // inform neural nets of their fitness
         static void evolveNeuralNets(void); // evolve neural nets

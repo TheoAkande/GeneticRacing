@@ -12,11 +12,12 @@ GLuint DeepNeuralNets::randomPopulationComputeShader;
 GLuint DeepNeuralNets::nnCBOs[NUM_NN_CBS];
 
 // Network random seeds
-float DeepNeuralNets::seeds[NUM_NEURAL_NETS];
+int DeepNeuralNets::seeds[NUM_NEURAL_NETS];
 
 // Network inputs
 float *DeepNeuralNets::carData;
 float *DeepNeuralNets::computerVisionData;
+float *DeepNeuralNets::startLine;
 
 // Neural network weights
 float DeepNeuralNets::layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
@@ -43,7 +44,40 @@ float DeepNeuralNets::genLeadersFitness[NUM_GENERATION_LEADERS];
 // Private methods
 
 void DeepNeuralNets::createRandomPopulation(void) {
+    // Setup Compute Shader
+    glUseProgram(DeepNeuralNets::randomPopulationComputeShader);
 
+    // Set the seeds
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * NUM_NEURAL_NETS, DeepNeuralNets::seeds, GL_DYNAMIC_DRAW);
+
+    // Set the output buffers
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_1_NODES * NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[3]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_2_NODES * NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[4]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_3_NODES * NUM_OUTPUTS + 1) * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+
+    // Set the uniforms
+    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numInputs");
+    glUniform1i(uLoc, NUM_INPUTS);
+    uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numHiddenLayer1Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_1_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numHiddenLayer2Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numHiddenLayer3Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numOutputs");
+    glUniform1i(uLoc, NUM_OUTPUTS);
+    uLoc = glGetUniformLocation(DeepNeuralNets::randomPopulationComputeShader, "numNeuralNets");
+    glUniform1i(uLoc, NUM_NEURAL_NETS);
+
+    // Dispatch the compute shader
+    glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
 // Public methods
@@ -52,10 +86,11 @@ DeepNeuralNets::DeepNeuralNets() {
     // Empty constructor
 }
 
-void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData) {
+void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData, float *startLine) {
     // Set the pointers to the input buffers
     DeepNeuralNets::carData = carData;
     DeepNeuralNets::computerVisionData = computerVisionData;
+    DeepNeuralNets::startLine = startLine;
 
     // Create the compute shaders
     DeepNeuralNets::Layer1ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_1_NODES);
@@ -70,7 +105,7 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData) {
 
     // Set the seeds (note: might change to ints later)
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        DeepNeuralNets::seeds[i] = (float)rand() / (float)RAND_MAX;
+        DeepNeuralNets::seeds[i] = rand();
     }
 
     DeepNeuralNets::createRandomPopulation();
