@@ -73,6 +73,9 @@ class DeepNeuralNets
         static float genLeadersOutputWeights[(NUM_HIDDEN_LAYER_3_NODES * NUM_OUTPUTS + 1) * NUM_GENERATION_LEADERS];
         static float genLeadersFitness[NUM_GENERATION_LEADERS];
 
+        // Setup
+        static void createRandomPopulation(void);
+
         // Evolution
         static void gatherGenerationLeaders(void);
         static void evolveGenerationLeaders(void);
