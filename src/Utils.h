@@ -20,7 +20,7 @@ private:
 
 	static std::string readShaderFile(const char *filePath);
 	static void printProgramLog(int prog);
-	static GLuint prepareShader(int shaderTYPE, const char *shaderPath);
+	static GLuint prepareShader(int shaderTYPE, const char *shaderPath, int workgroupSize = 0);
 	static int finalizeShaderProgram(GLuint sprogram);
 
 public:
@@ -41,7 +41,7 @@ public:
 
 	static bool checkOpenGLError();
 	static void printShaderLog(GLuint shader);
-	static GLuint createShaderProgram(const char *cs);
+	static GLuint createShaderProgram(const char *cs, int workgroupSize = 0);
 	static GLuint createShaderProgram(const char *vs, const char *fs);
 	static GLuint loadTexture(const char *texImagePath);
 };

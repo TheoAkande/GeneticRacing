@@ -90,10 +90,24 @@ void Utils::printShaderLog(GLuint shader) {
 	}
 }
 
-GLuint Utils::prepareShader(int shaderTYPE, const char *shaderPath)
+string checkWorkgroupChange(string shaderStr, int workgroupSize) {
+	string toReplace = "VARIABLE_WORKGROUP_SIZE";
+	size_t pos = shaderStr.find(toReplace);
+	if (pos != string::npos) {
+		string workgroupStr = "layout(local_size_x = ";
+		workgroupStr += to_string(workgroupSize);
+		workgroupStr += ", local_size_y = 1, local_size_z = 1) in;\n";
+		shaderStr.erase(pos, toReplace.length());
+		shaderStr.insert(pos, workgroupStr);
+	}
+	return shaderStr;
+}
+
+GLuint Utils::prepareShader(int shaderTYPE, const char *shaderPath, int workgroupSize)
 {
 	GLint shaderCompiled;
 	string shaderStr = readShaderFile(shaderPath);
+	if (workgroupSize > 0) shaderStr = checkWorkgroupChange(shaderStr, workgroupSize);
 	const char *shaderSrc = shaderStr.c_str();
 	GLuint shaderRef = glCreateShader(shaderTYPE);
 	glShaderSource(shaderRef, 1, &shaderSrc, NULL);
@@ -140,8 +154,8 @@ int Utils::finalizeShaderProgram(GLuint sprogram)
 	return sprogram;
 }
 
-GLuint Utils::createShaderProgram(const char *cs) {
-	GLuint computeShader = prepareShader(GL_COMPUTE_SHADER, cs);
+GLuint Utils::createShaderProgram(const char *cs, int workgroupSize) {
+	GLuint computeShader = prepareShader(GL_COMPUTE_SHADER, cs, workgroupSize);
 	GLuint csProgram = glCreateProgram();
 	glAttachShader(csProgram, computeShader);
 	finalizeShaderProgram(csProgram);
