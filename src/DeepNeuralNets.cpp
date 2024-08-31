@@ -2,7 +2,11 @@
 #include "Utils.h"
 
 // Compute shader variables
-GLuint DeepNeuralNets::neuralNetComputeShader;
+GLuint 
+    DeepNeuralNets::Layer1ComputeShader, 
+    DeepNeuralNets::Layer2ComputeShader, 
+    DeepNeuralNets::Layer3ComputeShader, 
+    DeepNeuralNets::OutputComputeShader;
 GLuint DeepNeuralNets::evolutionComputeShader;
 GLuint DeepNeuralNets::nnCBOs[NUM_NN_CBS];
 
@@ -37,6 +41,9 @@ float DeepNeuralNets::genLeadersFitness[NUM_GENERATION_LEADERS];
 
 // Private methods
 
+void DeepNeuralNets::createRandomPopulation(void) {
+
+}
 
 // Public methods
 
@@ -50,7 +57,10 @@ void DeepNeuralNets::initNeuralNets(float *carData, float *computerVisionData) {
     DeepNeuralNets::computerVisionData = computerVisionData;
 
     // Create the compute shaders
-    DeepNeuralNets::neuralNetComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl");
+    DeepNeuralNets::Layer1ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_1_NODES);
+    DeepNeuralNets::Layer2ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_2_NODES);
+    DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
+    DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
     DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
 
     // Create the neural net compute buffer objects

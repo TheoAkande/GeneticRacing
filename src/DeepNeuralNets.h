@@ -40,7 +40,7 @@ class DeepNeuralNets
 {
     private:
         // Compute shader variables
-        static GLuint neuralNetComputeShader;
+        static GLuint Layer1ComputeShader, Layer2ComputeShader, Layer3ComputeShader, OutputComputeShader;
         static GLuint evolutionComputeShader;
         static GLuint nnCBOs[NUM_NN_CBS];
 
