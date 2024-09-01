@@ -1,15 +1,13 @@
 do
 
-computer vision:
-    - select inputs for genetic algorithm
-    - calculate vision points 
+import modes
 
-create genetic algorithm :)
-train genetic algorithm :)
 succeed in life :)
 
 
 doing
+
+train genetic algorithm :)
 
 
 done
@@ -26,3 +24,9 @@ lap timing:
     - possibly add start/finish line to track file
     - do not allow to pass back over finish line
     - count frames rather than time when deterministic
+
+computer vision:
+    - select inputs for genetic algorithm
+    - calculate vision points 
+
+create genetic algorithm :)
