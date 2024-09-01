@@ -112,7 +112,7 @@ GLuint Utils::prepareShader(int shaderTYPE, const char *shaderPath, int workgrou
 	GLuint shaderRef = glCreateShader(shaderTYPE);
 	glShaderSource(shaderRef, 1, &shaderSrc, NULL);
 	glCompileShader(shaderRef);
-	checkOpenGLError();
+	if (checkOpenGLError()) printShaderLog(shaderRef);
 	glGetShaderiv(shaderRef, GL_COMPILE_STATUS, &shaderCompiled);
 	if (shaderCompiled != 1)
 	{
