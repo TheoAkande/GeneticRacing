@@ -120,12 +120,15 @@ bool intersect(Line l1, Line l2) {
     return false;
 }
 
-void doCollision(uint in1Index) {
+void doCollision(uint in1Index, uint fitnessIndex) {
     carData[in1Index] = startPoint.x;
     carData[in1Index + 1] = startPoint.y;
     carData[in1Index + 2] = startAngle;
     carData[in1Index + 3] = 0.0;
     carData[in1Index + 4] = 0.0;
+
+    // reduce num laps by 2
+    carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] - 2;
 }
 
 void calculateFitness(uint fitnessIndex) {
@@ -194,7 +197,7 @@ void main()
         if (newL > maxL) {
             carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] + 1;
         } else if (newL < maxL) {
-            doCollision(in1Index);
+            doCollision(in1Index, fitnessIndex);
         }
     }
 
@@ -202,14 +205,14 @@ void main()
         uint inIndex = i * 2;
         Line trackLine = Line(vec2(insideTrack[inIndex], insideTrack[inIndex + 1]), vec2(insideTrack[(inIndex + 2) % (numInsideTrackPoints * 2)], insideTrack[(inIndex + 3) % (numInsideTrackPoints * 2)]));
         if (intersect(carLine, trackLine)) {
-            doCollision(in1Index);
+            doCollision(in1Index, fitnessIndex);
         }
     }
     for (uint i = 0; i < numOutsideTrackPoints; i++) {
         uint inIndex = i * 2;
         Line trackLine = Line(vec2(outsideTrack[inIndex], outsideTrack[inIndex + 1]), vec2(outsideTrack[(inIndex + 2) % (numOutsideTrackPoints * 2)], outsideTrack[(inIndex + 3) % (numOutsideTrackPoints * 2)]));
         if (intersect(carLine, trackLine)) {
-            doCollision(in1Index);
+            doCollision(in1Index, fitnessIndex);
         }
     }
 
