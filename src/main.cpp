@@ -132,8 +132,14 @@ Car cars[numCars];
 // }
 
 void renderComputerVision(void) {
+    // Get computer vision distances
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]); // computerVisionDistances
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0]);
+
+    // Get car data
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[0]); // carPos
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFloats, &carPos[0]);
+
 
     glUseProgram(computerVisionRenderingProgram);
 
@@ -143,6 +149,7 @@ void renderComputerVision(void) {
         for (int j = 0; j < numComputerVisionAngles; j++) {
             float x = carPos[i * numCarFloats];
             float y = carPos[i * numCarFloats + 1];
+
             float angle = carPos[i * numCarFloats + 2] + computerVisionAngles[j];
             float distance = computerVisionDistances[i * numComputerVisionAngles + j];
             x += distance * cos(angle);
@@ -474,6 +481,8 @@ void display(GLFWwindow *window) {
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    renderComputerVision();
 
     if (showTrack) {
         glUseProgram(trackRenderingProgram);
@@ -534,7 +543,6 @@ void display(GLFWwindow *window) {
     glDrawArrays(GL_POINTS, 0, numCars);
 
     // Computer Vision
-    renderComputerVision();
 }
 
 void setInput(int offset, float value) {
@@ -573,6 +581,8 @@ void visualiseSimulation(GLFWwindow *window) {
             setInput(i, 0.0f);
         }
     }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numInputs * numCars, &inputs[0], GL_DYNAMIC_DRAW);
 
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !cHeld) {
         cycleTracks(false);
@@ -613,6 +623,13 @@ void setupSimulation(bool visual) {
     }
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numInputs * numCars, &inputs[0], GL_DYNAMIC_DRAW);
+
+    // Initial cv distances
+    for (int i = 0; i < numCars * numComputerVisionAngles; i++) {
+        computerVisionDistances[i] = 0.0f;
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0], GL_DYNAMIC_DRAW);
 
     if (visual) {
         setupScene();
@@ -677,6 +694,7 @@ int main(void) {
     }
     glfwSwapInterval(1);
     init();
+    setupSimulation(true);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
