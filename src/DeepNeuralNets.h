@@ -62,10 +62,10 @@ class DeepNeuralNets
         static GLuint inputs;
 
         // Neural network weights
-        static float layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
-        static float layer2Weights[(NUM_HIDDEN_LAYER_1_NODES * NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_NEURAL_NETS];
-        static float layer3Weights[(NUM_HIDDEN_LAYER_2_NODES * NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_NEURAL_NETS];
-        static float outputWeights[(NUM_HIDDEN_LAYER_3_NODES * NUM_OUTPUTS + 1) * NUM_NEURAL_NETS];
+        static float layer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS];
+        static float layer2Weights[(NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS];
+        static float layer3Weights[(NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS];
+        static float outputWeights[(NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * NUM_NEURAL_NETS];
 
         // Neural network outputs
         static float layer1Outputs[NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS];
@@ -75,13 +75,13 @@ class DeepNeuralNets
 
         // Neural network fitness
         static GLuint fitnessSSBO;
-        static float fitness[NUM_NEURAL_NETS];
+        static float fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
 
         // Generation leaders
-        static float genLeadersLayer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_GENERATION_LEADERS];
-        static float genLeadersLayer2Weights[(NUM_HIDDEN_LAYER_1_NODES * NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_GENERATION_LEADERS];
-        static float genLeadersLayer3Weights[(NUM_HIDDEN_LAYER_2_NODES * NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_GENERATION_LEADERS];
-        static float genLeadersOutputWeights[(NUM_HIDDEN_LAYER_3_NODES * NUM_OUTPUTS + 1) * NUM_GENERATION_LEADERS];
+        static float genLeadersLayer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_GENERATION_LEADERS];
+        static float genLeadersLayer2Weights[(NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES * NUM_GENERATION_LEADERS];
+        static float genLeadersLayer3Weights[(NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES * NUM_GENERATION_LEADERS];
+        static float genLeadersOutputWeights[(NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * NUM_GENERATION_LEADERS];
         static float genLeadersFitness[NUM_GENERATION_LEADERS];
 
         // Setup
