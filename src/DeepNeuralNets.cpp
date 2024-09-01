@@ -150,12 +150,11 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
 
     // Create the compute shaders
     DeepNeuralNets::Layer1ComputeShader = Utils::createShaderProgram("shaders/neuralNet/layer1CS.glsl", NUM_HIDDEN_LAYER_1_NODES);
-    /*
     DeepNeuralNets::Layer2ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_2_NODES);
     DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
     DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
-    DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
-    */
+    // DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
+    
     DeepNeuralNets::randomPopulationComputeShader = Utils::createShaderProgram("shaders/neuralNet/randomPopulationCompute.glsl");
 
     
@@ -175,8 +174,8 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[7]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[8]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_OUTPUTS * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[8]); // Maybe unnecessary due to inputs
+    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_OUTPUTS * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
 
     DeepNeuralNets::createRandomPopulation();
 }
@@ -204,17 +203,52 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DeepNeuralNets::nnCBOs[5]); // layer1Outputs
 
     glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-    // check output
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[5]);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS, DeepNeuralNets::layer1Outputs);
-    for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        cout << "Neural Net " << i << endl;
-        for (int j = 0; j < NUM_HIDDEN_LAYER_1_NODES; j++) {
-            cout << DeepNeuralNets::layer1Outputs[i * NUM_HIDDEN_LAYER_1_NODES + j] << " ";
-        }
-        cout << endl;
-    }
+    // Calculate layer 2
+    glUseProgram(DeepNeuralNets::Layer2ComputeShader);
+
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "numInputs");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_1_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "numOutputs");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[5]); // layer1Outputs
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[2]); // layer2Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DeepNeuralNets::nnCBOs[6]); // layer2Outputs
+
+    glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // Calculate layer 3
+    glUseProgram(DeepNeuralNets::Layer3ComputeShader);
+
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer3ComputeShader, "numInputs");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer3ComputeShader, "numOutputs");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[6]); // layer2Outputs
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[3]); // layer3Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DeepNeuralNets::nnCBOs[7]); // layer3Outputs
+
+    glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // Calculate output
+    glUseProgram(DeepNeuralNets::OutputComputeShader);
+
+    uLoc = glGetUniformLocation(DeepNeuralNets::OutputComputeShader, "numInputs");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::OutputComputeShader, "numOutputs");
+    glUniform1i(uLoc, NUM_OUTPUTS);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[7]); // layer3Outputs
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[4]); // outputWeights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DeepNeuralNets::inputs);    // car inputs
+
+    glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
 void DeepNeuralNets::evolveNeuralNets(void) {
