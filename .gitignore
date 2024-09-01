@@ -32,3 +32,6 @@
 .vs/*
 .vscode/*
 out/*
+
+# Models
+*epoch*.txt
