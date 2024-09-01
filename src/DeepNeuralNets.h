@@ -31,7 +31,7 @@ using namespace std;
 
 #define NUM_GENERATION_LEADERS 10
 
-#define NUM_NN_CBS 13
+#define NUM_NN_CBS 9
 /*
     0: seeds
     1: layer1Weights
@@ -42,10 +42,6 @@ using namespace std;
     6: layer2Outputs
     7: layer3Outputs
     8: outputOutputs
-    9: fitness
-    10: carData
-    11: computerVisionData
-    12: startLine
 */
 
 class DeepNeuralNets
@@ -61,9 +57,9 @@ class DeepNeuralNets
         static float seeds[NUM_NEURAL_NETS];
 
         // Network inputs
-        static float *carData;
-        static float *computerVisionData;
-        static float *startLine;
+        static GLuint carData;
+        static GLuint computerVisionData;
+        static GLuint startLine;
 
         // Neural network weights
         static float layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
@@ -78,6 +74,7 @@ class DeepNeuralNets
         static float outputOutputs[NUM_OUTPUTS * NUM_NEURAL_NETS];
 
         // Neural network fitness
+        static GLuint fitnessSSBO;
         static float fitness[NUM_NEURAL_NETS];
 
         // Generation leaders
@@ -101,7 +98,7 @@ class DeepNeuralNets
     public:
         DeepNeuralNets();
 
-        static void initNeuralNets(float *carData, float *computerVisionData, float *startLine); // pointers to buffers that will be used as inputs
+        static void initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint startLine, GLuint fitness); // pointers to SSBOs
         static float *invokeNeuralNets(void); // return pointer to outputOutputs
         static void setFitness(float *fitnessData); // inform neural nets of their fitness
         static void evolveNeuralNets(void); // evolve neural nets
