@@ -452,8 +452,6 @@ void display(GLFWwindow *window) {
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
     glDrawArrays(GL_POINTS, 0, numCars);
-
-    // Computer Vision
 }
 
 void setInput(int offset, float value) {
