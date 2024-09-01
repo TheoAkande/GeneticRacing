@@ -72,7 +72,7 @@
 #define MAX_SSBO_SIZE 1073741824
 #define MAX_SSBO 16
 
-#define TRAINING false
+#define TRAINING true
 
 #define basePath "../../../"
 
