@@ -59,7 +59,7 @@ class DeepNeuralNets
         // Network inputs
         static GLuint carData;
         static GLuint computerVisionData;
-        static GLuint startLine;
+        static GLuint inputs;
 
         // Neural network weights
         static float layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
@@ -98,9 +98,8 @@ class DeepNeuralNets
     public:
         DeepNeuralNets();
 
-        static void initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint startLine, GLuint fitness); // pointers to SSBOs
-        static float *invokeNeuralNets(void); // return pointer to outputOutputs
-        static void setFitness(float *fitnessData); // inform neural nets of their fitness
+        static void initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness); // pointers to SSBOs
+        static void invokeNeuralNets(glm::vec4 startLine);
         static void evolveNeuralNets(void); // evolve neural nets
 
         // Persistence

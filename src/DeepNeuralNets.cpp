@@ -17,7 +17,7 @@ float DeepNeuralNets::seeds[NUM_NEURAL_NETS];
 // Network inputs
 GLuint DeepNeuralNets::carData;
 GLuint DeepNeuralNets::computerVisionData;
-GLuint DeepNeuralNets::startLine;
+GLuint DeepNeuralNets::inputs;
 
 // Neural network weights
 float DeepNeuralNets::layer1Weights[(NUM_INPUTS * NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_NEURAL_NETS];
@@ -141,11 +141,11 @@ DeepNeuralNets::DeepNeuralNets() {
     // Empty constructor
 }
 
-void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint startLine, GLuint fitness) {
+void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness) {
     // Set the pointers to the input buffers
     DeepNeuralNets::carData = carData;
     DeepNeuralNets::computerVisionData = computerVisionData;
-    DeepNeuralNets::startLine = startLine;
+    DeepNeuralNets::inputs = inputs;
     DeepNeuralNets::fitnessSSBO = fitness;
 
     // Create the compute shaders
