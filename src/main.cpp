@@ -276,7 +276,7 @@ void loadCars(bool training) {
     if (!training) calculateCarWheels();
 }
 
-void loadTrack(string track, bool createBuffers = true, bool training = false) {
+void loadTrack(string track, bool training = false) {
     // Load track from file
     insideTrack.clear();
     outsideTrack.clear();
@@ -539,20 +539,28 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     }
 }
 
-void setupTraining(void) {
-    setupSimulation(false);
-    DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-
-    trainNeuralNets(1000, 1000, 100);
-}
-
 void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
-    for (int i = 0; i < epochs; i++) {
+    for (int i = 1; i < epochs + 1; i++) {
         for (int j = 0; j < framesPerEpoch; j++) {
             deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
             runSimulation();
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         }
+
+        // Gather fitness scores
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
+        // Output best score
+        float bestScore = -1000000.0f;
+        float current;
+        for (int j = 0; j < numCars; j++) {
+            current =  fitness[j * numCarFitnessFloats + 5];
+            if (current > bestScore) {
+                bestScore = current;
+            }
+        }
+        cout << "Epoch " << i << " best score: " << bestScore << endl;
+
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
             DeepNeuralNets::exportBestModel("../../../src/assets/models/epoch" + to_string(i) + ".txt");
@@ -560,12 +568,21 @@ void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
     }
 }
 
+void setupTraining(void) {
+    init();
+    setupSimulation(false);
+    DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
+
+    // trainNeuralNets(60 * 20, 10, 5);
+    trainNeuralNets(1, 1, 10);
+}
+
 int main(void) {
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     if (TRAINING) {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window
@@ -580,7 +597,7 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
 
-
+        setupTraining();
 
         exit(EXIT_SUCCESS);
     }
