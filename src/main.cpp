@@ -105,32 +105,6 @@ struct Car {
 
 Car cars[numCars];
 
-// void calculateFitness(void) {
-//     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
-//     // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
-
-//     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[10]);
-//     // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * numCars, carLaps, GL_STATIC_DRAW);
-
-//     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[11]);
-//     // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, NULL, GL_STATIC_READ);
-
-//     glUseProgram(fittnessComputeShader);
-
-//     ncfLoc = glGetUniformLocation(fittnessComputeShader, "numCarFloats");
-//     glUniform1i(ncfLoc, numCarFloats);
-
-//     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[1]);
-//     // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[10]);
-//     // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[11]);
-
-//     glDispatchCompute(numCars, 1, 1);
-//     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-//     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[11]);
-//     // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars, &fitness[0]);
-// }
-
 void renderComputerVision(void) {
     // Get computer vision distances
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]); // computerVisionDistances
@@ -170,26 +144,6 @@ void renderComputerVision(void) {
 }
 
 void calculateComputerVision(void) {
-    // Car data
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
-
-    // // Inside Track
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * insideTrack.size(), insideTrack.data(), GL_STATIC_DRAW);
-
-    // // Outside Track
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[6]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
-
-    // // Computer Vision Angles
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[8]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numComputerVisionAngles, computerVisionAngles, GL_STATIC_DRAW);
-
-    // // Computer Vision Distances
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numComputerVisionAngles, NULL, GL_STATIC_READ);
-
     glUseProgram(computerVisionComputeShader);
 
     ncfLoc = glGetUniformLocation(computerVisionComputeShader, "numCarFloats");
@@ -209,36 +163,9 @@ void calculateComputerVision(void) {
 
     glDispatchCompute(numCars, numComputerVisionAngles, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[9]);
-    // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0]);
 }
 
 void calculateCarPhysics(void) {
-    // Original car data
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_STATIC_DRAW);
-
-    // // Inputs
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[3]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numInputs, &inputs[0], GL_STATIC_DRAW);
-
-    // // New car data
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, NULL, GL_STATIC_READ);
-
-    // // Inside Track
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * insideTrack.size(), insideTrack.data(), GL_STATIC_DRAW);
-
-    // // Outside Track
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[6]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
-
-    // // Car active
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[7]);
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, NULL, GL_STATIC_READ);
-
     glUseProgram(physicsComputeShader);
 
     ncfLoc = glGetUniformLocation(physicsComputeShader, "numCarFloats");
@@ -290,19 +217,6 @@ void calculateCarPhysics(void) {
 
     glDispatchCompute(numCars, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
-    // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFloats, &carPos[0]);
-
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[7]);
-    // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars, &active[0]);
-
-    // if (newDistance) {
-    //     calculateFitness();
-    //     for (int i = 0; i < numCars; i++) {
-    //         cout << "Car " << i << " fitness: " << fitness[i] << endl;
-    //     }
-    // }
 }
 
 void calculateCarWheels(void) {
@@ -470,9 +384,6 @@ void init(void) {
     computerVisionComputeShader = Utils::createShaderProgram("shaders/computerVisionCS.glsl");
     computerVisionRenderingProgram = Utils::createShaderProgram("shaders/startVert.glsl", "shaders/startFrag.glsl");
     fittnessComputeShader = Utils::createShaderProgram("shaders/fitnessCS.glsl");
-
-    // setupScene();
-    // cycleTracks(false);
 }
 
 void display(GLFWwindow *window) {
@@ -548,30 +459,6 @@ void display(GLFWwindow *window) {
 void setInput(int offset, float value) {
     inputs[offset] = value;
 }
-
-// void determineCarIntersects(void) {
-//     bool laps = false;
-//     for (int i = 0; i < numCars; i++) {
-//         carPos[i * numCarFloats + 5] = active[i];
-//         if (active[i] == 0.0f) {
-//             carLaps[i] -= 2;
-//             carPos[i * numCarFloats] = cars[i].x;
-//             carPos[i * numCarFloats + 1] = cars[i].y;
-//             carPos[i * numCarFloats + 2] = cars[i].angle;
-//             carPos[i * numCarFloats + 3] = 0.0f;
-//             carPos[i * numCarFloats + 4] = 0.0f;
-//             carPos[i * numCarFloats + 5] = 1.0f;
-//         } else if (active[i] == -1.0f) {
-//             carLaps[i]++;
-//             laps = true;
-//         }
-//     }
-//     if (laps) {
-//         for (int i = 0; i < numCars; i++) {
-//             cout << "Car " << i << " has completed " << carLaps[i] << " laps" << endl;
-//         }
-//     }
-// }
 
 void visualiseSimulation(GLFWwindow *window) {
     for (int i = 0; i < numInputs * numCars; i++) {
@@ -655,14 +542,14 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
 }
 
 int main(void) {
-    if (TRAINING) {
-        if (!glfwInit()) {
-            throw std::runtime_error("Failed to initialize GLFW");
-        }
+    if (!glfwInit()) {
+        throw std::runtime_error("Failed to initialize GLFW");
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
+    if (TRAINING) {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         GLFWwindow* window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
         if (!window) {
@@ -673,7 +560,9 @@ int main(void) {
             cout << "Not ok" << endl;
             exit(EXIT_FAILURE);
         }
-        // DeepNeuralNets::initNeuralNets(carPos, computerVisionDistances, trackStartLine);
+
+
+
         exit(EXIT_SUCCESS);
     }
 
@@ -681,12 +570,6 @@ int main(void) {
         cout << "Number of inputs does not match input array size" << endl;
         exit(EXIT_FAILURE);
     }
-
-    if (!glfwInit()) { 
-        exit(EXIT_FAILURE); 
-    }
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "GeneticRacing", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) { 
