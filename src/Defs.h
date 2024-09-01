@@ -6,12 +6,49 @@
 
 // OpenGL definitions
 #define numVBOs 6
+/*
+    0: insideTrack
+    1: outsideTrack
+    2: carPoints
+    3: driverColours
+    4: startLine
+    5: computerVisionPoints
+*/
 #define numVAOs 1
-#define numCBs 12
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars 1000
-#define numCarFloats 9
+#define numCars 2
+#define numCarFloats 5
+/*
+    0: x
+    1: y
+    2: angle
+    3: speed
+    4: acceleration
+*/
+#define numCarFitnessFloats 6
+/*
+    0: x _interval_ ago
+    1: y _interval_ ago
+    2: distance travelled
+    3: total speed
+    4: laps
+    5: fitness
+*/
+#define numCBs 7
+/*
+    0: carPos
+    1: carFitness
+    2: inputs
+    3: insideTrack
+    4: outsideTrack
+    5: computerVisionDistances
+    6: computerVisionAngles
+*/
+#define numVCBs 1
+/*
+    0: carWheelPoints
+*/
 
 // Car definitions
 #define carWidth 0.02f
@@ -35,7 +72,7 @@
 #define MAX_SSBO_SIZE 1073741824
 #define MAX_SSBO 16
 
-#define TRAINING true
+#define TRAINING false
 
 #define basePath "../../../"
 
