@@ -542,9 +542,11 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
 void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
+
+    trainNeuralNets(1000, 1000, 100);
 }
 
-void runNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
+void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
     for (int i = 0; i < epochs; i++) {
         for (int j = 0; j < framesPerEpoch; j++) {
             deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
