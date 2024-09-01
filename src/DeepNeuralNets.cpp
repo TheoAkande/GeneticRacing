@@ -168,16 +168,22 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
         DeepNeuralNets::seeds[i] = (float)rand();
     }
 
+    // Setup nnCBO[5-8] for the outputs
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[5]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[6]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[7]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[8]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_OUTPUTS * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
+
     DeepNeuralNets::createRandomPopulation();
 }
 
 void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     // Calculate layer 1
     glUseProgram(DeepNeuralNets::Layer1ComputeShader);
-
-    // Setup nnCBO[5]
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[5]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
 
     GLuint uLoc = glGetUniformLocation(DeepNeuralNets::Layer1ComputeShader, "numInputs");
     glUniform1i(uLoc, NUM_INPUTS);
