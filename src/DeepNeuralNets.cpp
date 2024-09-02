@@ -1,6 +1,9 @@
 #include "DeepNeuralNets.h"
 #include "Utils.h"
 
+// General
+int DeepNeuralNets::epoch = 0;
+
 // Compute shader variables
 GLuint 
     DeepNeuralNets::Layer1ComputeShader, 
@@ -34,6 +37,7 @@ float DeepNeuralNets::outputOutputs[NUM_OUTPUTS * NUM_NEURAL_NETS];
 // Neural network fitness
 GLuint DeepNeuralNets::fitnessSSBO;
 float DeepNeuralNets::fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
+int DeepNeuralNets::topIndices[NUM_GENERATION_LEADERS];
 
 // Generation leaders
 float DeepNeuralNets::genLeadersLayer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_GENERATION_LEADERS];
@@ -87,6 +91,31 @@ void DeepNeuralNets::createRandomPopulation(void) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
+    // Gather fitness data
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::fitnessSSBO);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * NUM_NEURAL_NETS * numCarFitnessFloats, DeepNeuralNets::fitness);
+
+    // Calculate the top fitness scores and indices
+    float topFitness[NUM_GENERATION_LEADERS];
+    DeepNeuralNets::topIndices[NUM_GENERATION_LEADERS];
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        topFitness[i] = -1000000.0f;
+        topIndices[i] = 0;
+    }
+
+    // Not so efficient - improve later
+    for (int i = 0; i < NUM_NEURAL_NETS; i++) {
+        for (int j = 0; j < NUM_GENERATION_LEADERS; j++) {
+            if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] > topFitness[j]) {
+                topFitness[j] = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
+                topIndices[j] = i;
+                break;
+            }
+        }
+    }
+}
+
 void DeepNeuralNets::exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights) {
     cout << "Exporting model to " << filename << endl;
     
@@ -135,6 +164,16 @@ void DeepNeuralNets::exportPopulationModel(string filename, int index) {
     DeepNeuralNets::exportModel(filename, layer1WeightAddress, layer2WeightAddress, layer3WeightAddress, outputWeightAddress);
 }
 
+void DeepNeuralNets::exportTopModel(string filename, int index) {
+    DeepNeuralNets::exportModel(
+        filename, 
+        &DeepNeuralNets::genLeadersLayer1Weights[index * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES], 
+        &DeepNeuralNets::genLeadersLayer2Weights[index * (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES], 
+        &DeepNeuralNets::genLeadersLayer3Weights[index * (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES], 
+        &DeepNeuralNets::genLeadersOutputWeights[index * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS]
+    );
+}
+
 // Public methods
 
 DeepNeuralNets::DeepNeuralNets() {
@@ -174,8 +213,6 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[7]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[8]); // Maybe unnecessary due to inputs
-    // glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_OUTPUTS * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
 
     DeepNeuralNets::createRandomPopulation();
 }
@@ -251,28 +288,52 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+void DeepNeuralNets::gatherGenerationLeaders(void) {
+    // Calculate the top fitness scores and indices
+    DeepNeuralNets::calculateGenerationLeaderIndices();
+
+    // Gather the weights of the top models into the generation leaders
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[1]);
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, topIndices[i] * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * sizeof(float), (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * sizeof(float), &DeepNeuralNets::genLeadersLayer1Weights[i * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES]);
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[2]);
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, topIndices[i] * (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES * sizeof(float), (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES * sizeof(float), &DeepNeuralNets::genLeadersLayer2Weights[i * (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES]);
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[3]);
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, topIndices[i] * (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES * sizeof(float), (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES * sizeof(float), &DeepNeuralNets::genLeadersLayer3Weights[i * (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES]);
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[4]);
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, topIndices[i] * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * sizeof(float), (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * sizeof(float), &DeepNeuralNets::genLeadersOutputWeights[i * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS]);
+    }
+}
+
 void DeepNeuralNets::evolveNeuralNets(void) {
-    // For now we just generate a new random population
+    DeepNeuralNets::epoch++;
     DeepNeuralNets::createRandomPopulation();
 }
 
-void DeepNeuralNets::exportBestModel(string filename) {
-    // For now we aren't worrying about evolution
+void DeepNeuralNets::exportBestModel(void) {
+    DeepNeuralNets::gatherGenerationLeaders();
+    string leaderFilename = 
+        "../../../src/assets/models/epoch" + 
+        to_string(DeepNeuralNets::epoch) + "_" + 
+        "best.txt";
+    DeepNeuralNets::exportTopModel(leaderFilename, 0);
+}
 
-    // Gather the fitness scores
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::fitnessSSBO);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * NUM_NEURAL_NETS * numCarFitnessFloats, DeepNeuralNets::fitness);
-
-    // Find the best model
-    int bestIndex = 0;
-    float bestFitness = -1000000.0f;
-    for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        if (DeepNeuralNets::fitness[i] > bestFitness) {
-            bestFitness = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
-            bestIndex = i;
-        }
+void DeepNeuralNets::exportGenerationLeaders(void) {
+    DeepNeuralNets::gatherGenerationLeaders();
+    // Export the generation leaders
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        string leaderFilename = 
+            "../../../src/assets/models/epoch" + 
+            to_string(DeepNeuralNets::epoch) + "_" + 
+            "top_" +
+            to_string(i + 1) + ".txt";
+        DeepNeuralNets::exportTopModel(leaderFilename, i);
     }
-
-    // Export the best model
-    DeepNeuralNets::exportPopulationModel(filename, bestIndex);
 }

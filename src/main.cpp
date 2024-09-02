@@ -563,7 +563,8 @@ void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
 
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
-            DeepNeuralNets::exportBestModel("../../../src/assets/models/epoch" + to_string(i) + ".txt");
+            DeepNeuralNets::exportBestModel();
+            DeepNeuralNets::exportGenerationLeaders();
         }
 
         cycleTracks(true);
@@ -575,7 +576,7 @@ void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
 
-    trainNeuralNets(60 * 50, 10, 10);
+    trainNeuralNets(60 * 5, 10, 10);
 }
 
 int main(void) {

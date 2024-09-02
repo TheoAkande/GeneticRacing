@@ -29,9 +29,9 @@ using namespace std;
 #define NUM_HIDDEN_LAYER_2_NODES 16
 #define NUM_HIDDEN_LAYER_3_NODES 8
 
-#define NUM_GENERATION_LEADERS 10
+#define NUM_GENERATION_LEADERS 3
 
-#define NUM_NN_CBS 9
+#define NUM_NN_CBS 8
 /*
     0: seeds
     1: layer1Weights
@@ -41,12 +41,14 @@ using namespace std;
     5: layer1Outputs
     6: layer2Outputs
     7: layer3Outputs
-    8: outputOutputs
 */
 
 class DeepNeuralNets
 {
     private:
+        // General
+        static int epoch;
+
         // Compute shader variables
         static GLuint Layer1ComputeShader, Layer2ComputeShader, Layer3ComputeShader, OutputComputeShader;
         static GLuint evolutionComputeShader;
@@ -76,6 +78,7 @@ class DeepNeuralNets
         // Neural network fitness
         static GLuint fitnessSSBO;
         static float fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
+        static int topIndices[NUM_GENERATION_LEADERS];
 
         // Generation leaders
         static float genLeadersLayer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_GENERATION_LEADERS];
@@ -88,7 +91,7 @@ class DeepNeuralNets
         static void createRandomPopulation(void);
 
         // Evolution
-        static void gatherGenerationLeaders(void);
+        static void calculateGenerationLeaderIndices(void);
         static void evolveGenerationLeaders(void);
 
         // Eport utility
@@ -100,10 +103,12 @@ class DeepNeuralNets
 
         static void initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness); // pointers to SSBOs
         static void invokeNeuralNets(glm::vec4 startLine);
+        static void gatherGenerationLeaders(void);
         static void evolveNeuralNets(void); // evolve neural nets
 
         // Persistence
-        static void exportBestModel(string filename);
+        static void exportBestModel(void);
+        static void exportGenerationLeaders(void);
         static void importModel(string filename, int index);
 };
 
