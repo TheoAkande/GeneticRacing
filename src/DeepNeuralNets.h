@@ -33,6 +33,8 @@ using namespace std;
 #define NUM_GENERATION_LEADERS 3
 #define NUM_WHEEL_CHOICES 7
 
+#define LEARNING_RATE 0.5f
+
 #define NUM_NN_CBS 8
 /*
     0: seeds
