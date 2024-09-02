@@ -33,32 +33,32 @@ void main()
     float seed = seeds[index];
 
     // Generate random weights for the first hidden layer
-    uint layerOffsetIndex = index * (numInputs * numHiddenLayer1Nodes + 1);
-    for (int i = 0; i < numInputs * numHiddenLayer1Nodes + 1; i++) {
+    uint layerOffsetIndex = index * (numInputs + 1) * numHiddenLayer1Nodes;
+    for (int i = 0; i < (numInputs + 1) * numHiddenLayer1Nodes; i++) {
         vec2 randomValue = randomFloatInRange(seed);
         layer1Weights[layerOffsetIndex + i] = randomValue.x;
         seed = randomValue.y;
     }
 
     // Generate random weights for the second hidden layer
-    layerOffsetIndex = index * (numHiddenLayer1Nodes * numHiddenLayer2Nodes + 1);
-    for (int i = 0; i < numHiddenLayer1Nodes * numHiddenLayer2Nodes + 1; i++) {
+    layerOffsetIndex = index * (numHiddenLayer1Nodes + 1) * numHiddenLayer2Nodes;
+    for (int i = 0; i < (numHiddenLayer1Nodes + 1) * numHiddenLayer2Nodes; i++) {
         vec2 randomValue = randomFloatInRange(seed);
         layer2Weights[layerOffsetIndex + i] = randomValue.x;
         seed = randomValue.y;
     }
 
     // Generate random weights for the third hidden layer
-    layerOffsetIndex = index * (numHiddenLayer2Nodes * numHiddenLayer3Nodes + 1);
-    for (int i = 0; i < numHiddenLayer2Nodes * numHiddenLayer3Nodes + 1; i++) {
+    layerOffsetIndex = index * (numHiddenLayer2Nodes + 1) * numHiddenLayer3Nodes;
+    for (int i = 0; i < (numHiddenLayer2Nodes + 1) * numHiddenLayer3Nodes; i++) {
         vec2 randomValue = randomFloatInRange(seed);
         layer3Weights[layerOffsetIndex + i] = randomValue.x;
         seed = randomValue.y;
     }
 
     // Generate random weights for the output layer
-    layerOffsetIndex = index * (numHiddenLayer3Nodes * numOutputs + 1);
-    for (int i = 0; i < numHiddenLayer3Nodes * numOutputs + 1; i++) {
+    layerOffsetIndex = index * (numHiddenLayer3Nodes + 1) * numOutputs;
+    for (int i = 0; i < (numHiddenLayer3Nodes + 1) * numOutputs; i++) {
         vec2 randomValue = randomFloatInRange(seed);
         outputLayerWeights[layerOffsetIndex + i] = randomValue.x;
         seed = randomValue.y;
