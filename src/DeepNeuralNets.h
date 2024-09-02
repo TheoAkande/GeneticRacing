@@ -19,7 +19,7 @@ using namespace std;
 #ifndef DEEPNEURALNETS_H
 #define DEEPNEURALNETS_H
 
-#define NUM_NEURAL_NETS numCars
+#define NUM_NEURAL_NETS (numCars - numDrivers)
 
 // Currently not an RNN -> if rnn then add numInputs to NUM_INPUTS
 #define NUM_INPUTS (numComputerVisionAngles + numCarFloats + 4) // 4 for start line

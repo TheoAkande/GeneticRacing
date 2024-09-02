@@ -8,6 +8,7 @@ layout(binding = 2) buffer buffer3 { float outputs[]; };
 
 uniform int numOutputs;
 uniform int numInputs;
+uniform int offset;
 
 float sigmoid(float x) {
     return 1.0 / (1.0 + exp(-x));
@@ -15,7 +16,7 @@ float sigmoid(float x) {
 
 void main()
 {
-    uint network = gl_WorkGroupID.x;
+    uint network = gl_WorkGroupID.x + offset;
     uint outNode = gl_LocalInvocationID.x;
 
     uint inputOffset = network * numInputs;

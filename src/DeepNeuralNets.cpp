@@ -253,6 +253,8 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glUniform1i(uLoc, numCarFloats);
     uLoc = glGetUniformLocation(DeepNeuralNets::Layer1ComputeShader, "numVisionFloats");
     glUniform1i(uLoc, numComputerVisionAngles);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer1ComputeShader, "numDrivers");
+    glUniform1i(uLoc, numDrivers);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::carData);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::computerVisionData);
@@ -269,6 +271,8 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glUniform1i(uLoc, NUM_HIDDEN_LAYER_1_NODES);
     uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "numOutputs");
     glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "offset");
+    glUniform1i(uLoc, 0);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[5]); // layer1Outputs
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[2]); // layer2Weights
@@ -284,6 +288,8 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
     uLoc = glGetUniformLocation(DeepNeuralNets::Layer3ComputeShader, "numOutputs");
     glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "offset");
+    glUniform1i(uLoc, 0);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[6]); // layer2Outputs
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[3]); // layer3Weights
@@ -299,6 +305,8 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
     uLoc = glGetUniformLocation(DeepNeuralNets::OutputComputeShader, "numOutputs");
     glUniform1i(uLoc, NUM_OUTPUTS);
+    uLoc = glGetUniformLocation(DeepNeuralNets::Layer2ComputeShader, "offset");
+    glUniform1i(uLoc, numDrivers);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[7]); // layer3Outputs
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[4]); // outputWeights

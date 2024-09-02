@@ -18,6 +18,7 @@
 #define windowWidth 2000
 #define windowHeight 1500
 #define numCars 100
+#define numDrivers 0
 #define numCarFloats 5
 /*
     0: x
