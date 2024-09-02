@@ -564,7 +564,7 @@ void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
             DeepNeuralNets::exportBestModel();
-            DeepNeuralNets::exportGenerationLeaders();
+            // DeepNeuralNets::exportGenerationLeaders();
         }
 
         for (int i = 0; i < 13; i++) {
@@ -578,7 +578,7 @@ void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
 
-    trainNeuralNets(60 * 15, 10, 10);
+    trainNeuralNets(60 * 30, 30, 10);
 }
 
 int main(void) {
