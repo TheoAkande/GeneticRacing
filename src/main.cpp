@@ -71,7 +71,8 @@ int carInputs[] = {
 
 float carColours[] = {
     0.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 0.0f, 1.0f
+    1.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f
 };
 
 double deltaTime = 0.0l;
@@ -458,8 +459,8 @@ void setInput(int offset, float value) {
     inputs[offset] = value;
 }
 
-void visualiseSimulation(GLFWwindow *window) {
-    for (int i = 0; i < numInputs * numCars; i++) {
+void getPlayerInputs(GLFWwindow *window) {
+    for (int i = 0; i < numInputs * numDrivers; i++) {
         if (glfwGetKey(window, carInputs[i]) == GLFW_PRESS) {
             setInput(i, 1.0f);
         } else {
@@ -468,7 +469,9 @@ void visualiseSimulation(GLFWwindow *window) {
     }
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[2]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numInputs * numCars, &inputs[0], GL_DYNAMIC_DRAW);
+}
 
+void visualiseSimulation(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !cHeld) {
         cycleTracks(false);
         cHeld = true;
@@ -535,6 +538,8 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
 
     runSimulation();
     if (!training) {
+        getPlayerInputs(window);
+        DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         visualiseSimulation(window);
     }
 }
@@ -606,10 +611,10 @@ int main(void) {
         exit(EXIT_SUCCESS);
     }
 
-    if (numInputs * numCars != sizeof(carInputs) / sizeof(int)) {
-        cout << "Number of inputs does not match input array size" << endl;
-        exit(EXIT_FAILURE);
-    }
+    // if (numInputs * numCars != sizeof(carInputs) / sizeof(int)) {
+    //     cout << "Number of inputs does not match input array size" << endl;
+    //     exit(EXIT_FAILURE);
+    // }
     GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "GeneticRacing", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) { 
@@ -618,6 +623,8 @@ int main(void) {
     glfwSwapInterval(1);
     init();
     setupSimulation(true);
+    DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
+    DeepNeuralNets::importModel("assets/models/epoch30_best.txt", 0);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
