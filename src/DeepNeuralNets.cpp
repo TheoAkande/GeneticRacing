@@ -412,3 +412,40 @@ void DeepNeuralNets::exportGenerationLeaders(void) {
         DeepNeuralNets::exportTopModel(leaderFilename, i);
     }
 }
+
+void DeepNeuralNets::importModel(string filename, int index) {
+    // Import the model
+    ifstream file;
+    file.open(filename);
+
+    if (!file.is_open()) {
+        cout << "Error opening file" << endl;
+        return;
+    }
+
+    // Read the weights
+    for (int i = 0; i < (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES; i++) {
+        file >> DeepNeuralNets::layer1Weights[index * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES + i];
+    }
+    for (int i = 0; i < (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES; i++) {
+        file >> DeepNeuralNets::layer2Weights[index * (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES + i];
+    }
+    for (int i = 0; i < (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES; i++) {
+        file >> DeepNeuralNets::layer3Weights[index * (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES + i];
+    }
+    for (int i = 0; i < (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS; i++) {
+        file >> DeepNeuralNets::outputWeights[index * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS + i];
+    }
+
+    file.close();
+
+    // Update the weights
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS, DeepNeuralNets::layer1Weights, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[2]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_1_NODES + 1) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS, DeepNeuralNets::layer2Weights, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[3]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_2_NODES + 1) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, DeepNeuralNets::layer3Weights, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[4]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * NUM_NEURAL_NETS, DeepNeuralNets::outputWeights, GL_DYNAMIC_DRAW);
+}
