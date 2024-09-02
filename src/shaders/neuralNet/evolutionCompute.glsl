@@ -8,9 +8,9 @@ layout (binding = 2) buffer outputBuffer2 {float layer2Weights[]; };
 layout (binding = 3) buffer outputBuffer3 {float layer3Weights[]; };
 layout (binding = 4) buffer outputBuffer4 {float outputLayerWeights[]; };
 
-uniform int topIndices[3];
+uniform int topIndices[7];
 uniform int numLeaders;
-uniform int wheelChoices[7];
+uniform int wheelChoices[3];
 uniform int numWheelChoices;
 
 uniform int numInputs;
@@ -39,16 +39,27 @@ void main()
     float seed = seeds[index];
 
     uint leaderIndexIndex = index % (numLeaders + numWheelChoices);
-    bool wheelChoicesTrue = leaderIndexIndex >= numLeaders;
 
     int leaderIndex;
-    if (!wheelChoicesTrue) {
+    if (leaderIndexIndex < numLeaders) {
         leaderIndex = topIndices[leaderIndexIndex];
     } else {
         leaderIndex = wheelChoices[leaderIndexIndex - numLeaders];
     }
 
-    if (index == leaderIndex) {
+    bool cont = true;
+    for (int i = 0; i < numLeaders; i++) {
+        if (topIndices[i] == int(index)) {
+            cont = false;
+        }
+    }
+    for (int i = 0; i < numWheelChoices; i++) {
+        if (wheelChoices[i] == int(index)) {
+            cont = false;
+        }
+    }
+
+    if (!cont) {
         return;
     } else {
 
