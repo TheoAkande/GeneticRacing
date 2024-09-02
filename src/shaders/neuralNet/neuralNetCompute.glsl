@@ -16,12 +16,12 @@ float sigmoid(float x) {
 
 void main()
 {
-    uint network = gl_WorkGroupID.x + offset;
+    uint network = gl_WorkGroupID.x;
     uint outNode = gl_LocalInvocationID.x;
 
     uint inputOffset = network * numInputs;
     uint weightsOffset = network * (numInputs + 1) * numOutputs + outNode * (numInputs + 1);
-    uint outputOffset = network * numOutputs + outNode;
+    uint outputOffset = (network + offset) * numOutputs + outNode;
 
     // Calculate the weighted sum of the inputs to the hidden layer
     float weightedSum = 0.0;
