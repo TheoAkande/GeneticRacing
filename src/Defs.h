@@ -17,8 +17,8 @@
 #define numVAOs 1
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars 100
-#define numDrivers 0
+#define numCars 3
+#define numDrivers 2
 #define numCarFloats 5
 /*
     0: x
@@ -73,7 +73,7 @@
 #define MAX_SSBO_SIZE 1073741824
 #define MAX_SSBO 16
 
-#define TRAINING true
+#define TRAINING false
 
 #define basePath "../../../"
 
