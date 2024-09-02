@@ -3,9 +3,7 @@
 
 // General
 int DeepNeuralNets::epoch = 0;
-int DeepNeuralNets::lastCalculatedLeaders = 0;
-float DeepNeuralNets::totalFitness;
-int DeepNeuralNets::totalFitModels;
+int DeepNeuralNets::lastCalculatedLeaders = -1;
 
 // Compute shader variables
 GLuint 
@@ -41,6 +39,7 @@ float DeepNeuralNets::outputOutputs[NUM_OUTPUTS * NUM_NEURAL_NETS];
 GLuint DeepNeuralNets::fitnessSSBO;
 float DeepNeuralNets::fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
 int DeepNeuralNets::topIndices[NUM_GENERATION_LEADERS];
+int DeepNeuralNets::wheelChoices[NUM_WHEEL_CHOICES];
 
 // Generation leaders
 float DeepNeuralNets::genLeadersLayer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_GENERATION_LEADERS];
@@ -107,33 +106,31 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
         topIndices[i] = 0;
     }
 
-    DeepNeuralNets::totalFitness = 0.0f;
-    DeepNeuralNets::totalFitModels = 0;
-
     // Not so efficient - improve later
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] >= 0.0f) {
-            DeepNeuralNets::totalFitness += DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
-            DeepNeuralNets::totalFitModels++;
-        }
-
+        float curFitness = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
+        float curIndex = i;
         for (int j = 0; j < NUM_GENERATION_LEADERS; j++) {
-            if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] > topFitness[j]) {
-                topFitness[j] = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
-                topIndices[j] = i;
-                break;
+            if (curFitness > topFitness[j]) {
+                float temp = curFitness;
+                curFitness = topFitness[j];
+                topFitness[j] = temp;
+                int t = topIndices[j];
+                topIndices[j] = curIndex;
+                curIndex = t;
             }
         }
     }
 
-    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
-        if (topFitness[i] >= 0.0f) {
-            DeepNeuralNets::totalFitness -= topFitness[i];
-            DeepNeuralNets::totalFitModels--;
-        }
-    }
-
     DeepNeuralNets::lastCalculatedLeaders = DeepNeuralNets::epoch;
+}
+
+void DeepNeuralNets::spinWheel(void) {
+    // Calculate Wheel indices
+    int offset = NUM_NEURAL_NETS / NUM_WHEEL_CHOICES;
+    for (int i = 0; i < NUM_WHEEL_CHOICES; i++) {
+        DeepNeuralNets::wheelChoices[i] = i * offset + (rand() % offset);
+    }
 }
 
 void DeepNeuralNets::exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights) {
@@ -341,6 +338,7 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     DeepNeuralNets::spinWheel();
 
     // Evolve the generation leaders
+    /*
     glUseProgram(DeepNeuralNets::evolutionComputeShader);
 
     // Set the generation leaders
@@ -350,6 +348,7 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     glUniform1i(uLoc, NUM_GENERATION_LEADERS);
     GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numWheelChoices");
     glUniform1i(uLoc, NUM_WHEEL_CHOICES);
+    */
 
     
     DeepNeuralNets::epoch++;

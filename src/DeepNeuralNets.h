@@ -29,7 +29,7 @@ using namespace std;
 #define NUM_HIDDEN_LAYER_2_NODES 16
 #define NUM_HIDDEN_LAYER_3_NODES 8
 
-// Definitely evolve the top 3, then the rest are weighted random
+// Definitely evolve the top 3, then the rest are random
 #define NUM_GENERATION_LEADERS 3
 #define NUM_WHEEL_CHOICES 7
 
@@ -51,8 +51,6 @@ class DeepNeuralNets
         // General
         static int epoch;
         static int lastCalculatedLeaders;
-        static float totalFitness;
-        static int totalFitModels;
 
         // Compute shader variables
         static GLuint Layer1ComputeShader, Layer2ComputeShader, Layer3ComputeShader, OutputComputeShader;
