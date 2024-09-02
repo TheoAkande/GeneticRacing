@@ -5,6 +5,7 @@
 int DeepNeuralNets::epoch = 0;
 int DeepNeuralNets::lastCalculatedLeaders = 0;
 float DeepNeuralNets::totalFitness;
+int DeepNeuralNets::totalFitModels;
 
 // Compute shader variables
 GLuint 
@@ -107,11 +108,13 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
     }
 
     DeepNeuralNets::totalFitness = 0.0f;
+    DeepNeuralNets::totalFitModels = 0;
 
     // Not so efficient - improve later
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
         if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] >= 0.0f) {
             DeepNeuralNets::totalFitness += DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
+            DeepNeuralNets::totalFitModels++;
         }
 
         for (int j = 0; j < NUM_GENERATION_LEADERS; j++) {
@@ -120,6 +123,13 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
                 topIndices[j] = i;
                 break;
             }
+        }
+    }
+
+    for (int i = 0; i < NUM_GENERATION_LEADERS; i++) {
+        if (topFitness[i] >= 0.0f) {
+            DeepNeuralNets::totalFitness -= topFitness[i];
+            DeepNeuralNets::totalFitModels--;
         }
     }
 

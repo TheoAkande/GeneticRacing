@@ -52,6 +52,7 @@ class DeepNeuralNets
         static int epoch;
         static int lastCalculatedLeaders;
         static float totalFitness;
+        static int totalFitModels;
 
         // Compute shader variables
         static GLuint Layer1ComputeShader, Layer2ComputeShader, Layer3ComputeShader, OutputComputeShader;
