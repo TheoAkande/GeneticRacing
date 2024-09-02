@@ -26,8 +26,8 @@ void main()
 
     uint carDataOffset = network * numCarFloats;
     uint visionDataOffset = network * numVisionFloats;
-    uint layerWeightsOffset = network * (numInputs + 1) * numHiddenLayerNodes + outNode * (numInputs + 1);
-    uint layerOutputsOffset = network * numHiddenLayerNodes + outNode;
+    uint layerWeightsOffset = (network - numDrivers) * (numInputs + 1) * numHiddenLayerNodes + outNode * (numInputs + 1);
+    uint layerOutputsOffset = (network - numDrivers) * numHiddenLayerNodes + outNode;
 
     // Calculate the weighted sum of the inputs to the hidden layer
     float weightedSum = 0.0;
