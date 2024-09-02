@@ -209,7 +209,8 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     DeepNeuralNets::Layer2ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_2_NODES);
     DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
     DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
-    // DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
+    
+    DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
     
     DeepNeuralNets::randomPopulationComputeShader = Utils::createShaderProgram("shaders/neuralNet/randomPopulationCompute.glsl");
 
@@ -338,18 +339,45 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     DeepNeuralNets::spinWheel();
 
     // Evolve the generation leaders
-    /*
+    
     glUseProgram(DeepNeuralNets::evolutionComputeShader);
 
     // Set the generation leaders
     GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "topIndices");
     glUniform1iv(uLoc, NUM_GENERATION_LEADERS, DeepNeuralNets::topIndices);
-    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numGenerationLeaders");
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numLeaders");
     glUniform1i(uLoc, NUM_GENERATION_LEADERS);
-    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numWheelChoices");
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numWheelChoices");
     glUniform1i(uLoc, NUM_WHEEL_CHOICES);
-    */
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "wheelChoices");
+    glUniform1iv(uLoc, NUM_WHEEL_CHOICES, DeepNeuralNets::wheelChoices);
 
+    // Set the layer sizes
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numInputs");
+    glUniform1i(uLoc, NUM_INPUTS);
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numHiddenLayer1Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_1_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numHiddenLayer2Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_2_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numHiddenLayer3Nodes");
+    glUniform1i(uLoc, NUM_HIDDEN_LAYER_3_NODES);
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numOutputs");
+    glUniform1i(uLoc, NUM_OUTPUTS);
+
+    // Set the learning rate
+    uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "learningRate");
+    glUniform1f(uLoc, LEARNING_RATE);
+
+    // Set the buffers
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, DeepNeuralNets::nnCBOs[0]); // seeds
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, DeepNeuralNets::nnCBOs[1]); // layer1Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, DeepNeuralNets::nnCBOs[2]); // layer2Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, DeepNeuralNets::nnCBOs[3]); // layer3Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, DeepNeuralNets::nnCBOs[4]); // outputWeights
+
+    // Dispatch the compute shader
+    glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
     
     DeepNeuralNets::epoch++;
 }
