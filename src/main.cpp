@@ -576,7 +576,7 @@ void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
 void setupTraining(void) {
     init();
     setupSimulation(false);
-    DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
+    DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
 
     trainNeuralNets(60 * 30, 30, 10);
 }

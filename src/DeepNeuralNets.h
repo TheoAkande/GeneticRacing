@@ -107,6 +107,7 @@ class DeepNeuralNets
     public:
         DeepNeuralNets();
 
+        static void setupTraining(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness);  // init nets and create random population 
         static void initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness); // pointers to SSBOs
         static void invokeNeuralNets(glm::vec4 startLine);
         static void gatherGenerationLeaders(void);

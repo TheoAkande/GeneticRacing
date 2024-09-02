@@ -197,6 +197,11 @@ DeepNeuralNets::DeepNeuralNets() {
     // Empty constructor
 }
 
+void DeepNeuralNets::setupTraining(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness) {
+    DeepNeuralNets::initNeuralNets(carData, computerVisionData, inputs, fitness);
+    DeepNeuralNets::createRandomPopulation();
+}
+
 void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness) {
     // Set the pointers to the input buffers
     DeepNeuralNets::carData = carData;
@@ -230,8 +235,6 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_2_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[7]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
-
-    DeepNeuralNets::createRandomPopulation();
 }
 
 void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
