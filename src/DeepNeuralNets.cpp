@@ -209,11 +209,10 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     DeepNeuralNets::Layer2ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_2_NODES);
     DeepNeuralNets::Layer3ComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_HIDDEN_LAYER_3_NODES);
     DeepNeuralNets::OutputComputeShader = Utils::createShaderProgram("shaders/neuralNet/neuralNetCompute.glsl", NUM_OUTPUTS);
-    
+
     DeepNeuralNets::evolutionComputeShader = Utils::createShaderProgram("shaders/neuralNet/evolutionCompute.glsl");
     
     DeepNeuralNets::randomPopulationComputeShader = Utils::createShaderProgram("shaders/neuralNet/randomPopulationCompute.glsl");
-
     
 
     // Create the neural net compute buffer objects
@@ -339,7 +338,6 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     DeepNeuralNets::spinWheel();
 
     // Evolve the generation leaders
-    
     glUseProgram(DeepNeuralNets::evolutionComputeShader);
 
     // Set the generation leaders
@@ -378,7 +376,7 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     // Dispatch the compute shader
     glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    
+ 
     DeepNeuralNets::epoch++;
 }
 
