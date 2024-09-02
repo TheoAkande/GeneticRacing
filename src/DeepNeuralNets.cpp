@@ -3,6 +3,8 @@
 
 // General
 int DeepNeuralNets::epoch = 0;
+int DeepNeuralNets::lastCalculatedLeaders = 0;
+float DeepNeuralNets::totalFitness;
 
 // Compute shader variables
 GLuint 
@@ -104,8 +106,14 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
         topIndices[i] = 0;
     }
 
+    DeepNeuralNets::totalFitness = 0.0f;
+
     // Not so efficient - improve later
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
+        if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] >= 0.0f) {
+            DeepNeuralNets::totalFitness += DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
+        }
+
         for (int j = 0; j < NUM_GENERATION_LEADERS; j++) {
             if (DeepNeuralNets::fitness[i * numCarFitnessFloats + 5] > topFitness[j]) {
                 topFitness[j] = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
@@ -114,6 +122,8 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
             }
         }
     }
+
+    DeepNeuralNets::lastCalculatedLeaders = DeepNeuralNets::epoch;
 }
 
 void DeepNeuralNets::exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights) {
@@ -312,8 +322,27 @@ void DeepNeuralNets::gatherGenerationLeaders(void) {
 }
 
 void DeepNeuralNets::evolveNeuralNets(void) {
+    // Calculate gen leader indices
+    if (DeepNeuralNets::lastCalculatedLeaders != DeepNeuralNets::epoch) {
+        DeepNeuralNets::calculateGenerationLeaderIndices();
+    }
+
+    // Calculate the wheel choices
+    DeepNeuralNets::spinWheel();
+
+    // Evolve the generation leaders
+    glUseProgram(DeepNeuralNets::evolutionComputeShader);
+
+    // Set the generation leaders
+    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "topIndices");
+    glUniform1iv(uLoc, NUM_GENERATION_LEADERS, DeepNeuralNets::topIndices);
+    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numGenerationLeaders");
+    glUniform1i(uLoc, NUM_GENERATION_LEADERS);
+    GLuint uLoc = glGetUniformLocation(DeepNeuralNets::evolutionComputeShader, "numWheelChoices");
+    glUniform1i(uLoc, NUM_WHEEL_CHOICES);
+
+    
     DeepNeuralNets::epoch++;
-    DeepNeuralNets::createRandomPopulation();
 }
 
 void DeepNeuralNets::exportBestModel(void) {

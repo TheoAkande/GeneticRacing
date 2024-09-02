@@ -29,7 +29,9 @@ using namespace std;
 #define NUM_HIDDEN_LAYER_2_NODES 16
 #define NUM_HIDDEN_LAYER_3_NODES 8
 
+// Definitely evolve the top 3, then the rest are weighted random
 #define NUM_GENERATION_LEADERS 3
+#define NUM_WHEEL_CHOICES 7
 
 #define NUM_NN_CBS 8
 /*
@@ -48,6 +50,8 @@ class DeepNeuralNets
     private:
         // General
         static int epoch;
+        static int lastCalculatedLeaders;
+        static float totalFitness;
 
         // Compute shader variables
         static GLuint Layer1ComputeShader, Layer2ComputeShader, Layer3ComputeShader, OutputComputeShader;
@@ -79,6 +83,7 @@ class DeepNeuralNets
         static GLuint fitnessSSBO;
         static float fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
         static int topIndices[NUM_GENERATION_LEADERS];
+        static int wheelChoices[NUM_WHEEL_CHOICES];
 
         // Generation leaders
         static float genLeadersLayer1Weights[(NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES * NUM_GENERATION_LEADERS];
@@ -92,7 +97,7 @@ class DeepNeuralNets
 
         // Evolution
         static void calculateGenerationLeaderIndices(void);
-        static void evolveGenerationLeaders(void);
+        static void spinWheel(void);
 
         // Eport utility
         static void exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights);
