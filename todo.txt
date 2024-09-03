@@ -1,6 +1,9 @@
 do
 
-import modes
+test RNN architecture:
+    - potentially pass in previous inputs
+    - or provide "storage" outputs that get passed back to the RNN
+    - potentially consider preserving old-old bests since we don't want to abandon a route simply because of a different track
 
 succeed in life :)
 
@@ -11,6 +14,8 @@ train genetic algorithm :)
 
 
 done
+import modes
+
 track limits detection:
     - calculate using compute shader to iterate over cars
     - if x, y changes sides of a track limit then violation
