@@ -567,7 +567,16 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     }
 }
 
-void trainNeuralNets(int framesPerEpochPerTrack, int epochs, int epochWriteGap) {
+// First learn to move, then learn to move around track
+// Don't want models to know when the simulation ends - want to learn to drive indefinitely
+int framesPerEpoch(int epochs) {
+    if (epochs < 100) {
+        return 60 * (5 + epochs / 10);
+    }
+    return 60 * (15 + rand() % 10);
+}
+
+void trainNeuralNets(int epochs, int epochWriteGap) {
     for (int i = 1; i < epochs + 1; i++) {
         // Set car fitness to 0 
         resetCarFitness();
@@ -576,12 +585,13 @@ void trainNeuralNets(int framesPerEpochPerTrack, int epochs, int epochWriteGap) 
         pair<int, int> tracks = decideTrainingTracks();
 
         // Load CCW track
+        cout << tracks.first << endl;
         string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
         loadTrack(trackName, true);
 
         // Run simulation on CCW track
-        for (int j = 0; j < framesPerEpochPerTrack; j++) {
-            deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
+        for (int j = 0; j < framesPerEpoch(i); j++) {
+            deltaTime = deterministicDt;// + (double)(rand() % 1000) / 100000.0l;
             runSimulation();
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         }
@@ -609,7 +619,7 @@ void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
 
-    trainNeuralNets(60 * 30, 600, 50);
+    trainNeuralNets(10000, 20);
 }
 
 int main(void) {
@@ -650,8 +660,8 @@ int main(void) {
     init();
     setupSimulation(true);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch60_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch40_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch20_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch20_best.txt", 1);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
