@@ -19,7 +19,7 @@
 #define numVAOs 1
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars (TRAINING ? 1000 : 3)
+#define numCars (TRAINING ? 1000 : 4)
 #define numDrivers (TRAINING ? 0 : 2)
 #define numCarFloats 5
 /*
