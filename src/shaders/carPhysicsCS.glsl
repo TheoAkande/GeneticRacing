@@ -128,7 +128,7 @@ void doCollision(uint in1Index, uint fitnessIndex) {
     carData[in1Index + 4] = 0.0;
 
     // reduce num laps by 2
-    carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] - 2;
+    carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] - 3;
 }
 
 void calculateFitness(uint fitnessIndex) {
