@@ -3,7 +3,7 @@
 
 #define TRAINING false
 
-#define deterministic false
+#define deterministic true
 #define deterministicDt 0.015l
 
 // OpenGL definitions

@@ -564,6 +564,11 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
         getPlayerInputs(window);
         DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         visualiseSimulation(window);
+
+        // fitness
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
+        cout << "Car " << 3 << " fitness: " << fitness[3 * numCarFitnessFloats + 5] << ":" << fitness[3 * numCarFitnessFloats + 4] << endl;
     }
 }
 
@@ -584,8 +589,10 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
         // Get CCW and CW track choices
         pair<int, int> tracks = decideTrainingTracks();
 
+        // Testing something
+        tracks.first = 4;
+
         // Load CCW track
-        cout << tracks.first << endl;
         string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
         loadTrack(trackName, true);
 
@@ -660,8 +667,8 @@ int main(void) {
     init();
     setupSimulation(true);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch20_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch20_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch100_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch120_best.txt", 1);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
