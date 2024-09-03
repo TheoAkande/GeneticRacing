@@ -1,3 +1,8 @@
+current problems:
+    - laps somehow seem to be counted twice sometimes
+    - network doesnt seem to be incentivised to not collide with the wall for this reason i think
+    - network doesnt seem to achieve same fitness score when visualised
+
 do
 
 test RNN architecture:
