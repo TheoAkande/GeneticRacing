@@ -569,7 +569,6 @@ void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
             DeepNeuralNets::exportBestModel();
-            // DeepNeuralNets::exportGenerationLeaders();
         }
 
         for (int i = 0; i < 13; i++) {
