@@ -1,6 +1,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define TRAINING false
+
 #define deterministic false
 #define deterministicDt 0.015l
 
@@ -17,8 +19,8 @@
 #define numVAOs 1
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars 3
-#define numDrivers 2
+#define numCars (TRAINING ? 1000 : 3)
+#define numDrivers (TRAINING ? 0 : 2)
 #define numCarFloats 5
 /*
     0: x
@@ -72,8 +74,6 @@
 #define MAX_FLOATS 268435456
 #define MAX_SSBO_SIZE 1073741824
 #define MAX_SSBO 16
-
-#define TRAINING false
 
 #define basePath "../../../"
 
