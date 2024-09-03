@@ -1,3 +1,7 @@
+extern "C" {
+    _declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+}
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
@@ -582,16 +586,16 @@ void trainNeuralNets(int framesPerEpochPerTrack, int epochs, int epochWriteGap) 
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         }
 
-        // Load CW track
-        trackName = "assets/tracks/training/clockwise/" + to_string(tracks.second) + ".tr";
-        loadTrack(trackName, true);
+        // // Load CW track
+        // trackName = "assets/tracks/training/clockwise/" + to_string(tracks.second) + ".tr";
+        // loadTrack(trackName, true);
 
-        // Run simulation on CW track
-        for (int j = 0; j < framesPerEpochPerTrack; j++) {
-            deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
-            runSimulation();
-            DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
-        }
+        // // Run simulation on CW track
+        // for (int j = 0; j < framesPerEpochPerTrack; j++) {
+        //     deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
+        //     runSimulation();
+        //     DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
+        // }
 
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
@@ -605,7 +609,7 @@ void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
 
-    trainNeuralNets(60 * 15, 60, 20);
+    trainNeuralNets(60 * 30, 600, 50);
 }
 
 int main(void) {
