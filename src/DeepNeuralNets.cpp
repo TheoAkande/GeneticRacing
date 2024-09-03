@@ -122,6 +122,8 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
         }
     }
 
+    cout << "Epoch " << epoch + 1 << " best score: " << topFitness[0] << endl;
+
     DeepNeuralNets::lastCalculatedLeaders = DeepNeuralNets::epoch;
 }
 
@@ -317,8 +319,10 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
 }
 
 void DeepNeuralNets::gatherGenerationLeaders(void) {
-    // Calculate the top fitness scores and indices
-    DeepNeuralNets::calculateGenerationLeaderIndices();
+    // Calculate the generation leaders
+    if (lastCalculatedLeaders != epoch) {
+        DeepNeuralNets::calculateGenerationLeaderIndices();
+    }
 
     // Gather the weights of the top models into the generation leaders
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[1]);
