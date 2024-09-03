@@ -72,7 +72,8 @@ int carInputs[] = {
 float carColours[] = {
     0.0f, 1.0f, 0.0f, 1.0f,
     1.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f
+    1.0f, 0.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f, 1.0f
 };
 
 double deltaTime = 0.0l;
@@ -259,7 +260,7 @@ void loadCars(bool training) {
         fitness[i * numCarFitnessFloats + 2] = 0.0f; // distance travelled
         fitness[i * numCarFitnessFloats + 3] = 0.0f; // total speed
         fitness[i * numCarFitnessFloats + 4] = -1.0f; // laps
-        fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
+        // fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
     }
 
     if (!training) {
@@ -349,6 +350,26 @@ void loadTrack(string track, bool training = false) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
 
     loadCars(training);
+}
+
+void resetCarFitness(void) {
+    for (int i = 0; i < numCars; i++) {
+        fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
+    }
+}
+
+pair<int, int> decideTrainingTracks(void) {
+    int numCW, numCCW;
+    ifstream numTracksFile;
+    numTracksFile.open("assets/tracks/training/anticlockwise/numTracks.txt");
+    numTracksFile >> numCCW;
+    numTracksFile.close();
+    numTracksFile.open("assets/tracks/training/clockwise/numTracks.txt");
+    numTracksFile >> numCW;
+    numTracksFile.close();
+    int CCWChoice = rand() % numCCW + 1;
+    int CWChoice = rand() % numCW + 1;
+    return make_pair(CCWChoice, CWChoice);
 }
 
 void cycleTracks(bool training) {
@@ -522,8 +543,6 @@ void setupSimulation(bool visual) {
     if (visual) {
         setupScene();
         cycleTracks(false);
-    } else {
-        cycleTracks(true);
     }
 }
 
@@ -544,35 +563,39 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     }
 }
 
-void trainNeuralNets(int framesPerEpoch, int epochs, int epochWriteGap) {
+void trainNeuralNets(int framesPerEpochPerTrack, int epochs, int epochWriteGap) {
     for (int i = 1; i < epochs + 1; i++) {
-        for (int j = 0; j < framesPerEpoch; j++) {
+        // Set car fitness to 0 
+        resetCarFitness();
+
+        // Get CCW and CW track choices
+        pair<int, int> tracks = decideTrainingTracks();
+
+        // Load CCW track
+        string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
+        loadTrack(trackName, true);
+
+        // Run simulation on CCW track
+        for (int j = 0; j < framesPerEpochPerTrack; j++) {
             deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
             runSimulation();
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         }
 
-        // Gather fitness scores
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
-        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
-        // Output best score
-        float bestScore = -1000000.0f;
-        float current;
-        for (int j = 0; j < numCars; j++) {
-            current =  fitness[j * numCarFitnessFloats + 5];
-            if (current > bestScore) {
-                bestScore = current;
-            }
+        // Load CW track
+        trackName = "assets/tracks/training/clockwise/" + to_string(tracks.second) + ".tr";
+        loadTrack(trackName, true);
+
+        // Run simulation on CW track
+        for (int j = 0; j < framesPerEpochPerTrack; j++) {
+            deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
+            runSimulation();
+            DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         }
-        cout << "Epoch " << i << " best score: " << bestScore << endl;
 
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
             DeepNeuralNets::exportBestModel();
-        }
-
-        for (int i = 0; i < 13; i++) {
-            cycleTracks(true);
         }
     }
 }
@@ -582,7 +605,7 @@ void setupTraining(void) {
     setupSimulation(false);
     DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
 
-    trainNeuralNets(60 * 30, 30, 10);
+    trainNeuralNets(60 * 15, 60, 20);
 }
 
 int main(void) {
@@ -610,10 +633,10 @@ int main(void) {
         exit(EXIT_SUCCESS);
     }
 
-    // if (numInputs * numCars != sizeof(carInputs) / sizeof(int)) {
-    //     cout << "Number of inputs does not match input array size" << endl;
-    //     exit(EXIT_FAILURE);
-    // }
+    if (numInputs * numDrivers != sizeof(carInputs) / sizeof(int)) {
+        cout << "Number of inputs does not match input array size" << endl;
+        exit(EXIT_FAILURE);
+    }
     GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "GeneticRacing", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) { 
@@ -623,7 +646,8 @@ int main(void) {
     init();
     setupSimulation(true);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch30_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch60_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch40_best.txt", 1);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
