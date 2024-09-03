@@ -33,7 +33,7 @@ using namespace std;
 #define NUM_GENERATION_LEADERS 7
 #define NUM_WHEEL_CHOICES 3
 
-#define LEARNING_RATE 0.5f
+#define LEARNING_RATE 0.1f
 
 #define NUM_NN_CBS 8
 /*
