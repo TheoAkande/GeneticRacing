@@ -26,6 +26,8 @@ glm::vec2 TrackMaker::outsideStart;
 
 float TrackMaker::startLine[4];
 
+bool TrainingTrackMaker::projecting = false;
+
 void TrackMaker::displayTrack(GLFWwindow *window) {
     // Clear the screen
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -198,9 +200,6 @@ TrackMaker::TrackMaker() {}
 
 TrainingTrackMaker::TrainingTrackMaker() {}
 
-void TrainingTrackMaker::displayProjected(GLFWwindow *window, double mx, double my) {
-}
-
 bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (!trackSetup) {
         initTrack();
@@ -226,11 +225,22 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         }
         inside.push_back(Utils::pixelToScreenX((int)mx));
         inside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
-    } if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !outsideStarted) {
+        projecting = false;
+    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !outsideStarted) {
         glfwGetCursorPos(window, &mx, &my);
         startLine[2] = Utils::pixelToScreenX((int)mx);
         startLine[3] = Utils::pixelToScreenY(windowTHeight - (int)my);
-    } 
+    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && outsideStarted) {
+        if (projecting) {
+            outside.pop_back();
+            outside.pop_back();
+        } else {
+            projecting = true;
+        }
+        glfwGetCursorPos(window, &mx, &my);
+        outside.push_back(Utils::pixelToScreenX((int)mx));
+        outside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
+    }  
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && clickHeld) {
         clickHeld = false;
@@ -242,6 +252,11 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
             startLine[3] = outsideStart.y;
             outsideStarted = true;
         }
+        if (projecting) {
+            outside.pop_back();
+            outside.pop_back();
+        }
+        projecting = false;
         outside.push_back(Utils::pixelToScreenX((int)mx));
         outside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
     }
