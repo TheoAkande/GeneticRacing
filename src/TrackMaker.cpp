@@ -198,6 +198,9 @@ TrackMaker::TrackMaker() {}
 
 TrainingTrackMaker::TrainingTrackMaker() {}
 
+void TrainingTrackMaker::displayProjected(GLFWwindow *window, double mx, double my) {
+}
+
 bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (!trackSetup) {
         initTrack();
@@ -223,7 +226,11 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         }
         inside.push_back(Utils::pixelToScreenX((int)mx));
         inside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
-    }
+    } if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !outsideStarted) {
+        glfwGetCursorPos(window, &mx, &my);
+        startLine[2] = Utils::pixelToScreenX((int)mx);
+        startLine[3] = Utils::pixelToScreenY(windowTHeight - (int)my);
+    } 
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && clickHeld) {
         clickHeld = false;
