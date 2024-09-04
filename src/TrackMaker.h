@@ -48,6 +48,8 @@ class TrackMaker
 
         static float startLine[4];
 
+        static int numInside;
+        
         static void displayTrack(GLFWwindow *window);
         static void initTrack(void);
         static void exportTrack(void);
@@ -62,6 +64,8 @@ class TrainingTrackMaker : public TrackMaker
 {
     private:
         static bool projecting;
+
+        static void darkenInsideProjection(GLFWwindow *window);
     public :
         TrainingTrackMaker();
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
