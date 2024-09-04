@@ -1,6 +1,8 @@
 #include "DeepNeuralNets.h"
 #include "Utils.h"
 
+#ifndef DONT_USE_NNS
+
 // General
 int DeepNeuralNets::epoch = 0;
 int DeepNeuralNets::lastCalculatedLeaders = -1;
@@ -453,3 +455,5 @@ void DeepNeuralNets::importModel(string filename, int index) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[4]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (NUM_HIDDEN_LAYER_3_NODES + 1) * NUM_OUTPUTS * NUM_NEURAL_NETS, DeepNeuralNets::outputWeights, GL_DYNAMIC_DRAW);
 }
+
+#endif
