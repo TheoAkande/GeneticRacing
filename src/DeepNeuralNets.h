@@ -16,6 +16,8 @@
 
 using namespace std;
 
+#ifndef DONT_USE_NNS
+
 #ifndef DEEPNEURALNETS_H
 #define DEEPNEURALNETS_H
 
@@ -118,5 +120,7 @@ class DeepNeuralNets
         static void exportGenerationLeaders(void);
         static void importModel(string filename, int index);
 };
+
+#endif
 
 #endif
