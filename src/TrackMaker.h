@@ -54,6 +54,16 @@ class TrackMaker
     public:
         TrackMaker();
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
+
+    friend class TrainingTrackMaker;
+};
+
+class TrainingTrackMaker : public TrackMaker
+{
+    private:
+    public :
+        TrainingTrackMaker();
+        static bool runTrackFrame(GLFWwindow *window, double currentTime);
 };
 
 #endif
