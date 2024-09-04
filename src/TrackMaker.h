@@ -61,6 +61,7 @@ class TrackMaker
 class TrainingTrackMaker : public TrackMaker
 {
     private:
+        static bool projecting;
     public :
         TrainingTrackMaker();
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
