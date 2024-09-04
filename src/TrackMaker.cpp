@@ -26,6 +26,8 @@ glm::vec2 TrackMaker::outsideStart;
 
 float TrackMaker::startLine[4];
 
+int TrackMaker::numInside = 0;
+
 bool TrainingTrackMaker::projecting = false;
 
 void TrackMaker::displayTrack(GLFWwindow *window) {
@@ -44,9 +46,9 @@ void TrackMaker::displayTrack(GLFWwindow *window) {
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(0);
         if (insideComplete) {
-            glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(inside.size() / 2));
+            glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(numInside));
         } else {
-            glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)(inside.size() / 2));
+            glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)(numInside));
         }
     }
 
@@ -144,6 +146,7 @@ bool TrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         initTrack();
     }
 
+    numInside = inside.size() / 2;
     displayTrack(window);
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -200,14 +203,26 @@ TrackMaker::TrackMaker() {}
 
 TrainingTrackMaker::TrainingTrackMaker() {}
 
+void TrainingTrackMaker::darkenInsideProjection(GLFWwindow *window) {
+    glUseProgram(startRenderingProgram);
+    glBindBuffer(GL_ARRAY_BUFFER, tvbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float), inside.data() + (inside.size() - 4), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)(2));
+}
+
 bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (!trackSetup) {
         initTrack();
     }
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glDepthFunc(GL_LEQUAL);
+
+    numInside = outside.size() / 2;
     displayTrack(window);
-    glfwSwapBuffers(window);
-    glfwPollEvents();
 
     double mx, my;
 
@@ -293,6 +308,14 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         exportTrack();
         return false;
     }
+
+    // Darken inside projection
+    if (projecting && outsideStarted && inside.size() > outside.size()) {
+        darkenInsideProjection(window);
+    }
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 
     return true;
 }
