@@ -195,3 +195,64 @@ bool TrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
 }
 
 TrackMaker::TrackMaker() {}
+
+TrainingTrackMaker::TrainingTrackMaker() {}
+
+bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
+    if (!trackSetup) {
+        initTrack();
+    }
+
+    displayTrack(window);
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+
+    double mx, my;
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !clickHeld) {
+        clickHeld = true;
+        glfwGetCursorPos(window, &mx, &my);
+        if (!insideStarted) {
+            insideStart.x = Utils::pixelToScreenX((int)mx);
+            insideStart.y = Utils::pixelToScreenY(windowTHeight - (int)my);
+            startLine[0] = insideStart.x;
+            startLine[1] = insideStart.y;
+            startLine[2] = insideStart.x;
+            startLine[3] = insideStart.y;
+            insideStarted = true;
+        }
+        inside.push_back(Utils::pixelToScreenX((int)mx));
+        inside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
+    }
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && clickHeld) {
+        clickHeld = false;
+        glfwGetCursorPos(window, &mx, &my);
+        if (!outsideStarted) {
+            outsideStart.x = Utils::pixelToScreenX((int)mx);
+            outsideStart.y = Utils::pixelToScreenY(windowTHeight - (int)my);
+            startLine[2] = outsideStart.x;
+            startLine[3] = outsideStart.y;
+            outsideStarted = true;
+        }
+        outside.push_back(Utils::pixelToScreenX((int)mx));
+        outside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !enterHeld) {
+        enterHeld = true;
+        if (!insideComplete) {
+            insideComplete = true;
+            outsideComplete = true;
+        }
+    } else if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
+        enterHeld = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        exportTrack();
+        return false;
+    }
+
+    return true;
+}
