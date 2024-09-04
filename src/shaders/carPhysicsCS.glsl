@@ -99,6 +99,18 @@ bool boundingIntersect(Line l1, Line l2) {
     return ordered_1.x <= ordered_2.y && ordered_1.y >= ordered_2.x && ordered_3.x <= ordered_4.y && ordered_3.y >= ordered_4.x;
 }
 
+bool cross(Line l1, Line l2) {
+    if (!boundingIntersect(l1, l2)) {   // easily prune most cases
+        return false;
+    }
+    int o1 = orientation(l1.p1, l1.p2, l2.p1);
+    int o2 = orientation(l1.p1, l1.p2, l2.p2);
+    int o3 = orientation(l2.p1, l2.p2, l1.p1);
+    int o4 = orientation(l2.p1, l2.p2, l1.p2);
+
+    return (o1 != o2 && o3 != o4);
+}
+
 bool intersect(Line l1, Line l2) {
     if (!boundingIntersect(l1, l2)) {   // easily prune most cases
         return false;
@@ -191,7 +203,7 @@ void main()
 
     Line startLine = Line(insideStart, outsideStart);
     Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
-    if (intersect(startLine, carLine)) {
+    if (cross(startLine, carLine)) {
         float newL = length(change + startNormal);
         float maxL = max(length(change), length(startNormal));
         if (newL > maxL) {

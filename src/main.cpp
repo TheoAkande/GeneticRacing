@@ -511,7 +511,6 @@ void visualiseSimulation(GLFWwindow *window) {
         sHeld = false;
     }
 
-    // determineCarIntersects();
     calculateCarWheels();
 
     display(window);
@@ -667,8 +666,8 @@ int main(void) {
     init();
     setupSimulation(true);
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch100_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch120_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch260_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch220_best.txt", 1);
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
             shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
