@@ -223,6 +223,10 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
             startLine[3] = insideStart.y;
             insideStarted = true;
         }
+        if (projecting) {
+            inside.pop_back();
+            inside.pop_back();
+        } 
         inside.push_back(Utils::pixelToScreenX((int)mx));
         inside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
         projecting = false;
@@ -230,7 +234,7 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         glfwGetCursorPos(window, &mx, &my);
         startLine[2] = Utils::pixelToScreenX((int)mx);
         startLine[3] = Utils::pixelToScreenY(windowTHeight - (int)my);
-    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && outsideStarted) {
+    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && outsideStarted && !outsideComplete) {
         if (projecting) {
             outside.pop_back();
             outside.pop_back();
@@ -259,10 +263,24 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         projecting = false;
         outside.push_back(Utils::pixelToScreenX((int)mx));
         outside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
+    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && !clickHeld && !insideComplete) {
+        if (projecting) {
+            inside.pop_back();
+            inside.pop_back();
+        } else {
+            projecting = true;
+        }
+        glfwGetCursorPos(window, &mx, &my);
+        inside.push_back(Utils::pixelToScreenX((int)mx));
+        inside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
     }
 
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !enterHeld) {
         enterHeld = true;
+        if (projecting) {
+            inside.pop_back();
+            inside.pop_back();
+        }
         if (!insideComplete) {
             insideComplete = true;
             outsideComplete = true;
