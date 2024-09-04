@@ -561,13 +561,13 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     runSimulation();
     if (!training) {
         getPlayerInputs(window);
-        DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
+        // DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         visualiseSimulation(window);
 
         // fitness
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
-        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
-        cout << "Car " << 3 << " fitness: " << fitness[3 * numCarFitnessFloats + 5] << ":" << fitness[3 * numCarFitnessFloats + 4] << endl;
+        // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
+        // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
+        // cout << "Car " << 3 << " fitness: " << fitness[3 * numCarFitnessFloats + 5] << ":" << fitness[3 * numCarFitnessFloats + 4] << endl;
     }
 }
 
@@ -581,6 +581,7 @@ int framesPerEpoch(int epochs) {
 }
 
 void trainNeuralNets(int epochs, int epochWriteGap) {
+    #ifndef DONT_USE_NNS
     for (int i = 1; i < epochs + 1; i++) {
         // Set car fitness to 0 
         resetCarFitness();
@@ -618,12 +619,16 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
             DeepNeuralNets::exportBestModel();
         }
     }
+    #endif
 }
 
 void setupTraining(void) {
     init();
     setupSimulation(false);
+
+    #ifndef DONT_USE_NNS
     DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
+    #endif
 
     trainNeuralNets(10000, 20);
 }
@@ -665,12 +670,14 @@ int main(void) {
     glfwSwapInterval(1);
     init();
     setupSimulation(true);
+    #ifndef DONT_USE_NNS
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
     DeepNeuralNets::importModel("assets/models/epoch260_best.txt", 0);
     DeepNeuralNets::importModel("assets/models/epoch220_best.txt", 1);
+    #endif
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
-            shouldCreateTrack = TrackMaker::runTrackFrame(window, glfwGetTime());
+            shouldCreateTrack = TrainingTrackMaker::runTrackFrame(window, glfwGetTime());
             if (!shouldCreateTrack) {
                 cycleTracks(false);
             }
