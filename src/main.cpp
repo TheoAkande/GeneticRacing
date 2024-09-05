@@ -91,6 +91,8 @@ float appliedTurning, totalTurning;
 const char *track = "assets/tracks/track6.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
+vector<float> midpoints;
+vector<float> normals;
 float trackStartLine[4];
 glm::vec2 trackStartNormal;
 float carX, carY, carAngle, carSpeed, carAcceleration; // angle 0 = right, 90 = up
@@ -296,6 +298,15 @@ void loadTrack(string track, bool training = false) {
         if (line.c_str()[0] == '-') {
             track1 = false;
             started = false;
+        } 
+
+        if (line.c_str()[0] == 'n') {
+            float n1, n2;
+            sscanf(line.c_str(), "n %f %f %f %f", &x, &y, &n1, &n2);
+            midpoints.push_back(x);
+            midpoints.push_back(y);
+            normals.push_back(n1);
+            normals.push_back(n2);
         } 
         
         if (line.c_str()[0] == 'p') {
