@@ -288,6 +288,8 @@ void loadTrack(string track, bool training = false) {
     // Load track from file
     insideTrack.clear();
     outsideTrack.clear();
+    midpoints.clear();
+    normals.clear();
     ifstream fileStream(track, ios::in);
     string line = "";    
     bool track1 = true;
@@ -445,6 +447,9 @@ void display(GLFWwindow *window) {
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(0);
         glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)(outsideTrack.size() / 2));
+
+        // Draw the normals
+        TrainingTrackMaker::visualizeNormals(window, &normals, &midpoints);
     }
 
     // Draw the start line
