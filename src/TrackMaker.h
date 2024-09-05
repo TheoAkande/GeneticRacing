@@ -67,6 +67,7 @@ class TrainingTrackMaker : public TrackMaker
         static vector<float> normals;
         static vector<float> midpoints;
         static float normDir; 
+        static bool spaceHeld, tabHeld, shiftHeld;
 
         static void darkenInsideProjection(GLFWwindow *window);
         static void visualizeNormals(GLFWwindow *window);

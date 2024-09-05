@@ -32,6 +32,9 @@ bool TrainingTrackMaker::projecting = false;
 vector<float> TrainingTrackMaker::normals;
 vector<float> TrainingTrackMaker::midpoints;
 float TrainingTrackMaker::normDir = -1.0f;
+bool TrainingTrackMaker::spaceHeld = false;
+bool TrainingTrackMaker::tabHeld = false;
+bool TrainingTrackMaker::shiftHeld = false;
 
 void TrackMaker::displayTrack(GLFWwindow *window) {
     // Clear the screen
