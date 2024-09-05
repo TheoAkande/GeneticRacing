@@ -71,9 +71,9 @@ class TrainingTrackMaker : public TrackMaker
 
         static void exportTrack(void);
         static void darkenInsideProjection(GLFWwindow *window);
-        static void visualizeNormals(GLFWwindow *window);
     public :
         TrainingTrackMaker();
+        static void visualizeNormals(GLFWwindow *window, vector<float> *normals, vector<float> *midpoints);
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
 };
 

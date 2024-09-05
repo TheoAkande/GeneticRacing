@@ -292,15 +292,15 @@ void TrainingTrackMaker::exportTrack(void) {
     perisitentTracksFileOut.close();
 }
 
-void TrainingTrackMaker::visualizeNormals(GLFWwindow *window) {
+void TrainingTrackMaker::visualizeNormals(GLFWwindow *window, vector<float> *normals, vector<float> *midpoints) {
     glUseProgram(startRenderingProgram);
     glBindBuffer(GL_ARRAY_BUFFER, tvbo[0]);
     float points[10];
 
-    for (int i = 0; i < normals.size() / 2; i++) {
-        float endX = midpoints[i * 2] + normals[i * 2] * 0.05f;
-        float endY = midpoints[i * 2 + 1] + normals[i * 2 + 1] * 0.05f;
-        float normAngle = atan2(normals[i * 2 + 1], normals[i * 2]);
+    for (int i = 0; i < normals->size() / 2; i++) {
+        float endX = midpoints->at(i * 2) + normals->at(i * 2) * 0.05f;
+        float endY = midpoints->at(i * 2 + 1) + normals->at(i * 2 + 1) * 0.05f;
+        float normAngle = atan2(normals->at(i * 2 + 1), normals->at(i * 2));
         float arrowEnd1Angle = normAngle + 3.14159 / 4;
         float arrowEnd2Angle = normAngle - 3.14159 / 4;
 
@@ -309,8 +309,8 @@ void TrainingTrackMaker::visualizeNormals(GLFWwindow *window) {
         float arrowEnd2X = endX - 0.01f * cos(arrowEnd2Angle);
         float arrowEnd2Y = endY - 0.01f * sin(arrowEnd2Angle);
 
-        points[0] = midpoints[i * 2];
-        points[1] = midpoints[i * 2 + 1];
+        points[0] = midpoints->at(i * 2);
+        points[1] = midpoints->at(i * 2 + 1);
         points[2] = endX;
         points[3] = endY;
         points[4] = arrowEnd1X;
@@ -339,7 +339,7 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
 
     numInside = outside.size() / 2;
     displayTrack(window);
-    visualizeNormals(window);
+    visualizeNormals(window, &normals, &midpoints);
 
     double mx, my;
 
