@@ -202,6 +202,16 @@ bool TrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         return false;
     }
 
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        inside.clear();
+        outside.clear();
+        insideComplete = false;
+        outsideComplete = false;
+        insideStarted = false;
+        outsideStarted = false;
+        startLine[0] = startLine[1] = startLine[2] = startLine[3] = 1.1f;
+    }
+
     return true;
 }
 
@@ -360,6 +370,19 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         exportTrack();
         return false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        inside.clear();
+        outside.clear();
+        normals.clear();
+        midpoints.clear();
+        insideComplete = false;
+        outsideComplete = false;
+        insideStarted = false;
+        outsideStarted = false;
+        projecting = false;
+        startLine[0] = startLine[1] = startLine[2] = startLine[3] = 1.1f;
     }
 
     // Darken inside projection
