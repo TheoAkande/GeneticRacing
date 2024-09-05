@@ -215,6 +215,42 @@ void TrainingTrackMaker::darkenInsideProjection(GLFWwindow *window) {
     glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)(2));
 }
 
+void TrainingTrackMaker::visualizeNormals(GLFWwindow *window) {
+    glUseProgram(startRenderingProgram);
+    glBindBuffer(GL_ARRAY_BUFFER, tvbo[0]);
+    float points[10];
+
+    for (int i = 0; i < normals.size() / 2; i++) {
+        float endX = midpoints[i * 2] + normals[i * 2] * 0.05f;
+        float endY = midpoints[i * 2 + 1] + normals[i * 2 + 1] * 0.05f;
+        float normAngle = atan2(normals[i * 2 + 1], normals[i * 2]);
+        float arrowEnd1Angle = normAngle + 3.14159 / 4;
+        float arrowEnd2Angle = normAngle - 3.14159 / 4;
+
+        float arrowEnd1X = endX - 0.01f * cos(arrowEnd1Angle);
+        float arrowEnd1Y = endY - 0.01f * sin(arrowEnd1Angle);
+        float arrowEnd2X = endX - 0.01f * cos(arrowEnd2Angle);
+        float arrowEnd2Y = endY - 0.01f * sin(arrowEnd2Angle);
+
+        points[0] = midpoints[i * 2];
+        points[1] = midpoints[i * 2 + 1];
+        points[2] = endX;
+        points[3] = endY;
+        points[4] = arrowEnd1X;
+        points[5] = arrowEnd1Y;
+        points[6] = endX;
+        points[7] = endY;
+        points[8] = arrowEnd2X;
+        points[9] = arrowEnd2Y;
+
+
+        glBufferData(GL_ARRAY_BUFFER, 10 * sizeof(float), points, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(0);
+        glDrawArrays(GL_LINE_STRIP, 0, 5);
+    }
+}
+
 bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
     if (!trackSetup) {
         initTrack();
@@ -226,6 +262,7 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
 
     numInside = outside.size() / 2;
     displayTrack(window);
+    visualizeNormals(window);
 
     double mx, my;
 
@@ -287,6 +324,8 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
                 glm::vec2(outside[outside.size() - 1] - inside[outside.size() - 1], 
                 inside[outside.size() - 2] - outside[outside.size() - 2])
             );
+        normals.push_back(norm.x);
+        normals.push_back(norm.y);
         midpoints.push_back((outside[outside.size() - 2] + inside[outside.size() - 2]) / 2.0f);
         midpoints.push_back((outside[outside.size() - 1] + inside[outside.size() - 1]) / 2.0f);
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && !clickHeld && !insideComplete) {

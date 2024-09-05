@@ -69,6 +69,7 @@ class TrainingTrackMaker : public TrackMaker
         static float normDir; 
 
         static void darkenInsideProjection(GLFWwindow *window);
+        static void visualizeNormals(GLFWwindow *window);
     public :
         TrainingTrackMaker();
         static bool runTrackFrame(GLFWwindow *window, double currentTime);
