@@ -390,6 +390,40 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         darkenInsideProjection(window);
     }
 
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spaceHeld && !clickHeld) {
+        spaceHeld = true;
+
+        int nSize = normals.size();
+        normals[nSize - 2] = -normals[nSize - 2];
+        normals[nSize - 1] = -normals[nSize - 1];
+
+        if (inside.size() > outside.size()) {
+            inside.pop_back();
+            inside.pop_back();
+            projecting = false;
+        }
+
+        float lastOutsideY = outside.back();
+        outside.pop_back();
+        float lastOutsideX = outside.back();
+        outside.pop_back();
+
+        float lastInsideY = inside.back();
+        inside.pop_back();
+        float lastInsideX = inside.back();
+        inside.pop_back();
+
+        outside.push_back(lastInsideX);
+        outside.push_back(lastInsideY);
+
+        inside.push_back(lastOutsideX);
+        inside.push_back(lastOutsideY);
+    } else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+        spaceHeld = false;
+    }
+
+    
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 
