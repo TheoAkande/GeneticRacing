@@ -29,6 +29,8 @@ float TrackMaker::startLine[4];
 int TrackMaker::numInside = 0;
 
 bool TrainingTrackMaker::projecting = false;
+vector<float> TrainingTrackMaker::normals;
+vector<float> TrainingTrackMaker::midpoints;
 
 void TrackMaker::displayTrack(GLFWwindow *window) {
     // Clear the screen

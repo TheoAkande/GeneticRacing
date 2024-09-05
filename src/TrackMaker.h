@@ -49,7 +49,7 @@ class TrackMaker
         static float startLine[4];
 
         static int numInside;
-        
+
         static void displayTrack(GLFWwindow *window);
         static void initTrack(void);
         static void exportTrack(void);
@@ -64,6 +64,8 @@ class TrainingTrackMaker : public TrackMaker
 {
     private:
         static bool projecting;
+        static vector<float> normals;
+        static vector<float> midpoints;
 
         static void darkenInsideProjection(GLFWwindow *window);
     public :
