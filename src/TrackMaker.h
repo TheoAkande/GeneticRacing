@@ -69,6 +69,7 @@ class TrainingTrackMaker : public TrackMaker
         static float normDir; 
         static bool spaceHeld, tabHeld, shiftHeld;
 
+        static void exportTrack(void);
         static void darkenInsideProjection(GLFWwindow *window);
         static void visualizeNormals(GLFWwindow *window);
     public :

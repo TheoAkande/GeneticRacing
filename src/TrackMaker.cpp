@@ -114,9 +114,11 @@ void TrackMaker::exportTrack(void) {
     trackFile.open(trackName);
     localFile.open(localTrackName);
 
-    trackFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl;
-    localFile << "c " << start.x - startNormal.x * 0.01 << " " << start.y - startNormal.y * 0.01 << " " << startAngle << endl; 
+    // Write start point
+    trackFile << "c " << start.x - startNormal.x * 0.02 << " " << start.y - startNormal.y * 0.02 << " " << startAngle << endl;
+    localFile << "c " << start.x - startNormal.x * 0.02 << " " << start.y - startNormal.y * 0.02 << " " << startAngle << endl; 
 
+    // Write inside track
     for (int i = 0; i < inside.size(); i += 2) {
         trackFile << "p " << inside[i] << " " << inside[i + 1] << endl;
         localFile << "p " << inside[i] << " " << inside[i + 1] << endl;
@@ -125,10 +127,12 @@ void TrackMaker::exportTrack(void) {
     trackFile << "-" << endl;
     localFile << "-" << endl;
 
+    // Write outside track
     for (int i = 0; i < outside.size(); i += 2) {
         trackFile << "p " << outside[i] << " " << outside[i + 1] << endl;
         localFile << "p " << outside[i] << " " << outside[i + 1] << endl;
     }
+
     trackFile.close();
     localFile.close();
 
@@ -226,6 +230,66 @@ void TrainingTrackMaker::darkenInsideProjection(GLFWwindow *window) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)(2));
+}
+
+void TrainingTrackMaker::exportTrack(void) {
+    ifstream numTracksFile;
+    numTracksFile.open("assets/tracks/numTracks.txt");
+    int numTracks;
+    numTracksFile >> numTracks;
+    numTracksFile.close();
+
+    string trackName = "../../../src/assets/tracks/track" + to_string(numTracks + 1) + ".tr";
+    string localTrackName = "assets/tracks/track" + to_string(numTracks + 1) + ".tr";
+    glm::vec2 start = glm::vec2((insideStart.x + outsideStart.x) / 2.0f, (insideStart.y + outsideStart.y) / 2.0f);
+    glm::vec2 startNormal = -glm::normalize(glm::vec2(outsideStart.y - insideStart.y, insideStart.x - outsideStart.x));
+    float startAngle = atan2(startNormal.y, startNormal.x);
+
+    ofstream trackFile, localFile;
+    trackFile.open(trackName);
+    localFile.open(localTrackName);
+
+    // Write start point
+    trackFile << "c " << start.x - startNormal.x * 0.02 << " " << start.y - startNormal.y * 0.02 << " " << startAngle << endl;
+    localFile << "c " << start.x - startNormal.x * 0.02 << " " << start.y - startNormal.y * 0.02 << " " << startAngle << endl; 
+
+    // Write normals
+    for (int i = 0; i < normals.size(); i += 2) {
+        trackFile << "n " << midpoints[i] << " " << midpoints[i + 1] << " " << normals[i] << " " << normals[i + 1] << endl;
+        localFile << "n " << midpoints[i] << " " << midpoints[i + 1] << " " << normals[i] << " " << normals[i + 1] << endl;
+    }
+
+    // Write inside track
+    for (int i = 0; i < inside.size(); i += 2) {
+        trackFile << "p " << inside[i] << " " << inside[i + 1] << endl;
+        localFile << "p " << inside[i] << " " << inside[i + 1] << endl;
+    }
+
+    trackFile << "-" << endl;
+    localFile << "-" << endl;
+
+    // Write outside track
+    for (int i = 0; i < outside.size(); i += 2) {
+        trackFile << "p " << outside[i] << " " << outside[i + 1] << endl;
+        localFile << "p " << outside[i] << " " << outside[i + 1] << endl;
+    }
+
+    trackFile.close();
+    localFile.close();
+
+    ofstream numTracksFileOut;
+    numTracksFileOut.open("assets/tracks/numTracks.txt");
+    numTracksFileOut << numTracks + 1;
+    numTracksFileOut.close();
+
+    ofstream perisitentTracksFileOut;
+    perisitentTracksFileOut.open("../../../src/assets/tracks/numTracks.txt");
+    if (perisitentTracksFileOut.is_open()) {
+        perisitentTracksFileOut << numTracks + 1;
+    } else {
+        cout << "Unable to open" << endl;
+    }
+    perisitentTracksFileOut.close();
 }
 
 void TrainingTrackMaker::visualizeNormals(GLFWwindow *window) {
