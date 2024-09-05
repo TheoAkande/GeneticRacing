@@ -31,6 +31,7 @@ int TrackMaker::numInside = 0;
 bool TrainingTrackMaker::projecting = false;
 vector<float> TrainingTrackMaker::normals;
 vector<float> TrainingTrackMaker::midpoints;
+float TrainingTrackMaker::normDir = -1.0f;
 
 void TrackMaker::displayTrack(GLFWwindow *window) {
     // Clear the screen
@@ -280,6 +281,14 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         projecting = false;
         outside.push_back(Utils::pixelToScreenX((int)mx));
         outside.push_back(Utils::pixelToScreenY(windowTHeight - (int)my));
+
+        glm::vec2 norm = normDir *
+            glm::normalize(
+                glm::vec2(outside[outside.size() - 1] - inside[outside.size() - 1], 
+                inside[outside.size() - 2] - outside[outside.size() - 2])
+            );
+        midpoints.push_back((outside[outside.size() - 2] + inside[outside.size() - 2]) / 2.0f);
+        midpoints.push_back((outside[outside.size() - 1] + inside[outside.size() - 1]) / 2.0f);
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && !clickHeld && !insideComplete) {
         if (projecting) {
             inside.pop_back();
