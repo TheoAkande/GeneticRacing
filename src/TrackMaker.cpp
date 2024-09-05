@@ -390,6 +390,7 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         darkenInsideProjection(window);
     }
 
+    // Reverse orientation of previous normal if space
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spaceHeld && !clickHeld) {
         spaceHeld = true;
 
@@ -420,6 +421,31 @@ bool TrainingTrackMaker::runTrackFrame(GLFWwindow *window, double currentTime) {
         inside.push_back(lastOutsideY);
     } else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
         spaceHeld = false;
+    }
+
+    // Reverse all orientations if tab 
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && !tabHeld && !clickHeld) {
+        tabHeld = true;
+        for (int i = 0; i < normals.size(); i++) {
+            normals[i] = -normals[i];
+        }
+
+        if (inside.size() > outside.size()) {
+            inside.pop_back();
+            inside.pop_back();
+            projecting = false;
+        }
+        for (int i = 0; i < inside.size(); i += 2) {
+            float temp = inside[i];
+            inside[i] = outside[i];
+            outside[i] = temp;
+
+            temp = inside[i + 1];
+            inside[i + 1] = outside[i + 1];
+            outside[i + 1] = temp;
+        }
+    } else if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
+        tabHeld = false;
     }
 
     
