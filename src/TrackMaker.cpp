@@ -293,6 +293,10 @@ void TrainingTrackMaker::exportTrack(void) {
 }
 
 void TrainingTrackMaker::visualizeNormals(GLFWwindow *window, vector<float> *normals, vector<float> *midpoints) {
+    if (!trackSetup) {
+        initTrack();
+    }
+    
     glUseProgram(startRenderingProgram);
     glBindBuffer(GL_ARRAY_BUFFER, tvbo[0]);
     float points[10];
