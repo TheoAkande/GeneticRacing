@@ -35,7 +35,7 @@ using namespace std;
 #define NUM_GENERATION_LEADERS 7
 #define NUM_WHEEL_CHOICES 3
 
-#define LEARNING_RATE 0.01f
+#define LEARNING_RATE 0.05f
 
 #define NUM_NN_CBS 8
 /*
@@ -84,7 +84,7 @@ class DeepNeuralNets
 
         // Neural network fitness
         static GLuint fitnessSSBO;
-        static float fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
+        static float fitness[NUM_NEURAL_NETS];
         static int topIndices[NUM_GENERATION_LEADERS];
         static int wheelChoices[NUM_WHEEL_CHOICES];
 
