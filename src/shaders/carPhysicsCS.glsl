@@ -50,8 +50,6 @@ uniform float maxSpeed;
 uniform float carMass;
 uniform float deltaTime;
 
-uniform int calNewDistance;
-
 struct Line {
     vec2 p1;
     vec2 p2;
@@ -141,8 +139,8 @@ void doCollision(uint in1Index, uint fitnessIndex) {
     carData[in1Index + 3] = 0.0;
     carData[in1Index + 4] = 0.0;
 
-    // reduce num laps by 2
-    carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] - 3;
+    // reduce total number of gates passed by 1 lap
+    carEval[evalIndex + 1] -= float(numGates);
 }
 
 void main()
@@ -150,7 +148,7 @@ void main()
     uint index = gl_GlobalInvocationID.x;
     uint in1Index = index * numCarFloats;
     uint in2Index = index * numInputs;
-    uint fitnessIndex = index * numFitnessFloats;
+    uint evalIndex = index * numEvalFloats;
 
     float x = carData[in1Index];
     float y = carData[in1Index + 1];
