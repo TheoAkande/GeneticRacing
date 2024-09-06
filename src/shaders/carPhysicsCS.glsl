@@ -233,4 +233,9 @@ void main()
             doCollision(in1Index, evalIndex);
         }
     }
+
+    // Update gate target to be relative to position rather than absolute
+    carData[in1Index + 5] -= x;
+    carData[in1Index + 6] -= y;
+    carData[in1Index + 7] -= angle;
 }
