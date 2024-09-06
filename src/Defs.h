@@ -33,14 +33,11 @@
     6: next gate y
     7: next gate angle
 */
-#define numCarFitnessFloats 6
+#define numCarEvalFloats 3
 /*
-    0: x _interval_ ago
-    1: y _interval_ ago
-    2: distance travelled
-    3: total speed
-    4: laps
-    5: fitness
+    0: next gate (number) to be passed
+    1: total number of gates passed
+    2: total speed (to get average, divide by seconds)
 */
 #define numCBs 9
 /*
@@ -51,8 +48,8 @@
     4: outsideTrack
     5: computerVisionDistances
     6: computerVisionAngles
-    7: gates                    - the midpoints of each gate
-    8: carNextGates             - the next gates the cars are trying to reach
+    7: gates                    - the midpoints and bounds of each gate
+    8: carEvalData              - data to evaluate car fitness
 */
 #define numVCBs 1
 /*
