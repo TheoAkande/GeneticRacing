@@ -32,10 +32,10 @@ using namespace std;
 #define NUM_HIDDEN_LAYER_3_NODES 8
 
 // Definitely evolve the top 3, then the rest are random
-#define NUM_GENERATION_LEADERS 7
-#define NUM_WHEEL_CHOICES 3
+#define NUM_GENERATION_LEADERS 10
+#define NUM_WHEEL_CHOICES 10
 
-#define LEARNING_RATE 0.05f
+#define LEARNING_RATE 0.1f
 
 #define NUM_NN_CBS 8
 /*

@@ -8,9 +8,9 @@ layout (binding = 2) buffer outputBuffer2 {float layer2Weights[]; };
 layout (binding = 3) buffer outputBuffer3 {float layer3Weights[]; };
 layout (binding = 4) buffer outputBuffer4 {float outputLayerWeights[]; };
 
-uniform int topIndices[7];
+uniform int topIndices[10];
 uniform int numLeaders;
-uniform int wheelChoices[3];
+uniform int wheelChoices[10];
 uniform int numWheelChoices;
 
 uniform int numInputs;

@@ -625,18 +625,18 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
 
         // fitness
         // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
-        // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
-        // cout << "Car " << 3 << " fitness: " << fitness[3 * numCarFitnessFloats + 5] << ":" << fitness[3 * numCarFitnessFloats + 4] << endl;
+        // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars, &fitness[0]);
+        // cout << "fitness: " << fitness[0] << endl;
     }
 }
 
 // First learn to move, then learn to move around track
 // Don't want models to know when the simulation ends - want to learn to drive indefinitely
 int framesPerEpoch(int epochs) {
-    if (epochs < 100) {
+    if (epochs < 200) {
         return 60 * (5 + epochs / 10);
     }
-    return 60 * (15 + rand() % 10);
+    return 60 * (25 + rand() % 10);
 }
 
 void trainNeuralNets(int epochs, int epochWriteGap) {
@@ -650,7 +650,7 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
 
         // Load CCW track
         string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
-        trackName = "assets/tracks/track1.tr";
+        trackName = "assets/tracks/track2.tr";
         loadTrack(trackName, true);
 
         // Run simulation on CCW track
@@ -733,8 +733,8 @@ int main(void) {
     setupSimulation(true);
     #ifndef DONT_USE_NNS
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch140_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch100_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch240_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch260_best.txt", 1);
     #endif
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
