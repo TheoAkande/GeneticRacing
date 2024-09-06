@@ -2,7 +2,7 @@
 #define DEFS_H
 
 #define TRAINING false
-#define DONT_USE_NNS // Comment out if using neural networks
+// #define DONT_USE_NNS // Comment out if using neural networks
 
 #define deterministic true
 #define deterministicDt 0.015l
@@ -20,7 +20,7 @@
 #define numVAOs 1
 #define windowWidth 2000
 #define windowHeight 1500
-#define numCars (TRAINING ? 1000 : 2)
+#define numCars (TRAINING ? 1000 : 4)
 #define numDrivers (TRAINING ? 0 : 2)
 #define numCarFloats 8
 /*

@@ -14,6 +14,7 @@ extern "C" {
 #include <glm/gtc/matrix_transform.hpp>
 #include <SOIL2/soil2.h>
 #include <cstdlib>
+#include <time.h>
 
 #include "Utils.h"
 #include "TrackMaker.h"
@@ -410,6 +411,7 @@ void resetCarFitness(void) {
     }
 
     // Write back to buffer
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, &fitness[0], GL_DYNAMIC_DRAW);
 }
 
@@ -616,7 +618,9 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     runSimulation();
     if (!training) {
         getPlayerInputs(window);
-        // DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
+        #ifndef DONT_USE_NNS
+        DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
+        #endif
         visualiseSimulation(window);
 
         // fitness
@@ -644,18 +648,17 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
         // Get CCW and CW track choices
         pair<int, int> tracks = decideTrainingTracks();
 
-        // Testing something
-        tracks.first = 4;
-
         // Load CCW track
         string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
+        trackName = "assets/tracks/track1.tr";
         loadTrack(trackName, true);
 
         // Run simulation on CCW track
         for (int j = 0; j < framesPerEpoch(i); j++) {
             deltaTime = deterministicDt;// + (double)(rand() % 1000) / 100000.0l;
-            runSimulation();
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
+            runSimulation();
+            Utils::checkOpenGLError();
         }
 
         // // Load CW track
@@ -689,6 +692,8 @@ void setupTraining(void) {
 }
 
 int main(void) {
+    srand((unsigned int)time(NULL));
+
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
@@ -728,8 +733,8 @@ int main(void) {
     setupSimulation(true);
     #ifndef DONT_USE_NNS
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch260_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch220_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch140_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch100_best.txt", 1);
     #endif
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
