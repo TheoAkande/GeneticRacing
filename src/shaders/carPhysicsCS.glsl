@@ -189,16 +189,17 @@ void main()
     carData[in1Index + 3] = speed;
     carData[in1Index + 4] = acceleration;
 
-    Line startLine = Line(insideStart, outsideStart);
+    // Note: since we now require each gate to be passed, we may not even need to check for edge collisions as gates have to be passed in order anyway
+    // Check if we cross the next gate
+    int gateIndex = int(carEval[evalIndex]);
+    vec2 gateStart = (gates[gateIndex * 6], gates[gateIndex * 6 + 1]);
+    vec2 gateEnd = (gates[gateIndex * 6 + 3], gates[gateIndex * 6 + 4]);
+    // Note: gateIndex * 6 + 2, 3 is the midpoint
+    Line gateLine = Line(gateStart, gateEnd);
     Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
-    if (cross(startLine, carLine)) {
-        float newL = length(change + startNormal);
-        float maxL = max(length(change), length(startNormal));
-        if (newL > maxL) {
-            carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] + 1;
-        } else if (newL < maxL) {
-            doCollision(in1Index, fitnessIndex);
-        }
+    if (intersect(gateLine, carLine)) {
+        carEval[evalIndex] = carEval[evalIndex] + 1.0;
+        carEval[evalIndex + 1] = carEval[evalIndex + 1] + 1.0;
     }
 
     for (uint i = 0; i < numInsideTrackPoints; i++) {
