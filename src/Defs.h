@@ -42,7 +42,7 @@
     4: laps
     5: fitness
 */
-#define numCBs 7
+#define numCBs 9
 /*
     0: carPos
     1: carFitness
@@ -51,6 +51,8 @@
     4: outsideTrack
     5: computerVisionDistances
     6: computerVisionAngles
+    7: gates                    - the midpoints of each gate
+    8: carNextGates             - the next gates the cars are trying to reach
 */
 #define numVCBs 1
 /*
