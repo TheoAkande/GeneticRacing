@@ -59,9 +59,7 @@ void main()
         }
     }
 
-    if (!cont) {
-        return;
-    } else {
+    if (cont) {
 
         // Generate random weights for the first hidden layer
         uint layerOffsetIndex = index * (numInputs + 1) * numHiddenLayer1Nodes;
