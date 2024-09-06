@@ -193,6 +193,8 @@ void main()
     carData[in1Index + 3] = speed;
     carData[in1Index + 4] = acceleration;
 
+    carEval[evalIndex + 2] += abs(speed) * deltaTime;
+
     // Note: since we now require each gate to be passed, we may not even need to check for edge collisions as gates have to be passed in order anyway
     // Check if we cross the next gate
     uint gateIndex = uint(carEval[evalIndex]);
