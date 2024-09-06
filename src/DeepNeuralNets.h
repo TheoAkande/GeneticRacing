@@ -24,7 +24,7 @@ using namespace std;
 #define NUM_NEURAL_NETS (numCars - numDrivers)
 
 // Currently not an RNN -> if rnn then add numInputs to NUM_INPUTS
-#define NUM_INPUTS (numComputerVisionAngles + numCarFloats + 4) // 4 for start line
+#define NUM_INPUTS (numComputerVisionAngles + numCarFloats - 2) // dont let them know their absolute x and y positions
 #define NUM_OUTPUTS numInputs
 
 #define NUM_HIDDEN_LAYER_1_NODES 32

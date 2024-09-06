@@ -29,18 +29,16 @@ void main()
     uint layerWeightsOffset = (network - numDrivers) * (numInputs + 1) * numHiddenLayerNodes + outNode * (numInputs + 1);
     uint layerOutputsOffset = (network - numDrivers) * numHiddenLayerNodes + outNode;
 
+    int carPosOffset = 2;
+
     // Calculate the weighted sum of the inputs to the hidden layer
     float weightedSum = 0.0;
-    for (int i = 0; i < numCarFloats; i++) {
+    for (int i = carPosOffset; i < numCarFloats; i++) {
         weightedSum += carData[carDataOffset + i] * layer1Weights[layerWeightsOffset + i];
     }
     for (int i = 0; i < numVisionFloats; i++) {
         weightedSum += visionData[visionDataOffset + i] * layer1Weights[layerWeightsOffset + numCarFloats + i];
     }
-    weightedSum += startLine.x * layer1Weights[layerWeightsOffset + numCarFloats + numVisionFloats];
-    weightedSum += startLine.y * layer1Weights[layerWeightsOffset + numCarFloats + numVisionFloats + 1];
-    weightedSum += startLine.z * layer1Weights[layerWeightsOffset + numCarFloats + numVisionFloats + 2];
-    weightedSum += startLine.w * layer1Weights[layerWeightsOffset + numCarFloats + numVisionFloats + 3];
 
     // Add the bias
     weightedSum += layer1Weights[layerWeightsOffset + numInputs];
