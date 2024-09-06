@@ -93,6 +93,7 @@ const char *track = "assets/tracks/track6.tr";
 vector<float> insideTrack;
 vector<float> outsideTrack;
 vector<float> midpoints;
+vector<float> midpointsWithAngles;
 vector<float> normals;
 int numGates = 0;
 float trackStartLine[4];
@@ -310,6 +311,10 @@ void loadTrack(string track, bool training = false) {
             midpoints.push_back(y);
             normals.push_back(n1);
             normals.push_back(n2);
+            midpointsWithAngles.push_back(x);
+            midpointsWithAngles.push_back(y);
+            // add angle of normal to midpointsWithAngles
+            midpointsWithAngles.push_back(atan2(n2, n1));
             numGates++;
         } 
         
@@ -367,6 +372,10 @@ void loadTrack(string track, bool training = false) {
     // Load outside track into compute buffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[4]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outsideTrack.size(), outsideTrack.data(), GL_STATIC_DRAW);
+
+    // Load gates into compute buffer
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[7]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * midpointsWithAngles.size(), midpointsWithAngles.data(), GL_STATIC_DRAW);
 
     loadCars(training);
 }
