@@ -188,6 +188,8 @@ void calculateCarPhysics(void) {
     glUniform1i(nt1Loc, insideTrack.size() / 2);
     nt2Loc = glGetUniformLocation(physicsComputeShader, "numOutsideTrackPoints");
     glUniform1i(nt2Loc, outsideTrack.size() / 2);
+    dtLoc = glGetUniformLocation(physicsComputeShader, "numGates");
+    glUniform1i(dtLoc, numGates);
 
     efLoc = glGetUniformLocation(physicsComputeShader, "engineForce");
     glUniform1f(efLoc, carForce);
@@ -224,6 +226,7 @@ void calculateCarPhysics(void) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[3]); // insideTrack 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[4]); // outsideTrack
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[8]); // car eval data
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, cbo[7]); // gata info
 
     glDispatchCompute(numCars, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
