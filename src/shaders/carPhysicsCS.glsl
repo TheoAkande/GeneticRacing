@@ -156,14 +156,6 @@ void main()
     float speed = carData[in1Index + 3];
     float acceleration = carData[in1Index + 4];
 
-    if (calNewDistance == 1) {
-        float dx = x - carFitness[fitnessIndex];
-        float dy = y - carFitness[fitnessIndex + 1];
-        carFitness[fitnessIndex + 2] += sqrt(dx * dx + dy * dy);
-        carFitness[fitnessIndex] = x;
-        carFitness[fitnessIndex + 1] = y;
-    }
-
     float appliedForce = 0.0;
     float appliedTurning = 0.0;
 
