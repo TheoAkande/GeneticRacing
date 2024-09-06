@@ -116,6 +116,25 @@ struct Car {
 
 Car cars[numCars];
 
+void calculateFitness(void) {
+    glUseProgram(fittnessComputeShader);
+
+    ncfLoc = glGetUniformLocation(fittnessComputeShader, "numCarFloats");
+    glUniform1i(ncfLoc, numCarFloats);
+    ncfLoc = glGetUniformLocation(fittnessComputeShader, "numEvalFloats");
+    glUniform1i(ncfLoc, numCarEvalFloats);
+    ncfLoc = glGetUniformLocation(fittnessComputeShader, "numGates");
+    glUniform1i(ncfLoc, numGates);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[0]); // car data
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[8]); // car eval data
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[7]); // gates
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[1]); // fitness
+
+    glDispatchCompute(numCars, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
 void renderComputerVision(void) {
     // Get computer vision distances
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]); // computerVisionDistances
