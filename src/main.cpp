@@ -278,6 +278,10 @@ void loadCars(bool training) {
         carPos[i * numCarFloats + 2] = cars[i].angle;
         carPos[i * numCarFloats + 3] = cars[i].speed;
         carPos[i * numCarFloats + 4] = cars[i].acceleration;
+        carPos[i * numCarFloats + 5] = midpointsWithAngles[0]; // next gate x
+        carPos[i * numCarFloats + 6] = midpointsWithAngles[1]; // next gate y
+        carPos[i * numCarFloats + 7] = midpointsWithAngles[2]; // next gate angle
+
 
         carEvalData[i * numCarEvalFloats] = 0.0f; // start by passing start line
         carEvalData[i * numCarEvalFloats + 1] = 0.0f; // no gates passed yet
@@ -601,6 +605,7 @@ void setupSimulation(bool visual) {
 
 void runSimulation() {
     calculateCarPhysics();
+    calculateFitness();
     calculateComputerVision();
 }
 
