@@ -373,9 +373,17 @@ void loadTrack(string track, bool training = false) {
 }
 
 void resetCarFitness(void) {
+    // Get car fitness
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]); // carFitness
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
+
+    // Reset just fitness scores
     for (int i = 0; i < numCars; i++) {
         fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
     }
+
+    // Write back to buffer
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0], GL_DYNAMIC_DRAW);
 }
 
 pair<int, int> decideTrainingTracks(void) {
