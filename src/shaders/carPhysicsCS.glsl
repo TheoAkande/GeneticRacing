@@ -142,7 +142,11 @@ void doCollision(uint in1Index, uint evalIndex) {
     carData[in1Index + 2] = startAngle;
     carData[in1Index + 3] = 0.0;
     carData[in1Index + 4] = 0.0;
+    carData[in1Index + 5] = gates[0];
+    carData[in1Index + 6] = gates[1];
+    carData[in1Index + 7] = gates[2];
 
+    carEval[evalIndex] = 0.0;
     // reduce total number of gates passed by 1 lap
     carEval[evalIndex + 1] -= float(numGates);
 }
@@ -215,21 +219,18 @@ void main()
         carData[in1Index + 7] = gates[gateIndex * 3 + 2];
     }
 
-    // Dont do wall collisions for now
-    /*
     for (uint i = 0; i < numInsideTrackPoints; i++) {
         uint inIndex = i * 2;
         Line trackLine = Line(vec2(insideTrack[inIndex], insideTrack[inIndex + 1]), vec2(insideTrack[(inIndex + 2) % (numInsideTrackPoints * 2)], insideTrack[(inIndex + 3) % (numInsideTrackPoints * 2)]));
         if (intersect(carLine, trackLine)) {
-            doCollision(in1Index, fitnessIndex);
+            doCollision(in1Index, evalIndex);
         }
     }
     for (uint i = 0; i < numOutsideTrackPoints; i++) {
         uint inIndex = i * 2;
         Line trackLine = Line(vec2(outsideTrack[inIndex], outsideTrack[inIndex + 1]), vec2(outsideTrack[(inIndex + 2) % (numOutsideTrackPoints * 2)], outsideTrack[(inIndex + 3) % (numOutsideTrackPoints * 2)]));
         if (intersect(carLine, trackLine)) {
-            doCollision(in1Index, fitnessIndex);
+            doCollision(in1Index, evalIndex);
         }
     }
-    */
 }
