@@ -42,5 +42,6 @@ void main()
     float interpolatedDistance = distanceToNextGate / distanceBetweenGates;
     float distanceFitness = 1.0 - interpolatedDistance;
     
-    fitness[index] = gatesPassed + distanceFitness;
+    // Fitness is interpolated number of laps completed
+    fitness[index] = (gatesPassed + distanceFitness) / float(numGates);
 }
