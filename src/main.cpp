@@ -36,7 +36,8 @@ float inputs[numInputs * numCars];
 float carPos[numCars * numCarFloats];
 float carPoints[numCars * 5 * 2];
 
-float fitness[numCars * numCarFitnessFloats];
+float fitness[numCars];
+float carEvalData[numCars * numCarEvalFloats];
 int frames = 0;
 
 float computerVisionAngles[] = {
@@ -181,8 +182,8 @@ void calculateCarPhysics(void) {
     glUniform1i(ncfLoc, numCarFloats);
     niLoc = glGetUniformLocation(physicsComputeShader, "numInputs");
     glUniform1i(niLoc, numInputs);
-    ncfLoc = glGetUniformLocation(physicsComputeShader, "numFitnessFloats");
-    glUniform1i(ncfLoc, numCarFitnessFloats);
+    ncfLoc = glGetUniformLocation(physicsComputeShader, "numEvalFloats"); 
+    glUniform1i(ncfLoc, numCarEvalFloats);
     nt1Loc = glGetUniformLocation(physicsComputeShader, "numInsideTrackPoints");
     glUniform1i(nt1Loc, insideTrack.size() / 2);
     nt2Loc = glGetUniformLocation(physicsComputeShader, "numOutsideTrackPoints");
@@ -222,7 +223,7 @@ void calculateCarPhysics(void) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[2]); // inputs
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[3]); // insideTrack 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[4]); // outsideTrack
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[1]); // carFitness
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[8]); // car eval data
 
     glDispatchCompute(numCars, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -262,12 +263,11 @@ void loadCars(bool training) {
         carPos[i * numCarFloats + 3] = cars[i].speed;
         carPos[i * numCarFloats + 4] = cars[i].acceleration;
 
-        fitness[i * numCarFitnessFloats] = cars[i].x; // x _interval_ ago
-        fitness[i * numCarFitnessFloats + 1] = cars[i].y; // y _interval_ ago
-        fitness[i * numCarFitnessFloats + 2] = 0.0f; // distance travelled
-        fitness[i * numCarFitnessFloats + 3] = 0.0f; // total speed
-        fitness[i * numCarFitnessFloats + 4] = -1.0f; // laps
-        // fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
+        carEvalData[i * numCarEvalFloats] = 0.0f; // start by passing start line
+        carEvalData[i * numCarEvalFloats + 1] = 0.0f; // no gates passed yet
+        carEvalData[i * numCarEvalFloats + 2] = 0.0f; // no speed yet
+
+        fitness[i] = 0.0f; // no fitness yet (on this track)
     }
 
     if (!training) {
@@ -280,7 +280,10 @@ void loadCars(bool training) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFloats, &carPos[0], GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, &fitness[0], GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[8]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarEvalFloats, &carEvalData[0], GL_DYNAMIC_DRAW);
 
     if (!training) calculateCarWheels();
 }
@@ -373,17 +376,13 @@ void loadTrack(string track, bool training = false) {
 }
 
 void resetCarFitness(void) {
-    // Get car fitness
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]); // carFitness
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0]);
-
     // Reset just fitness scores
     for (int i = 0; i < numCars; i++) {
-        fitness[i * numCarFitnessFloats + 5] = 0.0f; // fitness
+        fitness[i] = 0.0f; // fitness
     }
 
     // Write back to buffer
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarFitnessFloats, &fitness[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, &fitness[0], GL_DYNAMIC_DRAW);
 }
 
 pair<int, int> decideTrainingTracks(void) {
