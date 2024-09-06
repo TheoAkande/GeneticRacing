@@ -22,13 +22,16 @@
 #define windowHeight 1500
 #define numCars (TRAINING ? 1000 : 2)
 #define numDrivers (TRAINING ? 0 : 2)
-#define numCarFloats 5
+#define numCarFloats 8
 /*
     0: x
     1: y
     2: angle
     3: speed
     4: acceleration
+    5: next gate x
+    6: next gate y
+    7: next gate angle
 */
 #define numCarFitnessFloats 6
 /*
