@@ -201,7 +201,10 @@ void main()
     Line gateLine = Line(gateStart, gateEnd);
     Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
     if (intersect(gateLine, carLine)) {
-        carEval[evalIndex] = carEval[evalIndex] + 1.0;
+        // get new gate target index
+        gateIndex = (gateIndex + 1) % numGates;
+
+        carEval[evalIndex] = gateIndex + 1.0;
         carEval[evalIndex + 1] = carEval[evalIndex + 1] + 1.0;
 
         // set new gate target
