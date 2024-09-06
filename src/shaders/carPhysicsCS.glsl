@@ -132,7 +132,11 @@ bool intersect(Line l1, Line l2) {
     return false;
 }
 
-void doCollision(uint in1Index, uint fitnessIndex) {
+
+// Since we reduce gates passed by 1 lap, we can reset gate to point to the first one again
+// However, we don't update the eval index since we don't want to give score until we reach a new gate
+// We dont do this at the moment, as we would require 2 pointers to check if we need to score a gate
+void doCollision(uint in1Index, uint evalIndexIndex) {
     carData[in1Index] = startPoint.x;
     carData[in1Index + 1] = startPoint.y;
     carData[in1Index + 2] = startAngle;
@@ -191,17 +195,23 @@ void main()
 
     // Note: since we now require each gate to be passed, we may not even need to check for edge collisions as gates have to be passed in order anyway
     // Check if we cross the next gate
-    int gateIndex = int(carEval[evalIndex]);
-    vec2 gateStart = (gates[gateIndex * 6], gates[gateIndex * 6 + 1]);
-    vec2 gateEnd = (gates[gateIndex * 6 + 3], gates[gateIndex * 6 + 4]);
-    // Note: gateIndex * 6 + 2, 3 is the midpoint
+    uint gateIndex = uint(carEval[evalIndex]);
+    vec2 gateStart = (insideTrack[gateIndex * 2], insideTrack[gateIndex * 2 + 1]);
+    vec2 gateEnd = (outsideTrack[gateIndex * 2], outsideTrack[gateIndex * 2 + 1]);
     Line gateLine = Line(gateStart, gateEnd);
     Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
     if (intersect(gateLine, carLine)) {
         carEval[evalIndex] = carEval[evalIndex] + 1.0;
         carEval[evalIndex + 1] = carEval[evalIndex + 1] + 1.0;
+
+        // set new gate target
+        carData[in1Index + 5] = gates[gateIndex * 3];
+        carData[in1Index + 6] = gates[gateIndex * 3 + 1];
+        carData[in1Index + 7] = gates[gateIndex * 3 + 2];
     }
 
+    // Dont do wall collisions for now
+    /*
     for (uint i = 0; i < numInsideTrackPoints; i++) {
         uint inIndex = i * 2;
         Line trackLine = Line(vec2(insideTrack[inIndex], insideTrack[inIndex + 1]), vec2(insideTrack[(inIndex + 2) % (numInsideTrackPoints * 2)], insideTrack[(inIndex + 3) % (numInsideTrackPoints * 2)]));
@@ -216,4 +226,5 @@ void main()
             doCollision(in1Index, fitnessIndex);
         }
     }
+    */
 }
