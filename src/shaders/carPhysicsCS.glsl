@@ -197,7 +197,7 @@ void main()
 
     // Note: since we now require each gate to be passed, we may not even need to check for edge collisions as gates have to be passed in order anyway
     // Check if we cross the next gate
-    uint gateIndex = uint(carEval[evalIndex]);
+    int gateIndex = int(carEval[evalIndex]);
     vec2 gateStart = vec2(insideTrack[gateIndex * 2], insideTrack[gateIndex * 2 + 1]);
     vec2 gateEnd = vec2(outsideTrack[gateIndex * 2], outsideTrack[gateIndex * 2 + 1]);
     Line gateLine = Line(gateStart, gateEnd);
@@ -206,8 +206,8 @@ void main()
         // get new gate target index
         gateIndex = (gateIndex + 1) % numGates;
 
-        carEval[evalIndex] = gateIndex + 1.0;
-        carEval[evalIndex + 1] = carEval[evalIndex + 1] + 1.0;
+        carEval[evalIndex] = float(gateIndex);
+        carEval[evalIndex + 1] = float(int(carEval[evalIndex + 1] + 1.0));
 
         // set new gate target
         carData[in1Index + 5] = gates[gateIndex * 3];
