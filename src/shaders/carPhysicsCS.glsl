@@ -27,13 +27,15 @@ layout(binding = 0) buffer buffer1 { float carData[]; };
 layout(binding = 1) buffer buffer2 { float carInputs[]; };
 layout(binding = 2) buffer buffer3 {float insideTrack[]; };
 layout(binding = 3) buffer buffer4 {float outsideTrack[]; };
-layout(binding = 4) buffer buffer5 {float carFitness[]; };
+layout(binding = 4) buffer buffer5 {float carEval[]; };
+layout(binding = 5) buffer buffer6 {float gates[]; };
 
 uniform int numCarFloats;
 uniform int numInputs;
-uniform int numFitnessFloats;
+uniform int numEvalFloats;
 uniform int numInsideTrackPoints;
 uniform int numOutsideTrackPoints;
+uniform int numGates;
 
 uniform vec2 insideStart;
 uniform vec2 outsideStart;
