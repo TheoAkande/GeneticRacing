@@ -74,7 +74,8 @@
 
 #define MAX_FLOATS 268435456
 #define MAX_SSBO_SIZE 1073741824
-#define MAX_SSBO 16
+#define MAX_SSBO 96 // we can have 96 total SSBOs
+#define MAX_SSBO_IN_USE 16 // we can pass 16 ssbos max to a compute shader
 
 #define basePath "../../../"
 

@@ -695,6 +695,7 @@ int main(void) {
         exit(EXIT_FAILURE); 
     }
     glfwSwapInterval(1);
+
     init();
     setupSimulation(true);
     #ifndef DONT_USE_NNS
