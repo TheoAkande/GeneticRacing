@@ -136,7 +136,7 @@ bool intersect(Line l1, Line l2) {
 // Since we reduce gates passed by 1 lap, we can reset gate to point to the first one again
 // However, we don't update the eval index since we don't want to give score until we reach a new gate
 // We dont do this at the moment, as we would require 2 pointers to check if we need to score a gate
-void doCollision(uint in1Index, uint evalIndexIndex) {
+void doCollision(uint in1Index, uint evalIndex) {
     carData[in1Index] = startPoint.x;
     carData[in1Index + 1] = startPoint.y;
     carData[in1Index + 2] = startAngle;
@@ -198,8 +198,8 @@ void main()
     // Note: since we now require each gate to be passed, we may not even need to check for edge collisions as gates have to be passed in order anyway
     // Check if we cross the next gate
     uint gateIndex = uint(carEval[evalIndex]);
-    vec2 gateStart = (insideTrack[gateIndex * 2], insideTrack[gateIndex * 2 + 1]);
-    vec2 gateEnd = (outsideTrack[gateIndex * 2], outsideTrack[gateIndex * 2 + 1]);
+    vec2 gateStart = vec2(insideTrack[gateIndex * 2], insideTrack[gateIndex * 2 + 1]);
+    vec2 gateEnd = vec2(outsideTrack[gateIndex * 2], outsideTrack[gateIndex * 2 + 1]);
     Line gateLine = Line(gateStart, gateEnd);
     Line carLine = Line(vec2(oldX, oldY), vec2(x, y));
     if (intersect(gateLine, carLine)) {
