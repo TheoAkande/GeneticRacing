@@ -39,7 +39,7 @@ float DeepNeuralNets::outputOutputs[NUM_OUTPUTS * NUM_NEURAL_NETS];
 
 // Neural network fitness
 GLuint DeepNeuralNets::fitnessSSBO;
-float DeepNeuralNets::fitness[NUM_NEURAL_NETS * numCarFitnessFloats];
+float DeepNeuralNets::fitness[NUM_NEURAL_NETS];
 int DeepNeuralNets::topIndices[NUM_GENERATION_LEADERS];
 int DeepNeuralNets::wheelChoices[NUM_WHEEL_CHOICES];
 
@@ -98,7 +98,7 @@ void DeepNeuralNets::createRandomPopulation(void) {
 void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
     // Gather fitness data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::fitnessSSBO);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * NUM_NEURAL_NETS * numCarFitnessFloats, DeepNeuralNets::fitness);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * NUM_NEURAL_NETS, DeepNeuralNets::fitness);
 
     // Calculate the top fitness scores and indices
     float topFitness[NUM_GENERATION_LEADERS];
@@ -110,7 +110,7 @@ void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
 
     // Not so efficient - improve later
     for (int i = 0; i < NUM_NEURAL_NETS; i++) {
-        float curFitness = DeepNeuralNets::fitness[i * numCarFitnessFloats + 5];
+        float curFitness = DeepNeuralNets::fitness[i];
         float curIndex = i;
         for (int j = 0; j < NUM_GENERATION_LEADERS; j++) {
             if (curFitness > topFitness[j]) {
@@ -232,7 +232,7 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
         DeepNeuralNets::seeds[i] = (float)rand();
     }
 
-    // Setup nnCBO[5-8] for the outputs
+    // Setup nnCBO[5-7] for the outputs
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[5]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_1_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::nnCBOs[6]);
@@ -393,7 +393,7 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     // Dispatch the compute shader
     glDispatchCompute(NUM_NEURAL_NETS, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
- 
+
     DeepNeuralNets::epoch++;
 }
 
