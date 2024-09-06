@@ -48,7 +48,7 @@
     4: outsideTrack
     5: computerVisionDistances
     6: computerVisionAngles
-    7: gates                    - the midpoints and bounds of each gate
+    7: gates                    - the midpoints and bounds of each gate (start -> midpoint -> end)
     8: carEvalData              - data to evaluate car fitness
 */
 #define numVCBs 1
