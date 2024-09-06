@@ -214,13 +214,6 @@ void calculateCarPhysics(void) {
     dtLoc = glGetUniformLocation(physicsComputeShader, "startAngle");
     glUniform1f(dtLoc, cars[0].angle);
 
-    bool newDistance = false;
-    if (frames % calculateDistanceInterval == 0) {
-        newDistance = true;
-    }
-    dtLoc = glGetUniformLocation(physicsComputeShader, "calNewDistance");
-    glUniform1i(dtLoc, newDistance == false ? 0 : 1);
-
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[0]); // carPos
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[2]); // inputs
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[3]); // insideTrack 
