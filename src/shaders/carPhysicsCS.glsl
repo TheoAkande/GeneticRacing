@@ -145,10 +145,6 @@ void doCollision(uint in1Index, uint fitnessIndex) {
     carFitness[fitnessIndex + 4] = carFitness[fitnessIndex + 4] - 3;
 }
 
-void calculateFitness(uint fitnessIndex) {
-    carFitness[fitnessIndex + 5] = carFitness[fitnessIndex + 2] + carFitness[fitnessIndex + 4] * 50.0;
-}
-
 void main()
 {
     uint index = gl_GlobalInvocationID.x;
@@ -229,6 +225,4 @@ void main()
             doCollision(in1Index, fitnessIndex);
         }
     }
-
-    calculateFitness(fitnessIndex);
 }
