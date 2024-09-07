@@ -169,7 +169,7 @@ void main()
 
     appliedForce += carInputs[in2Index] * engineForce;
     appliedForce -= carInputs[in2Index + 1] * engineForce;
-    appliedForce += carInputs[in2Index + 4] * brakeForce * (speed > 0.0 ? -1.0 : 1.0);
+    appliedForce += carInputs[in2Index + 4] * brakeForce * (speed > 0.0 ? -1.0 : speed == 0 ? 0.0 : 1.0);
     appliedTurning += carInputs[in2Index + 2] * maxTurnRate;
     appliedTurning -= carInputs[in2Index + 3] * maxTurnRate;
 
