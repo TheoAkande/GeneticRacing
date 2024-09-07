@@ -5,7 +5,8 @@ layout(local_size_x = 1) in;
 layout (binding = 0) buffer inputBuffer1 { float carData[]; };
 layout (binding = 1) buffer inputBuffer2 { float carEval[]; };
 layout (binding = 2) buffer inputBuffer3 {float gates[]; };
-layout (binding = 3) buffer outputBuffer {float fitness[]; };
+layout (binding = 3) buffer inputBuffer4 {float vision[]; };
+layout (binding = 4) buffer outputBuffer {float fitness[]; };
 
 uniform int numCarFloats;
 uniform int numEvalFloats;
