@@ -43,6 +43,17 @@ void main()
     // Note: will be negative if further away that last gate. That is intended
     float interpolatedDistance = distanceToNextGate / distanceBetweenGates;
     float distanceFitness = 1.0 - interpolatedDistance;
+
+    // Retrieve distance to wall ahead
+    float distanceToWall = vision[index * numComputerVisionAngles];
+    // Retrieve current speed
+    float speed = carData[index * numCarFloats + 3];
+    // Braking distance of the car:
+    float brakingDistance = speed * speed / (2.0 * 0.3);
+    float speedPenalty = 0.0;
+    if (distanceToWall < brakingDistance) {
+        speedPenalty = -5.0 * (brakingDistance - distanceToWall) / brakingDistance;
+    }
     
     // Fitness is interpolated number of laps completed
     fitness[index] = (gatesPassed + distanceFitness) / float(numGates);
