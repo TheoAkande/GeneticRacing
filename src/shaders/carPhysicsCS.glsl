@@ -50,9 +50,6 @@ uniform float maxSpeed;
 uniform float carMass;
 uniform float deltaTime;
 
-uniform float brakingForce;
-uniform float mass;
-
 struct Line {
     vec2 p1;
     vec2 p2;

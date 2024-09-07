@@ -13,6 +13,9 @@ uniform int numEvalFloats;
 uniform int numGates;
 uniform int numComputerVisionAngles;
 
+uniform float brakingForce;
+uniform float mass;
+
 void main()
 {
     uint index = gl_GlobalInvocationID.x;
@@ -49,7 +52,7 @@ void main()
     // Retrieve current speed
     float speed = carData[index * numCarFloats + 3];
     // Braking distance of the car:
-    float brakingDistance = speed * speed / (2.0 * 0.3);
+    float brakingDistance = mass * speed * speed / (2.0 * brakeForce);
     float speedPenalty = 0.0;
     if (distanceToWall < brakingDistance) {
         speedPenalty = -5.0 * (brakingDistance - distanceToWall) / brakingDistance;
