@@ -27,7 +27,7 @@ using namespace std;
 #define NUM_INPUTS (numComputerVisionAngles + numCarFloats - 2) // dont let them know their absolute x and y positions
 #define NUM_OUTPUTS numInputs
 
-#define NUM_HIDDEN_LAYER_1_NODES 32
+#define NUM_HIDDEN_LAYER_1_NODES 16
 #define NUM_HIDDEN_LAYER_2_NODES 16
 #define NUM_HIDDEN_LAYER_3_NODES 8
 
