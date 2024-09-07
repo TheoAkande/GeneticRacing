@@ -126,6 +126,8 @@ void calculateFitness(void) {
     glUniform1i(ncfLoc, numCarEvalFloats);
     ncfLoc = glGetUniformLocation(fittnessComputeShader, "numGates");
     glUniform1i(ncfLoc, numGates);
+    ncfLoc = glGetUniformLocation(fittnessComputeShader, "numComputerVisionAngles");
+    glUniform1i(ncfLoc, numComputerVisionAngles);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[0]); // car data
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[8]); // car eval data

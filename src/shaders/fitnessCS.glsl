@@ -11,6 +11,7 @@ layout (binding = 4) buffer outputBuffer {float fitness[]; };
 uniform int numCarFloats;
 uniform int numEvalFloats;
 uniform int numGates;
+uniform int numComputerVisionAngles;
 
 void main()
 {
