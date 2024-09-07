@@ -52,7 +52,7 @@ void main()
     // Retrieve current speed
     float speed = carData[index * numCarFloats + 3];
     // Braking distance of the car:
-    float brakingDistance = mass * speed * speed / (2.0 * brakeForce);
+    float brakingDistance = mass * speed * speed / (2.0 * brakingForce);
     float speedPenalty = 0.0;
     if (distanceToWall < brakingDistance) {
         speedPenalty = -5.0 * (brakingDistance - distanceToWall) / brakingDistance;
