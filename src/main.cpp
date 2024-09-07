@@ -130,7 +130,8 @@ void calculateFitness(void) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbo[0]); // car data
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbo[8]); // car eval data
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbo[7]); // gates
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[1]); // fitness
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, cbo[5]); // computer vision distances
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, cbo[1]); // fitness
 
     glDispatchCompute(numCars, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -630,12 +631,11 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     }
 }
 
-// First learn to move, then learn to move around track
-// Don't want models to know when the simulation ends - want to learn to drive indefinitely
+// Dont want to teach overconfidence
 int framesPerEpoch(int epochs) {
-    if (epochs < 200) {
-        return 60 * (5 + epochs / 10);
-    }
+    // if (epochs < 200) {
+    //     return 60 * (5 + epochs / 10);
+    // }
     return 60 * (25 + rand() % 10);
 }
 
@@ -688,7 +688,7 @@ void setupTraining(void) {
     DeepNeuralNets::setupTraining(cbo[0], cbo[5], cbo[2], cbo[1]);
     #endif
 
-    trainNeuralNets(10000, 20);
+    trainNeuralNets(100000, 10);
 }
 
 int main(void) {
@@ -733,8 +733,8 @@ int main(void) {
     setupSimulation(true);
     #ifndef DONT_USE_NNS
     DeepNeuralNets::initNeuralNets(cbo[0], cbo[5], cbo[2], cbo[1]);
-    DeepNeuralNets::importModel("assets/models/epoch240_best.txt", 0);
-    DeepNeuralNets::importModel("assets/models/epoch260_best.txt", 1);
+    DeepNeuralNets::importModel("assets/models/epoch100_best.txt", 0);
+    DeepNeuralNets::importModel("assets/models/epoch80_best.txt", 1);
     #endif
     while (!glfwWindowShouldClose(window)) {
         if (shouldCreateTrack) {
