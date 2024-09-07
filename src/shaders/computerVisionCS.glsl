@@ -162,6 +162,12 @@ void main()
         }
     }
 
+    if (angleIndex == 0) {
+        float speed = carData[inIndex + 3];
+        float brakingDistance = speed * speed / (2.0 * 0.3);
+        minDistance = brakingDistance;
+    }
+
     distances[outIndex] = minDistance;
 }
 
