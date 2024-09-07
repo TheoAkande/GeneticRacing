@@ -614,8 +614,8 @@ void setupSimulation(bool visual) {
 
 void runSimulation() {
     calculateCarPhysics();
-    calculateFitness();
     calculateComputerVision();
+    calculateFitness();
 }
 
 void runFrame(GLFWwindow *window, double currentTime, bool training) {
