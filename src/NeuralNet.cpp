@@ -6,7 +6,21 @@ bool FeedForwardNeuralNet::initialized = false;
 
 // Private
 
+void FeedForwardNeuralNet::setupArchitecture(void)
+{
+    // Setup compute buffer objects
+    numCbs = architecture.size() * 2;   // 1 for weights, 1 for outputs per layer
+    cbs.resize(numCbs);
+    glGenBuffers(numCbs, cbs.data());
 
+    // Setup weights and outputs
+    outputs.push_back(new vector<float>(architecture[0]));  // Inputs count as outputs of first layer
+    for (int i = 0; i < architecture.size() - 1; i++)
+    {
+        weights.push_back(new vector<float>((architecture[i] + 1) * architecture[i + 1]));  // num weights = num inputs + 1 for bias
+        outputs.push_back(new vector<float>(architecture[i + 1]));
+    }
+}
 
 
 
