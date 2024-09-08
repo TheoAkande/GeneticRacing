@@ -41,7 +41,8 @@ class FeedForwardNeuralNet
         void feedForward(int layer);        // Feed data from layer to layer + 1
         void loadWeights(string path);      // Load weights from file
 
-        static float randomWeightRange;
+        static float randomWeightRange;     // Range of random weights
+        static GLuint invocationShader;     // Shader for invoking the neural net
     public:
         FeedForwardNeuralNet(vector<int> architecture, string weightPath);  // Construct from persisted weights
         FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);      // Construct with random weights
