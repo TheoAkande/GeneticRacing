@@ -38,6 +38,7 @@ class FeedForwardNeuralNet
         vector<vector<float> *> outputs;    // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
         vector<GLuint> cbs;                 // Compute buffer objects: 2 * i = weights, 2 * i + 1 = outputs
         int numCbs;                         // Number of compute buffer objects
+        GLuint uLoc;                        // Uniform location
 
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights

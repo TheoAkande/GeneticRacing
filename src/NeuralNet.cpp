@@ -43,6 +43,12 @@ void FeedForwardNeuralNet::feedForward(int layer) {
     // Bind the shader
     glUseProgram(invocationShader);
 
+    // Set the uniforms
+    this->uLoc = glGetUniformLocation(invocationShader, "numInputs");
+    glUniform1i(this->uLoc, this->architecture[layer]);
+    this->uLoc = glGetUniformLocation(invocationShader, "numOutputs");
+    glUniform1i(this->uLoc, this->architecture[layer + 1]);
+
     // Bind the weights
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, this->cbs[layer * 2]);      // Weights
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, this->cbs[layer * 2 + 1]);  // Inputs
@@ -59,7 +65,7 @@ void FeedForwardNeuralNet::loadWeights(string path) {
 
 void FeedForwardNeuralNet::setupClass(void) {
     // Load the invocation shader
-    invocationShader = Utils::createShaderProgram("shaders/neuralNet/invocation.glsl");
+    invocationShader = Utils::createShaderProgram("src/shaders/neuralNet/feedforward.glsl");
 
     initialized = true;
 }
