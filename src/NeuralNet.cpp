@@ -10,6 +10,17 @@ float FeedForwardNeuralNet::randomWeightRange = 1.0f;
 
 // Public
 
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath)
+{
+    this->architecture = architecture;
+    this->initialized = false;
+
+    setupArchitecture();
+    loadWeights(weightPath);
+
+    this->initialized = true;
+}
+
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed)
 {
     this->architecture = architecture;
