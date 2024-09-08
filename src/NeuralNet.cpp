@@ -45,6 +45,21 @@ void FeedForwardNeuralNet::createRandomWeights(void)
     }
 }
 
+void FeedForwardNeuralNet::feedForward(int layer)
+{
+    // Bind the shader
+    glUseProgram(invocationShader);
+
+    // Bind the weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cbs[layer * 2]);      // Weights
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cbs[layer * 2 + 1]);  // Inputs
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cbs[layer * 2 + 3]);  // Outputs    
+
+    // Dispatch the compute shader
+    glDispatchCompute(architecture[layer + 1], 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
 
 
 // Public
