@@ -38,6 +38,7 @@ class FeedForwardNeuralNet
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
         void feedForward(int layer);        // Feed data from layer to layer + 1
+        void loadWeights(string path);      // Load weights from file
 
         static float randomWeightRange;
     public:
