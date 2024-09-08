@@ -1,4 +1,5 @@
 #include "NeuralNet.h"
+#include "Utils.h"
 
 float FeedForwardNeuralNet::randomWeightRange = 1.0f;
 GLuint FeedForwardNeuralNet::invocationShader;
@@ -58,6 +59,16 @@ void FeedForwardNeuralNet::feedForward(int layer)
     // Dispatch the compute shader
     glDispatchCompute(architecture[layer + 1], 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
+
+
+void FeedForwardNeuralNet::setupClass(void)
+{
+    // Load the invocation shader
+    invocationShader = Utils::createShaderProgram("shaders/neuralNet/invocation.glsl");
+
+    initialized = true;
 }
 
 
