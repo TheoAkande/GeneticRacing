@@ -21,3 +21,8 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t se
 
     this->initialized = true;
 }
+
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture)
+{
+    FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
+}
