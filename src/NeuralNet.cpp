@@ -7,8 +7,7 @@ bool FeedForwardNeuralNet::initialized = false;
 
 // Private
 
-void FeedForwardNeuralNet::setupArchitecture(void)
-{
+void FeedForwardNeuralNet::setupArchitecture(void) {
     // Setup compute buffer objects
     numCbs = architecture.size() * 2;   // 1 for weights, 1 for outputs per layer
     cbs.resize(numCbs);
@@ -17,37 +16,31 @@ void FeedForwardNeuralNet::setupArchitecture(void)
     // Setup weights and outputs
     outputs.push_back(new vector<float>(architecture[0]));  // Inputs count as outputs of first layer
     outputs[0]->resize(architecture[0]);
-    for (int i = 0; i < architecture.size() - 1; i++)
-    {
+    for (int i = 0; i < architecture.size() - 1; i++) {
         weights.push_back(new vector<float>((architecture[i] + 1) * architecture[i + 1]));  // num weights = num inputs + 1 for bias
         outputs.push_back(new vector<float>(architecture[i + 1]));
         outputs[i + 1]->resize(architecture[i + 1]);
     }
 }
 
-void FeedForwardNeuralNet::createRandomWeights(void)
-{
+void FeedForwardNeuralNet::createRandomWeights(void) {
     // Note: parallelize this later when I make better glsl random number generator
     // Generate weights
-    for (int i = 0; i < weights.size(); i++)
-    {
-        for (int j = 0; j < weights[i]->size(); j++)
-        {
+    for (int i = 0; i < weights.size(); i++) {
+        for (int j = 0; j < weights[i]->size(); j++) {
             (*weights[i])[j] = (float)rand() / (float)RAND_MAX * randomWeightRange * 2 - randomWeightRange;
         }
     }
 
     // Load weights into compute buffer objects
-    for (int i = 0; i < weights.size(); i++)
-    {
+    for (int i = 0; i < weights.size(); i++) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbs[i * 2]);
         // Note: we use DYNAMIC_COPY because at the moment the outputs are going to be stored back to CPU each time
         glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * weights[i]->size(), weights[i]->data(), GL_DYNAMIC_COPY);
     }
 }
 
-void FeedForwardNeuralNet::feedForward(int layer)
-{
+void FeedForwardNeuralNet::feedForward(int layer) {
     // Bind the shader
     glUseProgram(invocationShader);
 
@@ -65,8 +58,7 @@ void FeedForwardNeuralNet::loadWeights(string path) {
     // for now do nothing
 }
 
-void FeedForwardNeuralNet::setupClass(void)
-{
+void FeedForwardNeuralNet::setupClass(void) {
     // Load the invocation shader
     invocationShader = Utils::createShaderProgram("shaders/neuralNet/invocation.glsl");
 
@@ -77,8 +69,7 @@ void FeedForwardNeuralNet::setupClass(void)
 
 // Public
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath)
-{
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath) {
     if (!initialized) setupClass();
 
     this->architecture = architecture;
@@ -87,8 +78,7 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weig
     loadWeights(weightPath);
 }
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed)
-{
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed) {
     if (!initialized) setupClass();
 
     this->architecture = architecture;
@@ -98,15 +88,12 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t se
     createRandomWeights();
 }
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture)
-{
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture) {
     FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
 }
 
-void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
-{
-    if (!initialized)
-    {
+void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs) {
+    if (!initialized) {
         cout << "Neural nets not initialized" << endl;
         return;
     }
@@ -129,10 +116,8 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
     memcpy(outputs->data(), this->outputs.back()->data(), sizeof(float) * this->architecture.back());
 }
 
-void FeedForwardNeuralNet::destroy(void)
-{
-    for (int i = 0; i < weights.size(); i++)
-    {
+void FeedForwardNeuralNet::destroy(void) {
+    for (int i = 0; i < weights.size(); i++) {
         delete weights[i];
         delete outputs[i];
     }
