@@ -38,7 +38,16 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture)
     FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
 }
 
+void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
+{
+    if (!initialized)
+    {
+        cout << "Neural net not initialized" << endl;
+        return;
+    }
 
+    // Invoke
+}
 
 void FeedForwardNeuralNet::destroy(void)
 {
