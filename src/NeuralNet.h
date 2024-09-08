@@ -21,8 +21,12 @@
 #include <time.h>
 
 #include "Defs.h"
+#include "Utils.h"
 
 using namespace std;
+
+#ifndef NEURALNET_H
+#define NEURALNET_H
 
 class FeedForwardNeuralNet
 {
@@ -53,3 +57,5 @@ class FeedForwardNeuralNet
         void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
         void destroy(void); // Free memory
 };
+
+#endif
