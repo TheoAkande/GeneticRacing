@@ -15,10 +15,12 @@ void FeedForwardNeuralNet::setupArchitecture(void)
 
     // Setup weights and outputs
     outputs.push_back(new vector<float>(architecture[0]));  // Inputs count as outputs of first layer
+    outputs[0]->resize(architecture[0]);
     for (int i = 0; i < architecture.size() - 1; i++)
     {
         weights.push_back(new vector<float>((architecture[i] + 1) * architecture[i + 1]));  // num weights = num inputs + 1 for bias
         outputs.push_back(new vector<float>(architecture[i + 1]));
+        outputs[i + 1]->resize(architecture[i + 1]);
     }
 }
 
@@ -38,7 +40,8 @@ void FeedForwardNeuralNet::createRandomWeights(void)
     for (int i = 0; i < weights.size(); i++)
     {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbs[i * 2]);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * weights[i]->size(), weights[i]->data(), GL_STATIC_DRAW);
+        // Note: we use DYNAMIC_COPY because at the moment the outputs are going to be stored back to CPU each time
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * weights[i]->size(), weights[i]->data(), GL_DYNAMIC_COPY);
     }
 }
 
@@ -80,7 +83,22 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
         return;
     }
 
-    // Invoke
+    // Load input data
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbs[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * inputs->size(), inputs->data(), GL_DYNAMIC_DRAW);
+    memcpy(this->outputs[0]->data(), inputs->data(), sizeof(float) * inputs->size());
+
+    for (int i = 0; i < weights.size(); i++) {
+        // Feed forward through the network
+        feedForward(i); 
+        // Get output
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbs[(i + 1) * 2 + 1]);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->outputs[i + 1]->size(), this->outputs[i + 1]->data());
+    }
+
+    // Copy outputs to output vector
+    outputs->resize(this->architecture.back());
+    memcpy(outputs->data(), this->outputs.back()->data(), sizeof(float) * this->architecture.back());
 }
 
 void FeedForwardNeuralNet::destroy(void)
