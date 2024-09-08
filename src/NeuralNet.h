@@ -43,6 +43,8 @@ class FeedForwardNeuralNet
         static bool initialized;            // Whether the neural net class is initialized
         static float randomWeightRange;     // Range of random weights
         static GLuint invocationShader;     // Shader for invoking the neural net
+
+        static void setupClass(void);       // Setup the class
     public:
         FeedForwardNeuralNet(vector<int> architecture, string weightPath);  // Construct from persisted weights
         FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);      // Construct with random weights

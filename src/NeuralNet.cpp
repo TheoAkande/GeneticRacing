@@ -1,6 +1,8 @@
 #include "NeuralNet.h"
 
 float FeedForwardNeuralNet::randomWeightRange = 1.0f;
+GLuint FeedForwardNeuralNet::invocationShader;
+bool FeedForwardNeuralNet::initialized = false;
 
 // Private
 
@@ -12,6 +14,8 @@ float FeedForwardNeuralNet::randomWeightRange = 1.0f;
 
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath)
 {
+    if (!initialized) setupClass();
+
     this->architecture = architecture;
 
     setupArchitecture();
@@ -20,6 +24,8 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weig
 
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed)
 {
+    if (!initialized) setupClass();
+
     this->architecture = architecture;
     this->seed = seed;
 
