@@ -28,7 +28,6 @@ class FeedForwardNeuralNet
 {
     private:
         uint64_t seed;
-        bool initialized;
 
         vector<int> architecture;           // Number of nodes in each layer
         vector<vector<float> *> weights;    // Pointers to each layer's weights
@@ -40,7 +39,8 @@ class FeedForwardNeuralNet
         void createRandomWeights(void);     // Initialize random weights
         void feedForward(int layer);        // Feed data from layer to layer + 1
         void loadWeights(string path);      // Load weights from file
-
+        
+        static bool initialized;            // Whether the neural net class is initialized
         static float randomWeightRange;     // Range of random weights
         static GLuint invocationShader;     // Shader for invoking the neural net
     public:

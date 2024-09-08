@@ -13,24 +13,18 @@ float FeedForwardNeuralNet::randomWeightRange = 1.0f;
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath)
 {
     this->architecture = architecture;
-    this->initialized = false;
 
     setupArchitecture();
     loadWeights(weightPath);
-
-    this->initialized = true;
 }
 
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed)
 {
     this->architecture = architecture;
     this->seed = seed;
-    this->initialized = false;
 
     setupArchitecture();
     createRandomWeights();
-
-    this->initialized = true;
 }
 
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture)
@@ -42,7 +36,7 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
 {
     if (!initialized)
     {
-        cout << "Neural net not initialized" << endl;
+        cout << "Neural nets not initialized" << endl;
         return;
     }
 
