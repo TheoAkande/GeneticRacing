@@ -642,7 +642,7 @@ int framesPerEpoch(int epochs) {
     // if (epochs < 200) {
     //     return 60 * (5 + epochs / 10);
     // }
-    return 60 * (25 + rand() % 10);
+    return 60 * (35 + rand() % 10);
 }
 
 void trainNeuralNets(int epochs, int epochWriteGap) {

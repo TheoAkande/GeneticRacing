@@ -1,8 +1,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#define TRAINING false
-#define DONT_USE_NNS // Comment out if using neural networks
+#define TRAINING true
+// #define DONT_USE_NNS // Comment out if using neural networks
 
 #define deterministic true
 #define deterministicDt 0.015l
