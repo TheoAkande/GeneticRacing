@@ -35,6 +35,7 @@ class FeedForwardNeuralNet
         vector<vector<float> *> outputs;    // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
         vector<GLuint> cbs;                 // Compute buffer objects
 
+        void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
         void feedForward(int layer);        // Feed data from layer to layer + 1
 
