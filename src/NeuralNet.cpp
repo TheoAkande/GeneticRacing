@@ -37,3 +37,15 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture)
 {
     FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
 }
+
+
+
+void FeedForwardNeuralNet::destroy(void)
+{
+    for (int i = 0; i < weights.size(); i++)
+    {
+        delete weights[i];
+        delete outputs[i];
+    }
+    glDeleteBuffers(numCbs, cbs.data());
+}
