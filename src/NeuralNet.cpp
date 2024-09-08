@@ -22,6 +22,26 @@ void FeedForwardNeuralNet::setupArchitecture(void)
     }
 }
 
+void FeedForwardNeuralNet::createRandomWeights(void)
+{
+    // Note: parallelize this later when I make better glsl random number generator
+    // Generate weights
+    for (int i = 0; i < weights.size(); i++)
+    {
+        for (int j = 0; j < weights[i]->size(); j++)
+        {
+            (*weights[i])[j] = (float)rand() / (float)RAND_MAX * randomWeightRange * 2 - randomWeightRange;
+        }
+    }
+
+    // Load weights into compute buffer objects
+    for (int i = 0; i < weights.size(); i++)
+    {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbs[i * 2]);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * weights[i]->size(), weights[i]->data(), GL_STATIC_DRAW);
+    }
+}
+
 
 
 // Public
