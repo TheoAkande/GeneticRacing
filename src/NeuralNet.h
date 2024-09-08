@@ -1,0 +1,48 @@
+// As opposed to "DeepNeuralNets", which is a set of multiple evolved brains, 
+// NeuralNet is a single brain that will be taught via conventional methods (back propogation)
+// As such, it will be parallelized and constructed differently
+// For example, each neural net will be its own object, rather than static
+// This also allows for polymorphism for different net architectures (rnn, convolutional, lstm, etc)
+// We will also use vectors almost exclusively for flexibility
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <SOIL2/soil2.h>
+#include <cstdlib>
+#include <chrono>
+#include <time.h>
+
+#include "Defs.h"
+
+using namespace std;
+
+class FeedForwardNeuralNet
+{
+    private:
+        uint64_t seed;
+        bool initialized;
+
+        vector<int> architecture;           // Number of nodes in each layer
+        vector<vector<float> *> weights;    // Pointers to each layer's weights
+        vector<vector<float> *> outputs;    // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
+        vector<GLuint> cbs;                 // Compute buffer objects
+
+        void createRandomWeights(void);     // Initialize random weights
+        void feedForward(int layer);        // Feed data from layer to layer + 1
+
+        static float randomWeightRange;
+    public:
+        FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);
+        FeedForwardNeuralNet(vector<int> architecture);
+
+        void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
+        void destroy(void); // Free memory
+};
