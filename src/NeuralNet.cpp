@@ -61,7 +61,9 @@ void FeedForwardNeuralNet::feedForward(int layer)
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
-
+void FeedForwardNeuralNet::loadWeights(string path) {
+    // for now do nothing
+}
 
 void FeedForwardNeuralNet::setupClass(void)
 {
