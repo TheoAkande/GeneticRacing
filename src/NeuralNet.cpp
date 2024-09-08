@@ -94,7 +94,7 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t se
 }
 
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softmax) {
-    FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
+    FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL), softmax);
 }
 
 void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs) {
