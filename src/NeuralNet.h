@@ -40,8 +40,9 @@ class FeedForwardNeuralNet
 
         static float randomWeightRange;
     public:
-        FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);
-        FeedForwardNeuralNet(vector<int> architecture);
+        FeedForwardNeuralNet(vector<int> architecture, string weightPath);  // Construct from persisted weights
+        FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);      // Construct with random weights
+        FeedForwardNeuralNet(vector<int> architecture);                     // Construct with random weights and seed from time
 
         void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
         void destroy(void); // Free memory
