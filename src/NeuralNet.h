@@ -39,6 +39,7 @@ class FeedForwardNeuralNet
         vector<GLuint> cbs;                 // Compute buffer objects: 2 * i = weights, 2 * i + 1 = outputs
         int numCbs;                         // Number of compute buffer objects
         GLuint uLoc;                        // Uniform location
+        bool softmax;                       // Whether to apply softmax to the output (if so, add extra layer)
 
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
@@ -51,9 +52,9 @@ class FeedForwardNeuralNet
 
         static void setupClass(void);       // Setup the class
     public:
-        FeedForwardNeuralNet(vector<int> architecture, string weightPath);  // Construct from persisted weights
-        FeedForwardNeuralNet(vector<int> architecture, uint64_t seed);      // Construct with random weights
-        FeedForwardNeuralNet(vector<int> architecture);                     // Construct with random weights and seed from time
+        FeedForwardNeuralNet(vector<int> architecture, string weightPath, bool softmax = false);  // Construct from persisted weights
+        FeedForwardNeuralNet(vector<int> architecture, uint64_t seed, bool softmax = false);      // Construct with random weights
+        FeedForwardNeuralNet(vector<int> architecture, bool softmax = false);                     // Construct with random weights and seed from time
 
         void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
         void destroy(void); // Free memory

@@ -14,11 +14,9 @@ void FeedForwardNeuralNet::setupArchitecture(void) {
 
     // Setup weights and outputs
     this->outputs.push_back(new vector<float>(this->architecture[0]));  // Inputs count as outputs of first layer
-    this->outputs[0]->resize(this->architecture[0]);
     for (int i = 0; i < this->architecture.size() - 1; i++) {
         this->weights.push_back(new vector<float>((this->architecture[i] + 1) * this->architecture[i + 1]));  // num weights = num inputs + 1 for bias
         this->outputs.push_back(new vector<float>(this->architecture[i + 1]));
-        this->outputs[i + 1]->resize(this->architecture[i + 1]);
     }
 }
 
@@ -74,26 +72,28 @@ void FeedForwardNeuralNet::setupClass(void) {
 
 // Public
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath) {
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath, bool softmax) {
     if (!initialized) setupClass();
 
     this->architecture = architecture;
+    this->softmax = softmax;
 
     setupArchitecture();
     loadWeights(weightPath);
 }
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed) {
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed, bool softmax) {
     if (!initialized) setupClass();
 
     this->architecture = architecture;
     this->seed = seed;
+    this->softmax = softmax;
 
     setupArchitecture();
     createRandomWeights();
 }
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture) {
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softmax) {
     FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL));
 }
 
@@ -116,14 +116,28 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->outputs[i + 1]->size(), this->outputs[i + 1]->data());
     }
 
-    // Copy outputs to output vector
-    outputs->resize(this->architecture.back());
-    memcpy(outputs->data(), this->outputs.back()->data(), sizeof(float) * this->architecture.back());
+    outputs->clear();
+    if (softmax) {
+        // Apply softmax to the output
+        float sum = 0.0f;
+        for (int i = 0; i < this->outputs.back()->size(); i++) {
+            sum += exp(this->outputs.back()->at(i));
+        }
+        for (int i = 0; i < this->outputs.back()->size(); i++) {
+            outputs->push_back(exp(this->outputs.back()->at(i)) / sum);
+        }
+    } else {
+        // Copy outputs to output vector
+        outputs->resize(this->architecture.back());
+        memcpy(outputs->data(), this->outputs.back()->data(), sizeof(float) * this->architecture.back());
+    }
 }
 
 void FeedForwardNeuralNet::destroy(void) {
     for (int i = 0; i < this->weights.size(); i++) {
         delete this->weights[i];
+    }
+    for (int i = 0; i < this->outputs.size(); i++) {
         delete this->outputs[i];
     }
     glDeleteBuffers(this->numCbs, this->cbs.data());
