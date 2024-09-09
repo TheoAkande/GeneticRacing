@@ -17,6 +17,9 @@ void FeedForwardNeuralNet::setupArchitecture(void) {
     for (int i = 0; i < this->architecture.size() - 1; i++) {
         this->weights.push_back(new vector<float>((this->architecture[i] + 1) * this->architecture[i + 1]));  // num weights = num inputs + 1 for bias
         this->outputs.push_back(new vector<float>(this->architecture[i + 1]));
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->cbs[i * 2 + 3]);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->architecture[i + 1], NULL, GL_DYNAMIC_DRAW);
     }
 }
 
@@ -109,7 +112,7 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
 
     for (int i = 0; i < this->weights.size(); i++) {
         // Feed forward through the network
-        feedForward(i); 
+        feedForward(i);
         // Get output
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->cbs[(i + 1) * 2 + 1]);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->outputs[i + 1]->size(), this->outputs[i + 1]->data());
