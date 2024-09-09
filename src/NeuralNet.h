@@ -41,6 +41,10 @@ class FeedForwardNeuralNet
         GLuint uLoc;                        // Uniform location
         bool softmax;                       // Whether to apply softmax to the output (if so, add extra layer)
 
+        int iterations;                     // Number of gradient descent iterations run
+        float learningRate;                 // Rate at which weights are updated
+        vector<vector<float> *> gradients;  // Gradients for each layer
+
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
         void feedForward(int layer);        // Feed data from layer to layer + 1
@@ -58,6 +62,8 @@ class FeedForwardNeuralNet
 
         void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
         void destroy(void); // Free memory
+        void backPropagate(vector<float> *expected);                // Back propagate the error
+        void descendGradient(void);                                 // Descend the gradient
 };
 
 #endif
