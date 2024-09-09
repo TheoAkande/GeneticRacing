@@ -2,9 +2,9 @@
 
 layout (local_size_x = 1) in;
 
-layout(binding = 0) buffer buffer1 { float weights[]; };
-layout(binding = 1) buffer buffer2 { float inputs[]; };
-layout(binding = 2) buffer buffer3 { float outputs[]; };
+layout (binding = 0) buffer buffer1 { float weights[]; };
+layout (binding = 1) buffer buffer2 { float inputs[]; };
+layout (binding = 2) buffer buffer3 { float outputs[]; };
 
 uniform int numInputs;
 uniform int numOutputs;
@@ -25,7 +25,7 @@ void main()
     // Calculate the weighted sum of the inputs to the hidden layer
     float weightedSum = 0.0;
     for (int i = 0; i < numInputs; i++) {
-        weightedSum += inputs[i] * weights[weightsBase +  i];
+        weightedSum += inputs[i] * weights[weightsBase + i];
     }
 
     // Add the bias
