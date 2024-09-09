@@ -63,7 +63,7 @@ void FeedForwardNeuralNet::loadWeights(string path) {
 
 void FeedForwardNeuralNet::setupClass(void) {
     // Load the invocation shader
-    invocationShader = Utils::createShaderProgram("src/shaders/neuralNet/feedforward.glsl");
+    invocationShader = Utils::createShaderProgram("shaders/neuralNet/feedforward.glsl");
 
     initialized = true;
 }
@@ -93,9 +93,8 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t se
     createRandomWeights();
 }
 
-FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softmax) {
-    FeedForwardNeuralNet::FeedForwardNeuralNet(architecture, (uint64_t)time(NULL), softmax);
-}
+FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softmax) 
+    : FeedForwardNeuralNet(architecture, (uint64_t)time(NULL), softmax) {}
 
 void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs) {
     if (!initialized) {
