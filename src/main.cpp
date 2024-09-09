@@ -20,6 +20,7 @@ extern "C" {
 #include "TrackMaker.h"
 #include "Defs.h"
 #include "DeepNeuralNets.h"
+#include "NeuralNet.h"
 
 using namespace std;
 
@@ -697,6 +698,10 @@ void setupTraining(void) {
     trainNeuralNets(100000, 10);
 }
 
+void trainFitnessFunc(void) {
+    
+}
+
 int main(void) {
     srand((unsigned int)time(NULL));
 
@@ -719,7 +724,9 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
 
-        setupTraining();
+        trainFitnessFunc();
+
+        //setupTraining();
 
         exit(EXIT_SUCCESS);
     }
