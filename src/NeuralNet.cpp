@@ -144,3 +144,7 @@ void FeedForwardNeuralNet::destroy(void) {
     }
     glDeleteBuffers(this->numCbs, this->cbs.data());
 }
+
+void FeedForwardNeuralNet::backPropagate(vector<float> *expected) {
+    // Do nothing for now
+}
