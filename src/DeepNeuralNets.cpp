@@ -52,6 +52,7 @@ float DeepNeuralNets::genLeadersFitness[NUM_GENERATION_LEADERS];
 
 // Private methods
 
+// Create a population of randomly weighted neural nets
 void DeepNeuralNets::createRandomPopulation(void) {
     // Setup Compute Shader
     glUseProgram(DeepNeuralNets::randomPopulationComputeShader);
@@ -95,6 +96,7 @@ void DeepNeuralNets::createRandomPopulation(void) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Calculate the top fitness scores and indices of a generation
 void DeepNeuralNets::calculateGenerationLeaderIndices(void) {
     // Gather fitness data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, DeepNeuralNets::fitnessSSBO);
@@ -137,6 +139,7 @@ void DeepNeuralNets::spinWheel(void) {
     }
 }
 
+// Export a given model to a file
 void DeepNeuralNets::exportModel(string filename, float *layer1Weights, float *layer2Weights, float *layer3Weights, float *outputWeights) {
     cout << "Exporting model to " << filename << endl;
     
@@ -166,6 +169,7 @@ void DeepNeuralNets::exportModel(string filename, float *layer1Weights, float *l
     file.close();
 }
 
+// Export the best model of the generation
 void DeepNeuralNets::exportPopulationModel(string filename, int index) {
     // Gather the weights
     float *layer1WeightAddress = &DeepNeuralNets::layer1Weights[index * (NUM_INPUTS + 1) * NUM_HIDDEN_LAYER_1_NODES];
@@ -185,6 +189,7 @@ void DeepNeuralNets::exportPopulationModel(string filename, int index) {
     DeepNeuralNets::exportModel(filename, layer1WeightAddress, layer2WeightAddress, layer3WeightAddress, outputWeightAddress);
 }
 
+// Export a model from the generation leaders
 void DeepNeuralNets::exportTopModel(string filename, int index) {
     DeepNeuralNets::exportModel(
         filename, 
@@ -201,11 +206,13 @@ DeepNeuralNets::DeepNeuralNets() {
     // Empty constructor
 }
 
+// Setup the training of the neural nets
 void DeepNeuralNets::setupTraining(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness) {
     DeepNeuralNets::initNeuralNets(carData, computerVisionData, inputs, fitness);
     DeepNeuralNets::createRandomPopulation();
 }
 
+// Initialize the neural nets with the SSBOs (does not create random population) - ie for testing/usage
 void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, GLuint inputs, GLuint fitness) {
     // Set the pointers to the input buffers
     DeepNeuralNets::carData = carData;
@@ -241,6 +248,9 @@ void DeepNeuralNets::initNeuralNets(GLuint carData, GLuint computerVisionData, G
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * NUM_HIDDEN_LAYER_3_NODES * NUM_NEURAL_NETS, NULL, GL_DYNAMIC_DRAW);
 }
 
+// Feed inputs through the NNs
+// Note: we don't use iteration because "VARIABLE_WORKGROUP_SIZE" means we have different shader programs
+//       for each layer to improve performance
 void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     // Calculate layer 1
     glUseProgram(DeepNeuralNets::Layer1ComputeShader);
@@ -320,6 +330,7 @@ void DeepNeuralNets::invokeNeuralNets(glm::vec4 startLine) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Gather the weights of the top models into the generation leaders
 void DeepNeuralNets::gatherGenerationLeaders(void) {
     // Calculate the generation leaders
     if (lastCalculatedLeaders != epoch) {
@@ -345,6 +356,7 @@ void DeepNeuralNets::gatherGenerationLeaders(void) {
     }
 }
 
+// Apply the genetic algorithm to evolve the neural nets
 void DeepNeuralNets::evolveNeuralNets(void) {
     // Calculate gen leader indices
     if (DeepNeuralNets::lastCalculatedLeaders != DeepNeuralNets::epoch) {
@@ -397,6 +409,7 @@ void DeepNeuralNets::evolveNeuralNets(void) {
     DeepNeuralNets::epoch++;
 }
 
+// Export the best model of the generation
 void DeepNeuralNets::exportBestModel(void) {
     DeepNeuralNets::gatherGenerationLeaders();
     string leaderFilename = 
@@ -406,6 +419,7 @@ void DeepNeuralNets::exportBestModel(void) {
     DeepNeuralNets::exportTopModel(leaderFilename, 0);
 }
 
+// Export the generation leaders
 void DeepNeuralNets::exportGenerationLeaders(void) {
     DeepNeuralNets::gatherGenerationLeaders();
     // Export the generation leaders
@@ -419,6 +433,7 @@ void DeepNeuralNets::exportGenerationLeaders(void) {
     }
 }
 
+// Import a model from a file
 void DeepNeuralNets::importModel(string filename, int index) {
     // Import the model
     ifstream file;
