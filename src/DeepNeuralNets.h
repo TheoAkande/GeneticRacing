@@ -1,3 +1,7 @@
+// The purpose of DeepNeuralNets is to create a parallelized array of neural networks
+// that can be invoked and trained in parallel using OpenGL compute shaders, with the 
+// initial goal of applying the genetic algorithm.
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
