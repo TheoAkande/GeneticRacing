@@ -1,3 +1,4 @@
+// Force Optimus to use the dedicated GPU
 extern "C" {
     _declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 }
@@ -118,6 +119,7 @@ struct Car {
 
 Car cars[numCars];
 
+// Apply compute shader to calculate the current fitness of each car
 void calculateFitness(void) {
     glUseProgram(fittnessComputeShader);
 
@@ -144,6 +146,7 @@ void calculateFitness(void) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Render the computer vision points on the track
 void renderComputerVision(void) {
     // Get computer vision distances
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]); // computerVisionDistances
@@ -158,6 +161,7 @@ void renderComputerVision(void) {
 
     float visionPoints[numCars * numComputerVisionAngles * 2];
 
+    // Compute all the computer vision points
     for (int i = 0; i < numCars; i++) {
         for (int j = 0; j < numComputerVisionAngles; j++) {
             float x = carPos[i * numCarFloats];
@@ -182,6 +186,7 @@ void renderComputerVision(void) {
     glDrawArrays(GL_POINTS, 0, numCars * numComputerVisionAngles);
 }
 
+// Apply compute shader to calculate the computer vision points of each car
 void calculateComputerVision(void) {
     glUseProgram(computerVisionComputeShader);
 
@@ -204,6 +209,7 @@ void calculateComputerVision(void) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Apply the physics compute shader based on the current inputs for each car
 void calculateCarPhysics(void) {
     glUseProgram(physicsComputeShader);
 
@@ -254,6 +260,7 @@ void calculateCarPhysics(void) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Compute the positions of each car's wheels (and driver)
 void calculateCarWheels(void) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, vcbo[0]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * 5 * 2, NULL, GL_STATIC_READ);
@@ -280,6 +287,7 @@ void calculateCarWheels(void) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCars * 5 * 2, &carPoints[0], GL_STATIC_DRAW);
 }
 
+// Load the cars into the current track's starting configuration
 void loadCars(bool training) {
     for (int i = 0; i < numCars; i++) {
         carPos[i * numCarFloats] = cars[i].x;
@@ -314,6 +322,7 @@ void loadCars(bool training) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[8]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numCarEvalFloats, &carEvalData[0], GL_DYNAMIC_DRAW);
 
+    // If we are training, no visualization is required so no need to calculate car wheels
     if (!training) calculateCarWheels();
 }
 
@@ -331,12 +340,13 @@ void loadTrack(string track, bool training = false) {
     float x, y;
     while (!fileStream.eof()) {
         getline(fileStream, line);
+        // Switch between inside and outside track
         if (line.c_str()[0] == '-') {
             track1 = false;
             started = false;
         } 
-
-        if (line.c_str()[0] == 'n') {
+        // Load a normal
+        else if (line.c_str()[0] == 'n') {
             float n1, n2;
             sscanf(line.c_str(), "n %f %f %f %f", &x, &y, &n1, &n2);
             midpoints.push_back(x);
@@ -349,8 +359,8 @@ void loadTrack(string track, bool training = false) {
             midpointsWithAngles.push_back(atan2(n2, n1));
             numGates++;
         } 
-        
-        if (line.c_str()[0] == 'p') {
+        // Load a track point
+        else if (line.c_str()[0] == 'p') {
             sscanf(line.c_str(), "p %f %f", &x, &y);
             if (track1) {
                 insideTrack.push_back(x);
@@ -368,7 +378,9 @@ void loadTrack(string track, bool training = false) {
                 trackStartLine[3] = y;
                 started = true;
             }
-        } else if (line.c_str()[0] == 'c') {
+        } 
+        // Load the start line
+        else if (line.c_str()[0] == 'c') {
             sscanf(line.c_str(), "c %f %f %f", &carX, &carY, &carAngle);
             for (int i = 0; i < numCars; i++) {
                 cars[i].x = carX;
@@ -381,6 +393,7 @@ void loadTrack(string track, bool training = false) {
     }
     fileStream.close();
 
+    // Calculate the normal of the start line
     trackStartNormal = -glm::normalize(glm::vec2(trackStartLine[3] - trackStartLine[1], trackStartLine[0] - trackStartLine[2]));
 
     if (!training) {
@@ -412,6 +425,7 @@ void loadTrack(string track, bool training = false) {
     loadCars(training);
 }
 
+// Reset the fitness of each car to 0
 void resetCarFitness(void) {
     // Reset just fitness scores
     for (int i = 0; i < numCars; i++) {
@@ -423,20 +437,7 @@ void resetCarFitness(void) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars, &fitness[0], GL_DYNAMIC_DRAW);
 }
 
-pair<int, int> decideTrainingTracks(void) {
-    int numCW, numCCW;
-    ifstream numTracksFile;
-    numTracksFile.open("assets/tracks/training/anticlockwise/numTracks.txt");
-    numTracksFile >> numCCW;
-    numTracksFile.close();
-    numTracksFile.open("assets/tracks/training/clockwise/numTracks.txt");
-    numTracksFile >> numCW;
-    numTracksFile.close();
-    int CCWChoice = rand() % numCCW + 1;
-    int CWChoice = rand() % numCW + 1;
-    return make_pair(CCWChoice, CWChoice);
-}
-
+// Cycle through to the next track
 void cycleTracks(bool training) {
     ifstream numTracksFile;
     numTracksFile.open("assets/tracks/numTracks.txt");
@@ -448,6 +449,7 @@ void cycleTracks(bool training) {
     loadTrack(trackName, training);
 }
 
+// Set up the scene
 void setupScene() {
     // Create vaos
     glGenVertexArrays(numVAOs, vao);
@@ -460,6 +462,7 @@ void setupScene() {
     glGenBuffers(numVCBs, vcbo);
 }
 
+// Set up the compute shaders
 void init(void) {
     Utils::setScreenDimensions(windowWidth, windowHeight);
     trackRenderingProgram = Utils::createShaderProgram("shaders/trackVert.glsl", "shaders/trackFrag.glsl");
@@ -473,6 +476,7 @@ void init(void) {
     fittnessComputeShader = Utils::createShaderProgram("shaders/fitnessCS.glsl");
 }
 
+// Display the scene
 void display(GLFWwindow *window) {
     // Clear the screen
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -480,6 +484,7 @@ void display(GLFWwindow *window) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    // Draw compute vision points
     renderComputerVision();
 
     if (showTrack) {
@@ -544,10 +549,12 @@ void display(GLFWwindow *window) {
     glDrawArrays(GL_POINTS, 0, numCars);
 }
 
+// Set the input at the given offset to the given value
 void setInput(int offset, float value) {
     inputs[offset] = value;
 }
 
+// Get the player inputs from the list of keyboard inputs
 void getPlayerInputs(GLFWwindow *window) {
     for (int i = 0; i < numInputs * numDrivers; i++) {
         if (glfwGetKey(window, carInputs[i]) == GLFW_PRESS) {
@@ -560,7 +567,10 @@ void getPlayerInputs(GLFWwindow *window) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numInputs * numCars, &inputs[0], GL_DYNAMIC_DRAW);
 }
 
+// Visualise the simulation
 void visualiseSimulation(GLFWwindow *window) {
+
+    // Check to see if we cycle to the next track
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !cHeld) {
         cycleTracks(false);
         cHeld = true;
@@ -568,6 +578,7 @@ void visualiseSimulation(GLFWwindow *window) {
         cHeld = false;
     }
 
+    // Check to see if we toggle track view
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && !sHeld) {
         showTrack = !showTrack;
         sHeld = true;
@@ -575,17 +586,21 @@ void visualiseSimulation(GLFWwindow *window) {
         sHeld = false;
     }
 
+    // Calculate car wheel and driver positions
     calculateCarWheels();
 
+    // Display the scene
     display(window);
     glfwSwapBuffers(window);
     glfwPollEvents();
 
+    // Check to see if we should create a new track
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
         shouldCreateTrack = true;
     }
 }
 
+// Set up the simulation
 void setupSimulation(bool visual) {
     glGenBuffers(numCBs, cbo);
 
@@ -607,6 +622,7 @@ void setupSimulation(bool visual) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[5]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * numCars * numComputerVisionAngles, &computerVisionDistances[0], GL_DYNAMIC_DRAW);
 
+    // We don't need the scene (vbos and so on) if training
     if (visual) {
         setupScene();
         cycleTracks(false);
@@ -614,11 +630,13 @@ void setupSimulation(bool visual) {
 }
 
 void runSimulation() {
+    // We calculate the movement and vision of cars before fitness as fitness uses both of these
     calculateCarPhysics();
     calculateComputerVision();
     calculateFitness();
 }
 
+// Run a frame of the simulation
 void runFrame(GLFWwindow *window, double currentTime, bool training) {
     deltaTime = currentTime - lastTime;
     lastTime = currentTime;
@@ -626,6 +644,7 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
     runSimulation();
     if (!training) {
         getPlayerInputs(window);
+        // Only invoke neural nets if we are using them
         #ifndef DONT_USE_NNS
         DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         #endif
@@ -638,6 +657,7 @@ int framesPerEpoch(int epochs) {
     return 60 * (35 + rand() % 10);
 }
 
+// Train the neural networks and write to file every epochWriteGap epochs
 void trainNeuralNets(int epochs, int epochWriteGap) {
     #ifndef DONT_USE_NNS
     for (int i = 1; i < epochs + 1; i++) {
@@ -655,7 +675,10 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
             Utils::checkOpenGLError();
         }
 
+        // Evlove neural networks
         DeepNeuralNets::evolveNeuralNets();
+
+        // Write to file every epochWriteGap epochs
         if (i % epochWriteGap == 0) {
             DeepNeuralNets::exportBestModel();
         }
@@ -663,6 +686,7 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
     #endif
 }
 
+// Set up the training environment
 void setupTraining(void) {
     init();
     setupSimulation(false);
@@ -680,6 +704,7 @@ void trainFitnessFunc(void) {
 }
 
 int main(void) {
+    // Seed random number generator
     srand((unsigned int)time(NULL));
 
     if (!glfwInit()) {
