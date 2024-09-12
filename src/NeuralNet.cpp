@@ -6,6 +6,7 @@ bool FeedForwardNeuralNet::initialized = false;
 
 // Private
 
+// Setup the architecture of the neural net (buffers and arrays for weights and outputs)
 void FeedForwardNeuralNet::setupArchitecture(void) {
     // Setup compute buffer objects
     this->numCbs = this->architecture.size() * 2;   // 1 for weights, 1 for outputs per layer
@@ -23,8 +24,9 @@ void FeedForwardNeuralNet::setupArchitecture(void) {
     }
 }
 
+// Create random weights for the neural net
+// Note: parallelize this later when I make better glsl random number generator
 void FeedForwardNeuralNet::createRandomWeights(void) {
-    // Note: parallelize this later when I make better glsl random number generator
     // Generate weights
     for (int i = 0; i < this->weights.size(); i++) {
         for (int j = 0; j < this->weights[i]->size(); j++) {
@@ -40,6 +42,8 @@ void FeedForwardNeuralNet::createRandomWeights(void) {
     }
 }
 
+// Feed data from layer to layer + 1 (layer 0 is inputs)
+// Note: for now we only use ReLU activation
 void FeedForwardNeuralNet::feedForward(int layer) {
     // Bind the shader
     glUseProgram(invocationShader);
@@ -60,10 +64,12 @@ void FeedForwardNeuralNet::feedForward(int layer) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+// Load weights of the neural net from a file
 void FeedForwardNeuralNet::loadWeights(string path) {
     // for now do nothing
 }
 
+// Create shader programs and sort out static variables
 void FeedForwardNeuralNet::setupClass(void) {
     // Load the invocation shader
     invocationShader = Utils::createShaderProgram("shaders/neuralNet/feedforward.glsl");
@@ -75,6 +81,7 @@ void FeedForwardNeuralNet::setupClass(void) {
 
 // Public
 
+// Initialize with weights from file
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weightPath, bool softmax) {
     if (!initialized) setupClass();
 
@@ -85,6 +92,7 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, string weig
     loadWeights(weightPath);
 }
 
+// Initialize with random weights and seed
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t seed, bool softmax) {
     if (!initialized) setupClass();
 
@@ -96,9 +104,11 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, uint64_t se
     createRandomWeights();
 }
 
+// Initialize with random weights and seed from time
 FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softmax) 
     : FeedForwardNeuralNet(architecture, (uint64_t)time(NULL), softmax) {}
 
+// Feed inputs through the network and store the outputs in the outputs vector
 void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs) {
     if (!initialized) {
         cout << "Neural nets not initialized" << endl;
@@ -135,6 +145,7 @@ void FeedForwardNeuralNet::invoke(vector<float> *inputs, vector<float> *outputs)
     }
 }
 
+// Free the memory used by the neural net and release its buffers
 void FeedForwardNeuralNet::destroy(void) {
     for (int i = 0; i < this->weights.size(); i++) {
         delete this->weights[i];
