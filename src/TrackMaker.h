@@ -1,3 +1,12 @@
+// TrackMaker is the framework to create tracks for the cars to be trained on and drive.
+// The original TrackMaker class creates the inside track and then the outside track, allowing
+// for different numbers of points to be used on the inside and outside track.
+// The TrainingTrackMaker class is a subclass of TrackMaker that requires the inside and outside 
+// tracks to have the same number of points. It then generates normals and midpoints intended
+// to help the neural network learn to drive on the track.
+// Note: I never intend to feed the entire track into the neural net, or fitness function, but
+//       rather feed the computer certain computer vision data.
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
