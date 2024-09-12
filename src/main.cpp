@@ -630,19 +630,11 @@ void runFrame(GLFWwindow *window, double currentTime, bool training) {
         DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
         #endif
         visualiseSimulation(window);
-
-        // fitness
-        // glBindBuffer(GL_SHADER_STORAGE_BUFFER, cbo[1]);
-        // glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * numCars, &fitness[0]);
-        // cout << "fitness: " << fitness[0] << endl;
     }
 }
 
 // Dont want to teach overconfidence
 int framesPerEpoch(int epochs) {
-    // if (epochs < 200) {
-    //     return 60 * (5 + epochs / 10);
-    // }
     return 60 * (35 + rand() % 10);
 }
 
@@ -652,32 +644,16 @@ void trainNeuralNets(int epochs, int epochWriteGap) {
         // Set car fitness to 0 
         resetCarFitness();
 
-        // Get CCW and CW track choices
-        pair<int, int> tracks = decideTrainingTracks();
-
-        // Load CCW track
-        string trackName = "assets/tracks/training/anticlockwise/" + to_string(tracks.first) + ".tr";
-        trackName = "assets/tracks/track2.tr";
+        trackName = "assets/tracks/track1.tr";
         loadTrack(trackName, true);
 
-        // Run simulation on CCW track
+        // Run simulation on track
         for (int j = 0; j < framesPerEpoch(i); j++) {
-            deltaTime = deterministicDt;// + (double)(rand() % 1000) / 100000.0l;
+            deltaTime = deterministicDt;
             DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
             runSimulation();
             Utils::checkOpenGLError();
         }
-
-        // // Load CW track
-        // trackName = "assets/tracks/training/clockwise/" + to_string(tracks.second) + ".tr";
-        // loadTrack(trackName, true);
-
-        // // Run simulation on CW track
-        // for (int j = 0; j < framesPerEpochPerTrack; j++) {
-        //     deltaTime = deterministicDt + (double)(rand() % 1000) / 100000.0l;
-        //     runSimulation();
-        //     DeepNeuralNets::invokeNeuralNets(glm::vec4(trackStartLine[0], trackStartLine[1], trackStartLine[2], trackStartLine[3]));
-        // }
 
         DeepNeuralNets::evolveNeuralNets();
         if (i % epochWriteGap == 0) {
@@ -698,6 +674,7 @@ void setupTraining(void) {
     trainNeuralNets(100000, 10);
 }
 
+// Will be used to train a model to approximate the fitness function (critic)
 void trainFitnessFunc(void) {
     
 }
@@ -724,9 +701,7 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
 
-        trainFitnessFunc();
-
-        //setupTraining();
+        setupTraining();
 
         exit(EXIT_SUCCESS);
     }
