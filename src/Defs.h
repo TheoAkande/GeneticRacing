@@ -2,10 +2,12 @@
 #define DEFS_H
 
 #define TRAINING false
+
+// Used to prevent creating 0-sized arrays when numDrivers = numCars (ie not using neural networks)
 #define DONT_USE_NNS // Comment out if using neural networks
 
 #define deterministic true
-#define deterministicDt 0.015l
+#define deterministicDt 0.015l // 60hz
 
 // OpenGL definitions
 #define numVBOs 6
