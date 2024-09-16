@@ -106,3 +106,17 @@ Matrix::Matrix(vector<float> data, int rows, int cols) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
 }
+
+Matrix::Matrix(int rows, int cols) {
+    this->rows = rows;
+    this->cols = cols;
+    this->data.resize(rows * cols);
+    this->dirty = false;
+
+    // Setup the matrix
+    this->setup();
+
+    // Copy the data from the vector to the compute buffer object
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
+}
