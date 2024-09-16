@@ -23,6 +23,7 @@ add_executable(GeneticRacing
     ${CMAKE_SOURCE_DIR}/src/TrackMaker.cpp
     ${CMAKE_SOURCE_DIR}/src/DeepNeuralNets.cpp
     ${CMAKE_SOURCE_DIR}/src/NeuralNet.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix.cpp
 )
 
 # Link the libraries
