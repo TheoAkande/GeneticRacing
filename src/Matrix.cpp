@@ -49,13 +49,14 @@ void Matrix::setup(void) {
     Matrix::setupClass();
     // Generate compute buffer objects
     glGenBuffers(NUM_MATRIX_CBO, this->matCBOs);
+
+    cout << "New matrix of size " << this->rows << "x" << this->cols << endl;
 }
 
 void Matrix::getData(void) {
     if (!this->dirty) return;
 
     // Copy the data from the compute buffer object to the vector
-    cout << this->matCBOs[0] << endl;
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->data.size(), this->data.data());
 
@@ -271,6 +272,14 @@ Matrix& Matrix::operator*=(Matrix &m) {
 
     // Invoke the multiplication shader
     this->invokeShader(multiplicationShader, &m, this->rows * m.cols, this->rows * m.cols);
+
+    // Change dimensions
+    this->cols = m.cols;
+
+    // Resize data
+    this->data.resize(this->rows * this->cols);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), NULL, GL_DYNAMIC_COPY);
 
     outputToInput();
 
