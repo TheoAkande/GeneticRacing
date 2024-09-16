@@ -155,7 +155,7 @@ Matrix::Matrix(int size) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
 }
 
-Matrix Matrix::transpose(void) {
+Matrix& Matrix::transpose(void) {
     // Invoke the transpose shader
     this->invokeShader(transposeShader, nullptr, this->rows * this->cols, this->rows * this->cols);
 
@@ -163,7 +163,7 @@ Matrix Matrix::transpose(void) {
     return Matrix(matCBOs[1], this->cols, this->rows);
 }
 
-Matrix Matrix::operator+(Matrix &m) {
+Matrix& Matrix::operator+(Matrix &m) {
     // Invoke the addition shader
     this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
@@ -171,7 +171,7 @@ Matrix Matrix::operator+(Matrix &m) {
     return Matrix(matCBOs[1], this->rows, this->cols);
 }
 
-Matrix Matrix::operator-(Matrix &m) {
+Matrix& Matrix::operator-(Matrix &m) {
     // Negate the matrix
     m *= -1.0f;
 
@@ -185,7 +185,7 @@ Matrix Matrix::operator-(Matrix &m) {
     return Matrix(matCBOs[1], this->rows, this->cols);
 }
 
-Matrix Matrix::operator*(Matrix &m) {
+Matrix& Matrix::operator*(Matrix &m) {
     // Check if the matrices can be multiplied
     assert(this->cols == m.rows);
 
@@ -196,7 +196,7 @@ Matrix Matrix::operator*(Matrix &m) {
     return Matrix(matCBOs[1], this->rows, m.cols);
 }
 
-Matrix Matrix::operator*(float val) {
+Matrix& Matrix::operator*(float val) {
     // Bind the shader
     glUseProgram(scalarMultiplicationShader);
 
@@ -226,6 +226,21 @@ Matrix Matrix::operator*(float val) {
     return Matrix(matCBOs[1], this->rows, this->cols);
 }
 
-Matrix Matrix::operator/(float val) {
+Matrix& Matrix::operator/(float val) {
     return *this * (1.0f / val);
+}
+
+Matrix& Matrix::operator+=(Matrix &m) {
+    // Invoke the addition shader
+    this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
+
+    // Copy the data from the output to the input buffer
+    glBindBuffer(GL_COPY_READ_BUFFER, matCBOs[1]);
+    glBindBuffer(GL_COPY_WRITE_BUFFER, matCBOs[0]);
+    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
+
+    // Set this as dirty
+    this->dirty = true;
+
+    return *this;
 }
