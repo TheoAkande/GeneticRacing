@@ -33,7 +33,7 @@ class Matrix
         int rows, cols;
 
         static bool initialized;
-        static GLuint additionShader, multiplicationShader;
+        static GLuint additionShader, multiplicationShader, transposeShader;
         static GLuint matCBOs[NUM_MATRIX_CBO];
         static void setupClass(void);
     public:
