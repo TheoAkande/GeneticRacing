@@ -6,7 +6,7 @@ GLuint Matrix::matCBOs[NUM_MATRIX_CBO];
 
 // Private
 
-void Matrix::invokeShader(GLuint shader, Matrix *m, int invokations) {
+void Matrix::invokeShader(GLuint shader, Matrix *m, int invokations, int outputBufferSize) {
     // Bind the shader
     glUseProgram(shader);
 
@@ -25,6 +25,10 @@ void Matrix::invokeShader(GLuint shader, Matrix *m, int invokations) {
         uLoc = glGetUniformLocation(shader, "colsB");
         glUniform1i(uLoc, m->cols);
     }
+
+    // Setup the output buffer
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, matCBOs[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * outputBufferSize, NULL, GL_DYNAMIC_COPY);
 
     // Bind the compute buffer objects
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, matCBOs[0]);  // Input A
