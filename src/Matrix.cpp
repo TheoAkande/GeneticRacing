@@ -46,6 +46,14 @@ void Matrix::setup(void) {
     glGenBuffers(NUM_MATRIX_CBO, this->matCBOs);
 }
 
+void Matrix::getData(void) {
+    if (!this->dirty) return;
+
+    // Copy the data from the compute buffer object to the vector
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->data.size(), this->data.data());
+}
+
 Matrix::Matrix(GLuint cbo, int rows, int cols) {
     this->rows = rows;
     this->cols = cols;
