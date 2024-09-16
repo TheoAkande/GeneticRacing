@@ -40,6 +40,12 @@ void Matrix::invokeShader(GLuint shader, Matrix *m, int invokations) {
     glFinish();
 }
 
+void Matrix::setup(void) {
+    Matrix::setupClass();
+    // Generate compute buffer objects
+    glGenBuffers(NUM_MATRIX_CBO, this->matCBOs);
+}
+
 void Matrix::setupClass(void) {
     if (Matrix::initialized) return;
 
