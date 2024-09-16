@@ -46,6 +46,20 @@ void Matrix::setup(void) {
     glGenBuffers(NUM_MATRIX_CBO, this->matCBOs);
 }
 
+Matrix::Matrix(GLuint cbo, int rows, int cols) {
+    this->rows = rows;
+    this->cols = cols;
+    this->data.resize(rows * cols);
+
+    // Setup the matrix
+    this->setup();
+
+    // Copy the data from the compute buffer to the new one
+    glBindBuffer(GL_COPY_READ_BUFFER, cbo);
+    glBindBuffer(GL_COPY_WRITE_BUFFER, this->matCBOs[0]);
+    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
+}
+
 void Matrix::setupClass(void) {
     if (Matrix::initialized) return;
 
