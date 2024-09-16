@@ -36,6 +36,7 @@ class Matrix
     private:
         vector<float> data;
         int rows, cols;
+        GLuint matCBOs[NUM_MATRIX_CBO];
         bool dirty; // Whether the data in the compute buffer object is different from the data in the vector
         void invokeShader(GLuint shader, Matrix *m, int invokations, int outputBufferSize);   // Invoke a shader on the matrix
         void setup(void);           // Setup the matrix                                    
@@ -48,7 +49,6 @@ class Matrix
         static GLuint 
             additionShader, multiplicationShader, transposeShader, 
             scalarMultiplicationShader, subtractionShader;
-        static GLuint matCBOs[NUM_MATRIX_CBO];
         static void setupClass(void);
     public:
         Matrix(vector<float> data, int rows, int cols);

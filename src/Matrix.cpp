@@ -4,7 +4,6 @@ bool Matrix::initialized = false;
 GLuint 
     Matrix::additionShader, Matrix::multiplicationShader, Matrix::transposeShader,
     Matrix::scalarMultiplicationShader, Matrix::subtractionShader;
-GLuint Matrix::matCBOs[NUM_MATRIX_CBO];
 
 // Private
 
@@ -56,6 +55,7 @@ void Matrix::getData(void) {
     if (!this->dirty) return;
 
     // Copy the data from the compute buffer object to the vector
+    cout << this->matCBOs[0] << endl;
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->data.size(), this->data.data());
 
@@ -135,9 +135,6 @@ void Matrix::setupClass(void) {
 
     // Load the subtraction shader
     subtractionShader = Utils::createShaderProgram("shaders/matrix/subtraction.glsl");
-
-    // Generate compute buffer objects
-    glGenBuffers(NUM_MATRIX_CBO, matCBOs);
 
     Matrix::initialized = true;
 }
