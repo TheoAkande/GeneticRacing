@@ -271,3 +271,16 @@ Matrix& Matrix::operator*=(Matrix &m) {
 
     return *this;
 }
+
+Matrix& Matrix::operator*=(float val) {
+    // Invoke the shader
+    this->invokeScalar(scalarMultiplicationShader, val);
+
+    outputToInput();
+
+    return *this;
+}
+
+Matrix& Matrix::operator/=(float val) {
+    return *this *= (1.0f / val);
+}
