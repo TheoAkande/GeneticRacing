@@ -12,6 +12,6 @@ uniform int colsB;
 uniform int rowsB;
 
 void main() {
-    int index = int(gl_GlobalInvocationID.x);
+    uint index = gl_GlobalInvocationID.x;
     matrixC[index] = matrixA[index] + matrixB[index];
 }
