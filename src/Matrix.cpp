@@ -254,3 +254,15 @@ Matrix& Matrix::operator-=(Matrix &m) {
 
     return *this;
 }
+
+Matrix& Matrix::operator*=(Matrix &m) {
+    // Check if the matrices can be multiplied
+    assert(this->cols == m.rows);
+
+    // Invoke the multiplication shader
+    this->invokeShader(multiplicationShader, &m, this->rows * m.cols, this->rows * m.cols);
+
+    outputToInput();
+
+    return *this;
+}
