@@ -1,0 +1,25 @@
+#version 430
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout (binding = 0) buffer MatrixA { float matrixA[]; };
+layout (binding = 1) buffer MatrixC { float matrixC[]; };
+layout (binding = 2) buffer MatrixB { float matrixB[]; };
+
+uniform int colsA;
+uniform int rowsA;
+uniform int colsB;
+uniform int rowsB;
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+
+    uint row = index / colsA;
+    uint col = index % colsA;
+
+    float newVal = 0.0; // Use newVal to avoid more expensive memory writes
+    for (int i = 0; i < colsA; i++) {
+        newVal += matrixA[row * colsA + i] * matrixB[i * colsB + col];
+    }
+    matrixC[index] = newVal;
+}
