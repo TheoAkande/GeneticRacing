@@ -32,6 +32,7 @@ class Matrix
         vector<float> data;
         int rows, cols;
         void invokeShader(GLuint shader, Matrix &m);    // Invoke a shader on the matrix
+        Matrix(GLuint cbo, int rows, int cols);         // Initialize from a compute buffer object
 
         static bool initialized;
         static GLuint additionShader, multiplicationShader, transposeShader;
