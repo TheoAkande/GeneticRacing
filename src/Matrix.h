@@ -1,3 +1,8 @@
+/*
+Matrix class that leverages the GPU to perform parallel matrix operations
+Note: data is stored in row-major order (stored row by row)
+*/
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
