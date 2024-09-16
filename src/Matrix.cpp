@@ -151,3 +151,11 @@ Matrix::Matrix(int size) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
 }
+
+Matrix Matrix::transpose(void) {
+    // Invoke the transpose shader
+    this->invokeShader(transposeShader, nullptr, this->rows * this->cols, this->rows * this->cols);
+
+    // Create a new matrix from the output
+    return Matrix(matCBOs[1], this->cols, this->rows);
+}
