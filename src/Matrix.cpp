@@ -159,3 +159,25 @@ Matrix Matrix::transpose(void) {
     // Create a new matrix from the output
     return Matrix(matCBOs[1], this->cols, this->rows);
 }
+
+Matrix Matrix::operator+(Matrix &m) {
+    // Invoke the addition shader
+    this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
+
+    // Create a new matrix from the output
+    return Matrix(matCBOs[1], this->rows, this->cols);
+}
+
+Matrix Matrix::operator-(Matrix &m) {
+    // Negate the matrix
+    m *= -1.0f;
+
+    // Invoke the addition shader
+    this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
+
+    // Negate the matrix back
+    m *= -1.0f;
+
+    // Create a new matrix from the output
+    return Matrix(matCBOs[1], this->rows, this->cols);
+}
