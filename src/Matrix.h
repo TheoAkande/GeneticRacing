@@ -1,0 +1,50 @@
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <cstdlib>
+#include <chrono>
+#include <time.h>
+
+#include "Utils.h"
+
+using namespace std;
+
+#ifndef MATRIX_H
+#define MATRIX_H
+
+
+class Matrix
+{
+    private:
+        vector<float> data;
+        int rows, cols;
+
+        static bool initialized;
+        static GLuint additionShader, multiplicationShader;
+        static GLuint matCBOs[3]; // 0: input A, 1: input B, 2: output
+        static void setupClass(void);
+    public:
+        Matrix(vector<float> data, int rows, int cols);
+        Matrix(int rows, int cols); // Initialize with zeros
+        Matrix(int rows, int cols, float val); // Initialize with a value
+        Matrix(int size); // Identity matrix
+
+        Matrix transpose(void);
+        Matrix operator+(Matrix &m);
+        Matrix operator-(Matrix &m);
+        Matrix operator*(Matrix &m);
+        Matrix operator*(float val);
+        Matrix operator/(float val);
+};
+
+
+
+
+#endif
