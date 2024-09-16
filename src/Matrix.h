@@ -19,6 +19,12 @@ using namespace std;
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#define NUM_MATRIX_CBO 3
+/*
+    0: input A
+    1: input B
+    2: output
+*/
 
 class Matrix
 {
@@ -28,7 +34,7 @@ class Matrix
 
         static bool initialized;
         static GLuint additionShader, multiplicationShader;
-        static GLuint matCBOs[3]; // 0: input A, 1: input B, 2: output
+        static GLuint matCBOs[NUM_MATRIX_CBO];
         static void setupClass(void);
     public:
         Matrix(vector<float> data, int rows, int cols);
@@ -43,8 +49,5 @@ class Matrix
         Matrix operator*(float val);
         Matrix operator/(float val);
 };
-
-
-
 
 #endif
