@@ -54,6 +54,12 @@ class Matrix
         Matrix operator*(float val);
         Matrix operator/(float val);
 
+        Matrix operator+=(Matrix &m);
+        Matrix operator-=(Matrix &m);
+        Matrix operator*=(Matrix &m);
+        Matrix operator*=(float val);
+        Matrix operator/=(float val);
+
         void destroy(void);
 };
 
