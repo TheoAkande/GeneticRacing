@@ -50,6 +50,8 @@ class Matrix
         Matrix operator*(Matrix &m);
         Matrix operator*(float val);
         Matrix operator/(float val);
+
+        void destroy(void);
 };
 
 #endif
