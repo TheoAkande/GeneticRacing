@@ -50,6 +50,7 @@ Matrix::Matrix(GLuint cbo, int rows, int cols) {
     this->rows = rows;
     this->cols = cols;
     this->data.resize(rows * cols);
+    this->dirty = true;
 
     // Setup the matrix
     this->setup();

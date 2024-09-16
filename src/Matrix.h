@@ -31,7 +31,9 @@ class Matrix
     private:
         vector<float> data;
         int rows, cols;
-        void invokeShader(GLuint shader, Matrix *m, int invokations);    // Invoke a shader on the matrix
+        bool dirty; // Whether the data in the compute buffer object is different from the data in the vector
+        void invokeShader(GLuint shader, Matrix *m, int invokations);   // Invoke a shader on the matrix
+        void setup(void);                                               // Setup the matrix
         Matrix(GLuint cbo, int rows, int cols);         // Initialize from a compute buffer object
 
         static bool initialized;
