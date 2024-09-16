@@ -1,7 +1,9 @@
 #include "Matrix.h"
 
 bool Matrix::initialized = false;
-GLuint Matrix::additionShader, Matrix::multiplicationShader, Matrix::transposeShader;
+GLuint 
+    Matrix::additionShader, Matrix::multiplicationShader, Matrix::transposeShader,
+    Matrix::scalarMultiplicationShader, Matrix::subtractionShader;
 GLuint Matrix::matCBOs[NUM_MATRIX_CBO];
 
 // Private
@@ -56,6 +58,8 @@ void Matrix::getData(void) {
     // Copy the data from the compute buffer object to the vector
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->data.size(), this->data.data());
+
+    this->dirty = false;
 }
 
 void Matrix::outputToInput(void) {
@@ -103,6 +107,10 @@ Matrix::Matrix(GLuint cbo, int rows, int cols) {
 
     // Setup the matrix
     this->setup();
+
+    // Setup the data buffer
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), NULL, GL_DYNAMIC_COPY);
 
     // Copy the data from the compute buffer to the new one
     glBindBuffer(GL_COPY_READ_BUFFER, cbo);
@@ -200,7 +208,7 @@ Matrix& Matrix::transpose(void) {
     this->invokeShader(transposeShader, nullptr, this->rows * this->cols, this->rows * this->cols);
 
     // Create a new matrix from the output
-    return Matrix(matCBOs[1], this->cols, this->rows);
+    return *new Matrix(matCBOs[1], this->cols, this->rows);
 }
 
 Matrix& Matrix::operator+(Matrix &m) {
@@ -208,7 +216,7 @@ Matrix& Matrix::operator+(Matrix &m) {
     this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
     // Create a new matrix from the output
-    return Matrix(matCBOs[1], this->rows, this->cols);
+    return *new Matrix(matCBOs[1], this->rows, this->cols);
 }
 
 Matrix& Matrix::operator-(Matrix &m) {
@@ -216,7 +224,7 @@ Matrix& Matrix::operator-(Matrix &m) {
     this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
     // Create a new matrix from the output
-    return Matrix(matCBOs[1], this->rows, this->cols);
+    return *new Matrix(matCBOs[1], this->rows, this->cols);
 }
 
 Matrix& Matrix::operator*(Matrix &m) {
@@ -227,7 +235,7 @@ Matrix& Matrix::operator*(Matrix &m) {
     this->invokeShader(multiplicationShader, &m, this->rows * m.cols, this->rows * m.cols);
 
     // Create a new matrix from the output
-    return Matrix(matCBOs[1], this->rows, m.cols);
+    return *new Matrix(matCBOs[1], this->rows, m.cols);
 }
 
 Matrix& Matrix::operator*(float val) {
@@ -235,7 +243,7 @@ Matrix& Matrix::operator*(float val) {
     this->invokeScalar(scalarMultiplicationShader, val);
 
     // Create a new matrix from the output
-    return Matrix(matCBOs[1], this->rows, this->cols);
+    return *new Matrix(matCBOs[1], this->rows, this->cols);
 }
 
 Matrix& Matrix::operator/(float val) {
