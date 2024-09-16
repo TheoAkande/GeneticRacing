@@ -241,3 +241,18 @@ Matrix& Matrix::operator+=(Matrix &m) {
 
     return *this;
 }
+
+Matrix& Matrix::operator-=(Matrix &m) {
+    // Invoke the addition shader
+    this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
+
+    // Copy the data from the output to the input buffer
+    glBindBuffer(GL_COPY_READ_BUFFER, matCBOs[1]);
+    glBindBuffer(GL_COPY_WRITE_BUFFER, matCBOs[0]);
+    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
+
+    // Set this as dirty
+    this->dirty = true;
+
+    return *this;
+}
