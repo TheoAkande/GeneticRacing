@@ -284,3 +284,16 @@ Matrix& Matrix::operator*=(float val) {
 Matrix& Matrix::operator/=(float val) {
     return *this *= (1.0f / val);
 }
+
+void Matrix::show(void) {
+    // Get the data from the compute buffer object
+    this->getData();
+
+    // Print the matrix
+    for (int i = 0; i < this->rows; i++) {
+        for (int j = 0; j < this->cols; j++) {
+            cout << this->data[i * this->cols + j] << " ";
+        }
+        cout << endl;
+    }
+}
