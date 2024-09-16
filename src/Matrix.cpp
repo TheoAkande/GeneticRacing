@@ -181,3 +181,14 @@ Matrix Matrix::operator-(Matrix &m) {
     // Create a new matrix from the output
     return Matrix(matCBOs[1], this->rows, this->cols);
 }
+
+Matrix Matrix::operator*(Matrix &m) {
+    // Check if the matrices can be multiplied
+    assert(this->cols == m.rows);
+
+    // Invoke the multiplication shader
+    this->invokeShader(multiplicationShader, &m, this->rows * m.cols, this->rows * m.cols);
+
+    // Create a new matrix from the output
+    return Matrix(matCBOs[1], this->rows, m.cols);
+}
