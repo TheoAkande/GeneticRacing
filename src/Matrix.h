@@ -19,11 +19,11 @@ using namespace std;
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#define NUM_MATRIX_CBO 3
+#define NUM_MATRIX_CBO 2
 /*
     0: input A
-    1: input B
-    2: output
+    1: output
+    note: input B can come from the other matrix
 */
 
 class Matrix
@@ -31,6 +31,7 @@ class Matrix
     private:
         vector<float> data;
         int rows, cols;
+        void invokeShader(GLuint shader, Matrix &m);    // Invoke a shader on the matrix
 
         static bool initialized;
         static GLuint additionShader, multiplicationShader, transposeShader;
