@@ -38,7 +38,9 @@ class Matrix
         Matrix(GLuint cbo, int rows, int cols);         // Initialize from a compute buffer object
 
         static bool initialized;
-        static GLuint additionShader, multiplicationShader, transposeShader, scalarMultiplicationShader;
+        static GLuint 
+            additionShader, multiplicationShader, transposeShader, 
+            scalarMultiplicationShader, subtractionShader;
         static GLuint matCBOs[NUM_MATRIX_CBO];
         static void setupClass(void);
     public:

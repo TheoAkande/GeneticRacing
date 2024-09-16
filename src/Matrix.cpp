@@ -88,6 +88,9 @@ void Matrix::setupClass(void) {
     // Load the scalar multiplication shader
     scalarMultiplicationShader = Utils::createShaderProgram("shaders/matrix/scalarMultiplication.glsl");
 
+    // Load the subtraction shader
+    subtractionShader = Utils::createShaderProgram("shaders/matrix/subtraction.glsl");
+
     // Generate compute buffer objects
     glGenBuffers(NUM_MATRIX_CBO, matCBOs);
 
@@ -172,14 +175,8 @@ Matrix& Matrix::operator+(Matrix &m) {
 }
 
 Matrix& Matrix::operator-(Matrix &m) {
-    // Negate the matrix
-    m *= -1.0f;
-
     // Invoke the addition shader
-    this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
-
-    // Negate the matrix back
-    m *= -1.0f;
+    this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
     // Create a new matrix from the output
     return Matrix(matCBOs[1], this->rows, this->cols);
