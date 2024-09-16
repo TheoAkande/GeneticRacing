@@ -298,6 +298,6 @@ void Matrix::show(void) {
     }
 }
 
-void Matrix::destroy(void) {
+Matrix::~Matrix(void) {
     glDeleteBuffers(NUM_MATRIX_CBO, this->matCBOs);
 }

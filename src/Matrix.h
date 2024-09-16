@@ -64,8 +64,9 @@ class Matrix
         Matrix& operator*=(float val);
         Matrix& operator/=(float val);
 
+        ~Matrix(void);
+
         void show(void);
-        void destroy(void);
 };
 
 #endif
