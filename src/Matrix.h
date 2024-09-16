@@ -36,6 +36,7 @@ class Matrix
         void setup(void);           // Setup the matrix                                    
         void getData(void);         // Get the data from the compute buffer object                                    
         void outputToInput(void);   // Move data from output SSBO to input SSBO
+        void invokeScalar(GLuint shader, float val); // Invoke a shader that takes a scalar
         Matrix(GLuint cbo, int rows, int cols);         // Initialize from a compute buffer object
 
         static bool initialized;
