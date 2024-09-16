@@ -192,3 +192,33 @@ Matrix Matrix::operator*(Matrix &m) {
     // Create a new matrix from the output
     return Matrix(matCBOs[1], this->rows, m.cols);
 }
+
+Matrix Matrix::operator*(float val) {
+    // Bind the shader
+    glUseProgram(scalarMultiplicationShader);
+
+    // Set the uniforms
+    GLuint uLoc = glGetUniformLocation(scalarMultiplicationShader, "rows");
+    glUniform1i(uLoc, this->rows);
+    uLoc = glGetUniformLocation(scalarMultiplicationShader, "cols");
+    glUniform1i(uLoc, this->cols);
+    uLoc = glGetUniformLocation(scalarMultiplicationShader, "scalar");
+    glUniform1f(uLoc, val);
+
+    // Setup the output buffer
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, matCBOs[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), NULL, GL_DYNAMIC_COPY);
+
+    // Bind the compute buffer objects
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, matCBOs[0]);  // Input A
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, matCBOs[1]);  // Output
+
+    // Dispatch the compute shader
+    glDispatchCompute(this->rows * this->cols, 1, 1);
+
+    // Wait for the shader to finish
+    glFinish();
+
+    // Create a new matrix from the output
+    return Matrix(matCBOs[1], this->rows, this->cols);
+}
