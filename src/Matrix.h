@@ -33,8 +33,9 @@ class Matrix
         int rows, cols;
         bool dirty; // Whether the data in the compute buffer object is different from the data in the vector
         void invokeShader(GLuint shader, Matrix *m, int invokations, int outputBufferSize);   // Invoke a shader on the matrix
-        void setup(void);                                               // Setup the matrix
-        void getData(void);                                             // Get the data from the compute buffer object
+        void setup(void);           // Setup the matrix                                    
+        void getData(void);         // Get the data from the compute buffer object                                    
+        void outputToInput(void);   // Move data from output SSBO to input SSBO
         Matrix(GLuint cbo, int rows, int cols);         // Initialize from a compute buffer object
 
         static bool initialized;

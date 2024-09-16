@@ -58,6 +58,16 @@ void Matrix::getData(void) {
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * this->data.size(), this->data.data());
 }
 
+void Matrix::outputToInput(void) {
+    // Copy the data from the output to the input buffer
+    glBindBuffer(GL_COPY_READ_BUFFER, matCBOs[1]);
+    glBindBuffer(GL_COPY_WRITE_BUFFER, matCBOs[0]);
+    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
+
+    // Set this as dirty
+    this->dirty = true;
+}
+
 Matrix::Matrix(GLuint cbo, int rows, int cols) {
     this->rows = rows;
     this->cols = cols;
@@ -231,13 +241,7 @@ Matrix& Matrix::operator+=(Matrix &m) {
     // Invoke the addition shader
     this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
-    // Copy the data from the output to the input buffer
-    glBindBuffer(GL_COPY_READ_BUFFER, matCBOs[1]);
-    glBindBuffer(GL_COPY_WRITE_BUFFER, matCBOs[0]);
-    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
-
-    // Set this as dirty
-    this->dirty = true;
+    outputToInput();
 
     return *this;
 }
@@ -246,13 +250,7 @@ Matrix& Matrix::operator-=(Matrix &m) {
     // Invoke the addition shader
     this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
-    // Copy the data from the output to the input buffer
-    glBindBuffer(GL_COPY_READ_BUFFER, matCBOs[1]);
-    glBindBuffer(GL_COPY_WRITE_BUFFER, matCBOs[0]);
-    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(float) * this->data.size());
-
-    // Set this as dirty
-    this->dirty = true;
+    outputToInput();
 
     return *this;
 }
