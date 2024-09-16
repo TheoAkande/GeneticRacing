@@ -14,8 +14,8 @@ uniform int rowsB;
 void main() {
     uint index = gl_GlobalInvocationID.x;
 
-    uint row = index / colsA;
-    uint col = index % colsA;
+    uint row = index / colsB;
+    uint col = index % colsB;
 
     float newVal = 0.0; // Use newVal to avoid more expensive memory writes
     for (int i = 0; i < colsA; i++) {
