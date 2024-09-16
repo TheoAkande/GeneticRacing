@@ -85,6 +85,9 @@ void Matrix::setupClass(void) {
     // Load the transpose shader
     transposeShader = Utils::createShaderProgram("shaders/matrix/transpose.glsl");
 
+    // Load the scalar multiplication shader
+    scalarMultiplicationShader = Utils::createShaderProgram("shaders/matrix/scalarMultiplication.glsl");
+
     // Generate compute buffer objects
     glGenBuffers(NUM_MATRIX_CBO, matCBOs);
 
@@ -221,4 +224,8 @@ Matrix Matrix::operator*(float val) {
 
     // Create a new matrix from the output
     return Matrix(matCBOs[1], this->rows, this->cols);
+}
+
+Matrix Matrix::operator/(float val) {
+    return *this * (1.0f / val);
 }
