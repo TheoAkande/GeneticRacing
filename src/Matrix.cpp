@@ -297,3 +297,7 @@ void Matrix::show(void) {
         cout << endl;
     }
 }
+
+void Matrix::destroy(void) {
+    glDeleteBuffers(NUM_MATRIX_CBO, this->matCBOs);
+}
