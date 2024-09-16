@@ -60,6 +60,7 @@ class Matrix
         Matrix operator*=(float val);
         Matrix operator/=(float val);
 
+        void show(void);
         void destroy(void);
 };
 
