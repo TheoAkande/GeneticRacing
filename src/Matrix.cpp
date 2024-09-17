@@ -409,6 +409,29 @@ void Matrix::addCol(void) {
     this->transposeSelf();
 }
 
+void Matrix::setData(vector<float> data) {
+    assert(data.size() == this->rows * this->cols);
+
+    // Set the data
+    this->data = data;
+
+    // Copy the data from the vector to the compute buffer object
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
+}
+
+void Matrix::setData(float val) {
+    this->data = vector<float>(this->rows * this->cols, val);
+
+    // Copy the data from the vector to the compute buffer object
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
+}
+
+void Matrix::setData(void) {
+    this->setData(0.0f);
+}
+
 void Matrix::show(void) {
     // Get the data from the compute buffer object
     this->getData();
