@@ -49,8 +49,6 @@ void Matrix::setup(void) {
     Matrix::setupClass();
     // Generate compute buffer objects
     glGenBuffers(NUM_MATRIX_CBO, this->matCBOs);
-
-    cout << "New matrix of size " << this->rows << "x" << this->cols << endl;
 }
 
 void Matrix::getData(void) {
