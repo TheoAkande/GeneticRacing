@@ -22,6 +22,7 @@
 
 #include "Defs.h"
 #include "Utils.h"
+#include "Matrix.h"
 
 using namespace std;
 
@@ -34,16 +35,15 @@ class FeedForwardNeuralNet
         uint64_t seed;
 
         vector<int> architecture;           // Number of nodes in each layer
-        vector<vector<float> *> weights;    // Pointers to each layer's weights
+        vector<Matrix *> weights;           // Pointers to each layer's weights
+        Matrix *ffOutputs;                  // Outputs that get fed forward
         vector<vector<float> *> outputs;    // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
-        vector<GLuint> cbs;                 // Compute buffer objects: 2 * i = weights, 2 * i + 1 = outputs
-        int numCbs;                         // Number of compute buffer objects
         GLuint uLoc;                        // Uniform location
         bool softmax;                       // Whether to apply softmax to the output (if so, add extra layer)
 
         int iterations;                     // Number of gradient descent iterations run
         float learningRate;                 // Rate at which weights are updated
-        vector<vector<float> *> gradients;  // Gradients for each layer
+        vector<Matrix *> gradients;         // Gradients for each layer
 
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
@@ -52,7 +52,7 @@ class FeedForwardNeuralNet
         
         static bool initialized;            // Whether the neural net class is initialized
         static float randomWeightRange;     // Range of random weights
-        static GLuint invocationShader;     // Shader for invoking the neural net
+        static GLuint RElUshader;           // Shader for invoking the neural net
 
         static void setupClass(void);       // Setup the class
     public:
@@ -60,9 +60,9 @@ class FeedForwardNeuralNet
         FeedForwardNeuralNet(vector<int> architecture, uint64_t seed, bool softmax = false);      // Construct with random weights
         FeedForwardNeuralNet(vector<int> architecture, bool softmax = false);                     // Construct with random weights and seed from time
 
-        void invoke(vector<float> *inputs, vector<float> *outputs); // Feed inputs through the network
+        GLuint invoke(vector<float> inputs);                        // Feed inputs through the network. Return the output SSBO
         void destroy(void); // Free memory
-        void backPropagate(vector<float> *expected);                // Back propagate the error
+        void backPropagate(Matrix& expected);                       // Back propagate the error
         void descendGradient(void);                                 // Descend the gradient
 };
 
