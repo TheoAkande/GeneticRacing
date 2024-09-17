@@ -349,6 +349,15 @@ void Matrix::addRow(vector<float> row) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
 }
 
+void Matrix::addRow(float val) {
+    vector<float> row(this->cols, val);
+    this->addRow(row);
+}
+
+void Matrix::addRow(void) {
+    this->addRow(0.0f);
+}
+
 void Matrix::show(void) {
     // Get the data from the compute buffer object
     this->getData();
