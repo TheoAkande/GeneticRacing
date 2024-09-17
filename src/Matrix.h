@@ -73,7 +73,7 @@ class Matrix
 
         // Note: to access a single element it is more efficient to use () rather than [][]
         float operator()(int row, int col);
-        vector<float>& operator[](int index);
+        vector<float> *operator[](int index);
 
         void transposeSelf(void); // Apply transpose in place
 

@@ -333,7 +333,7 @@ float Matrix::operator()(int row, int col) {
     return val[0];
 }
 
-vector<float>& Matrix::operator[](int row) {
+vector<float> *Matrix::operator[](int row) {
     assert(row < this->rows);
 
     // Create the vector
@@ -344,14 +344,14 @@ vector<float>& Matrix::operator[](int row) {
         for (int i = 0; i < this->cols; i++) {
             (*v)[i] = this->data[row * this->cols + i];
         }
-        return *v;
+        return v;
     }
 
     // Get the data from the compute buffer object
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * row * this->cols, sizeof(float) * this->cols, v->data());
 
-    return *v;
+    return v;
 }
 
 void Matrix::transposeSelf(void) {
