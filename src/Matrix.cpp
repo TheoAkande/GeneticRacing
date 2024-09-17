@@ -391,6 +391,24 @@ void Matrix::addRow(void) {
     this->addRow(0.0f);
 }
 
+void Matrix::addCol(vector<float> col) {
+    this->transposeSelf();
+    this->addRow(col);
+    this->transposeSelf();
+}
+
+void Matrix::addCol(float val) {
+    this->transposeSelf();
+    this->addRow(val);
+    this->transposeSelf();
+}
+
+void Matrix::addCol(void) {
+    this->transposeSelf();
+    this->addRow();
+    this->transposeSelf();
+}
+
 void Matrix::show(void) {
     // Get the data from the compute buffer object
     this->getData();
