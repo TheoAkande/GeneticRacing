@@ -81,6 +81,10 @@ class Matrix
         void addRow(float val);
         void addRow(void); // Add a row of zeros
 
+        void addCol(vector<float> col);
+        void addCol(float val);
+        void addCol(void); // Add a column of zeros
+
         ~Matrix(void);
 
         void show(void);
