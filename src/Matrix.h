@@ -90,6 +90,8 @@ class Matrix
         void setData(void); // Set all data to zero
         void randomData(float range); // Set all data to random values between -range and range
 
+        void resize(int rows, int cols); // Resize the matrix
+
         ~Matrix(void);
 
         void show(void);
