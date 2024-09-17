@@ -354,6 +354,19 @@ vector<float>& Matrix::operator[](int row) {
     return *v;
 }
 
+void Matrix::transposeSelf(void) {
+    // Invoke the transpose shader
+    this->invokeShader(transposeShader, nullptr, this->rows * this->cols, this->rows * this->cols);
+
+    // Output to input
+    this->outputToInput();
+
+    // Change dimensions
+    int temp = this->rows;
+    this->rows = this->cols;
+    this->cols = temp;
+}
+
 void Matrix::addRow(vector<float> row) {
     assert(row.size() == this->cols);
 

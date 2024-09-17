@@ -75,6 +75,8 @@ class Matrix
         float operator()(int row, int col);
         vector<float>& operator[](int index);
 
+        void transposeSelf(void); // Apply transpose in place
+
         void addRow(vector<float> row);
         void addRow(float val);
         void addRow(void); // Add a row of zeros
