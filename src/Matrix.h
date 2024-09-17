@@ -69,8 +69,13 @@ class Matrix
         Matrix& operator*=(float val);
         Matrix& operator/=(float val);
 
+        // Note: to access a single element it is more efficient to use () rather than [][]
         float operator()(int row, int col);
         vector<float>& operator[](int index);
+
+        void addRow(vector<float> row);
+        void addRow(float val);
+        void addRow(void); // Add a row of zeros
 
         ~Matrix(void);
 
