@@ -12,7 +12,7 @@ void FeedForwardNeuralNet::setupArchitecture(void) {
     this->outputs.push_back(new vector<float>(this->architecture[0]));  // Inputs count as outputs of first layer
     this->ffOutputs = new Matrix(1, this->architecture[0]);
     for (int i = 0; i < this->architecture.size() - 1; i++) {
-        this->weights.push_back(new Matrix((this->architecture[i] + 1) * this->architecture[i + 1]));  // num weights = num inputs + 1 for bias
+        this->weights.push_back(new Matrix((this->architecture[i] + 1), this->architecture[i + 1]));  // num weights = num inputs + 1 for bias
         this->outputs.push_back(new vector<float>(this->architecture[i + 1]));
     }
 }
@@ -29,9 +29,24 @@ void FeedForwardNeuralNet::createRandomWeights(void) {
 // Feed data from layer to layer + 1 (layer 0 is inputs)
 // Note: for now we only use ReLU activation
 void FeedForwardNeuralNet::feedForward(int layer) {
+
+    cout << "Weights:" << endl;
+    weights[layer]->show();
+
     ffOutputs->addCol(1.0f); // Add bias
+
+    cout << "Before:" << endl;
+    ffOutputs->show();
+
     (*ffOutputs) *= (*weights[layer]);
+
+    cout << "After weights:" << endl;
+    ffOutputs->show();
+
     ffOutputs->map(RElUshader);
+
+    cout << "After ReLU:" << endl;
+    ffOutputs->show();
 
     // Write back to output vector
     delete outputs[layer + 1];
