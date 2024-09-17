@@ -85,6 +85,11 @@ class Matrix
         void addCol(float val);
         void addCol(void); // Add a column of zeros
 
+        void setData(vector<float> data);
+        void setData(float val);
+        void setData(void); // Set all data to zero
+        void randomData(float range); // Set all data to random values between -range and range
+
         ~Matrix(void);
 
         void show(void);
