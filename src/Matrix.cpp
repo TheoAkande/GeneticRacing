@@ -158,6 +158,9 @@ void Matrix::map(GLuint shader) {
 
     // Wait for the shader to finish
     glFinish();
+
+    // Set this as dirty
+    this->dirty = true;
 }
 
 // Public
@@ -461,7 +464,8 @@ void Matrix::show(void) {
     // Print the matrix
     for (int i = 0; i < this->rows; i++) {
         for (int j = 0; j < this->cols; j++) {
-            cout << this->data[i * this->cols + j] << " ";
+            if (this->data[i * this->cols + j] >= 0.0f) cout << " "; // Add a space for positive numbers
+            cout << to_string(this->data[i * this->cols + j]) << "  ";
         }
         cout << endl;
     }
