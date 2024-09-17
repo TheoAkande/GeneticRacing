@@ -299,6 +299,20 @@ Matrix& Matrix::operator/=(float val) {
     return *this *= (1.0f / val);
 }
 
+float Matrix::operator()(int row, int col) {
+    assert(row < this->rows && col < this->cols);
+
+    // If not dirty, return the value from the vector
+    if (!this->dirty) return this->data[row * this->cols + col];
+
+    // Get the data from the compute buffer object
+    float val[1];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * (col * this->rows + row), sizeof(float), val);
+
+    return val[0];
+}
+
 void Matrix::show(void) {
     // Get the data from the compute buffer object
     this->getData();
