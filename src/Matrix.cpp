@@ -138,6 +138,28 @@ void Matrix::setupClass(void) {
     Matrix::initialized = true;
 }
 
+// Protected
+
+void Matrix::map(GLuint shader) {
+    // Bind the shader
+    glUseProgram(shader);
+
+    // Set the uniforms
+    GLuint uLoc = glGetUniformLocation(shader, "rows");
+    glUniform1i(uLoc, this->rows);
+    uLoc = glGetUniformLocation(shader, "cols");
+    glUniform1i(uLoc, this->cols);
+
+    // Bind the compute buffer objects
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, matCBOs[0]);  // Matrix
+
+    // Dispatch the compute shader
+    glDispatchCompute(rows * cols, 1, 1);
+
+    // Wait for the shader to finish
+    glFinish();
+}
+
 // Public
 
 Matrix::Matrix(vector<float> data, int rows, int cols) {
