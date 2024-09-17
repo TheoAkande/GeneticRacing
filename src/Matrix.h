@@ -93,6 +93,7 @@ class Matrix
         ~Matrix(void);
 
         void show(void);
+    friend class FeedForwardNeuralNet;
 };
 
 #endif
