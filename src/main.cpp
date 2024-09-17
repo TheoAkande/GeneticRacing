@@ -22,6 +22,7 @@ extern "C" {
 #include "Defs.h"
 #include "DeepNeuralNets.h"
 #include "NeuralNet.h"
+#include "Matrix.h"
 
 using namespace std;
 
