@@ -44,6 +44,8 @@ public:
 	static GLuint createShaderProgram(const char *cs, int workgroupSize = 0);
 	static GLuint createShaderProgram(const char *vs, const char *fs);
 	static GLuint loadTexture(const char *texImagePath);
+
+	static float randomFloat(float min, float max);
 };
 
 #endif

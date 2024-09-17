@@ -189,3 +189,7 @@ GLuint Utils::loadTexture(const char *texImagePath)
     // ----- end of mipmap/anisotropic section
     return textureRef;
 }
+
+float Utils::randomFloat(float min, float max) {
+	return ((float)rand() / RAND_MAX) * (max - min) + min;
+}
