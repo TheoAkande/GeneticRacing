@@ -50,6 +50,8 @@ class Matrix
             additionShader, multiplicationShader, transposeShader, 
             scalarMultiplicationShader, subtractionShader;
         static void setupClass(void);
+    protected:
+        void map(GLuint program); // Map a function onto each item in the matrix
     public:
         Matrix(vector<float> data, int rows, int cols);
         Matrix(int rows, int cols); // Initialize with zeros
