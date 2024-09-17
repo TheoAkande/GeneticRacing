@@ -15,37 +15,36 @@
 
 class Utils
 {
-private:
-	static int screenWidth, screenHeight;
+	private:
+		static int screenWidth, screenHeight;
 
-	static std::string readShaderFile(const char *filePath);
-	static void printProgramLog(int prog);
-	static GLuint prepareShader(int shaderTYPE, const char *shaderPath, int workgroupSize = 0);
-	static int finalizeShaderProgram(GLuint sprogram);
+		static std::string readShaderFile(const char *filePath);
+		static void printProgramLog(int prog);
+		static GLuint prepareShader(int shaderTYPE, const char *shaderPath, int workgroupSize = 0);
+		static int finalizeShaderProgram(GLuint sprogram);
 
-public:
-	Utils();
-	static float pixelToScreenX(int x);
-	static float pixelToScreenY(int y);
+	public:
+		Utils();
+		static float pixelToScreenX(int x);
+		static float pixelToScreenY(int y);
 
-	static float pixelsToScreenWidth(int w);
-	static float pixelsToScreenHeight(int h);
+		static float pixelsToScreenWidth(int w);
+		static float pixelsToScreenHeight(int h);
 
-	static int screenToPixelX(float x);
-	static int screenToPixelY(float y);
+		static int screenToPixelX(float x);
+		static int screenToPixelY(float y);
 
-	static int screenWidthToPixels(float w);
-	static int screenHeightToPixels(float h);
+		static int screenWidthToPixels(float w);
+		static int screenHeightToPixels(float h);
 
-	static void setScreenDimensions(int width, int height);
-
-	static bool checkOpenGLError();
-	static void printShaderLog(GLuint shader);
-	static GLuint createShaderProgram(const char *cs, int workgroupSize = 0);
-	static GLuint createShaderProgram(const char *vs, const char *fs);
-	static GLuint loadTexture(const char *texImagePath);
-
-	static float randomFloat(float min, float max);
+		static void setScreenDimensions(int width, int height);
+		static bool checkOpenGLError();
+		static void printShaderLog(GLuint shader);
+		static GLuint createShaderProgram(const char *cs, int workgroupSize = 0);
+		static GLuint createShaderProgram(const char *vs, const char *fs);
+		static GLuint loadTexture(const char *texImagePath);
+		
+		static float randomFloat(float min, float max);
 };
 
 #endif

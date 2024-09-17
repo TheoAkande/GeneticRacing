@@ -84,10 +84,7 @@ FeedForwardNeuralNet::FeedForwardNeuralNet(vector<int> architecture, bool softma
 
 // Feed inputs through the network and store the outputs in the outputs vector
 GLuint FeedForwardNeuralNet::invoke(vector<float> inputs) {
-    if (!initialized) {
-        cout << "Neural nets not initialized" << endl;
-        return;
-    }
+    assert(initialized);
 
     // Load input data
     this->ffOutputs->resize(1, this->architecture[0]);

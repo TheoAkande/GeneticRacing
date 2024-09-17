@@ -1,7 +1,7 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#define TRAINING false
+#define TRAINING true
 
 // Used to prevent creating 0-sized arrays when numDrivers = numCars (ie not using neural networks)
 #define DONT_USE_NNS // Comment out if using neural networks
