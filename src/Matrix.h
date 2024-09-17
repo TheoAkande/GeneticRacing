@@ -70,6 +70,7 @@ class Matrix
         Matrix& operator/=(float val);
 
         float operator()(int row, int col);
+        vector<float>& operator[](int index);
 
         ~Matrix(void);
 
