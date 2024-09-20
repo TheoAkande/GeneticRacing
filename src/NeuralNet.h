@@ -44,6 +44,7 @@ class FeedForwardNeuralNet
         int iterations;                     // Number of gradient descent iterations run
         float learningRate;                 // Rate at which weights are updated
         vector<Matrix *> gradients;         // Gradients for each layer
+        vector<Matrix *> deltas;            // Deltas for each layer
 
         void setupArchitecture(void);       // Setup the architecture
         void createRandomWeights(void);     // Initialize random weights
