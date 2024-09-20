@@ -227,12 +227,12 @@ Matrix::Matrix(int size) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
 }
 
-Matrix& Matrix::transpose(void) {
+Matrix *Matrix::transpose(void) {
     // Invoke the transpose shader
     this->invokeShader(transposeShader, nullptr, this->rows * this->cols, this->rows * this->cols);
 
     // Create a new matrix from the output
-    return *new Matrix(matCBOs[1], this->cols, this->rows);
+    return new Matrix(matCBOs[1], this->cols, this->rows);
 }
 
 Matrix& Matrix::operator+(Matrix &m) {

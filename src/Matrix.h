@@ -58,7 +58,7 @@ class Matrix
         Matrix(int rows, int cols, float val); // Initialize with a value
         Matrix(int size); // Identity matrix
 
-        Matrix& transpose(void);
+        Matrix *transpose(void);
         Matrix& operator+(Matrix &m);
         Matrix& operator-(Matrix &m);
         Matrix& operator*(Matrix &m);
