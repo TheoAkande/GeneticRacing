@@ -48,7 +48,7 @@ class Matrix
         static bool initialized;
         static GLuint 
             additionShader, multiplicationShader, transposeShader, 
-            scalarMultiplicationShader, subtractionShader;
+            scalarMultiplicationShader, subtractionShader, dotShader;
         static void setupClass(void);
     protected:
         void map(GLuint shader); // Map a function onto each item in the matrix
@@ -70,6 +70,8 @@ class Matrix
         Matrix& operator*=(Matrix &m);
         Matrix& operator*=(float val);
         Matrix& operator/=(float val);
+
+        void dotInplace(Matrix &m); // Element-wise multiplication
 
         // Note: to access a single element it is more efficient to use () rather than [][]
         float operator()(int row, int col);

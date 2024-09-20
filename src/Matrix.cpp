@@ -3,7 +3,7 @@
 bool Matrix::initialized = false;
 GLuint 
     Matrix::additionShader, Matrix::multiplicationShader, Matrix::transposeShader,
-    Matrix::scalarMultiplicationShader, Matrix::subtractionShader;
+    Matrix::scalarMultiplicationShader, Matrix::subtractionShader, Matrix::dotShader;
 
 // Private
 
@@ -134,6 +134,9 @@ void Matrix::setupClass(void) {
 
     // Load the subtraction shader
     subtractionShader = Utils::createShaderProgram("shaders/matrix/subtraction.glsl");
+
+    // Load the dot shader
+    dotShader = Utils::createShaderProgram("shaders/matrix/dot.glsl");
 
     Matrix::initialized = true;
 }
@@ -337,6 +340,16 @@ Matrix& Matrix::operator/=(float val) {
     // No division by zero
 
     return *this *= (1.0f / val);
+}
+
+void Matrix::dotInplace(Matrix &m) {
+    // Check if the matrices have the same dimensions
+    assert(this->rows == m.rows && this->cols == m.cols);
+
+    // Invoke the multiplication shader
+    this->invokeShader(dotShader, &m, this->rows * this->cols, this->rows * this->cols);
+
+    outputToInput();
 }
 
 float Matrix::operator()(int row, int col) {
