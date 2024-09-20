@@ -15,6 +15,10 @@ void FeedForwardNeuralNet::setupArchitecture(void) {
         this->weights.push_back(new Matrix((this->architecture[i] + 1), this->architecture[i + 1]));  // num weights = num inputs + 1 for bias
         this->outputs.push_back(new vector<float>(this->architecture[i + 1]));
     }
+    // Setup learning gradients
+    for (int i = 0; i < this->weights.size(); i++) {
+        this->gradients.push_back(new Matrix(this->weights[i]->rows, this->weights[i]->cols));
+    }
 }
 
 // Create random weights for the neural net
@@ -29,24 +33,14 @@ void FeedForwardNeuralNet::createRandomWeights(void) {
 // Feed data from layer to layer + 1 (layer 0 is inputs)
 // Note: for now we only use ReLU activation
 void FeedForwardNeuralNet::feedForward(int layer) {
+    // Add bias
+    ffOutputs->addCol(1.0f); 
 
-    cout << "Weights:" << endl;
-    weights[layer]->show();
-
-    ffOutputs->addCol(1.0f); // Add bias
-
-    cout << "Before:" << endl;
-    ffOutputs->show();
-
+    // Multiply by weights
     (*ffOutputs) *= (*weights[layer]);
 
-    cout << "After weights:" << endl;
-    ffOutputs->show();
-
-    ffOutputs->map(RElUshader);
-
-    cout << "After ReLU:" << endl;
-    ffOutputs->show();
+    // Apply ReLU
+    ffOutputs->map(RElUshader); 
 
     // Write back to output vector
     delete outputs[layer + 1];
@@ -140,6 +134,79 @@ void FeedForwardNeuralNet::destroy(void) {
     }
 }
 
-void FeedForwardNeuralNet::backPropagate(Matrix& expected) {
-    // Do nothing for now
+void FeedForwardNeuralNet::backPropagate(Matrix& expected, bool clear) {
+    // Refresh gradients if needed
+    if (clear) {
+        for (int i = 0; i < this->weights.size(); i++) {
+            delete this->gradients[i];
+            this->gradients[i] = new Matrix(this->weights[i]->rows, this->weights[i]->cols);
+        }
+    }
+
+    // Calculate the error
+    Matrix& errorDelta = expected - *ffOutputs;
+
+    // Apply the derivative of the ReLU function to last outputs
+    ffOutputs->map(ReLUder);
+
+    // Calculate the delta for the last layer
+    errorDelta *= *ffOutputs;
+
+    // Store the delta
+    vector<Matrix *> deltas;
+    deltas.push_back(&errorDelta);
+
+    Matrix *delta;
+
+    // Calculate the deltas for the remaining layers
+    for (int i = this->weights.size() - 1; i > 0; i--) {
+        // Calculate the delta
+        Matrix *weightTranspose = weights[i]->transpose();
+
+        // We only want to add the bias row if a bias is expected in the next layer (i.e. not the output layer)
+        if (i < this->weights.size() - 1) {
+            // Add bias row
+            weightTranspose->addRow(1.0f);
+        }
+        delta = &(*deltas.back() * *weightTranspose);
+
+        delete weightTranspose;
+
+        // Apply the derivative of the ReLU function
+        Matrix outputDerriv = Matrix(*this->outputs[i], 1, this->outputs[i]->size());
+        outputDerriv.addCol(1.0f); // Add bias
+        outputDerriv.map(ReLUder);  
+
+        // Calculate the delta
+        delta->dotInplace(outputDerriv);
+
+        // Store the delta
+        deltas.push_back(delta);
+    }
+
+    int deltaLen = deltas.size();
+    // Calculate the gradients
+    for (int i = 0; i < this->weights.size(); i++) {
+        // Get the activations for the layer
+        Matrix gradient = Matrix(*this->outputs[i], this->outputs[i]->size(), 1);
+        gradient.addRow(1.0f); // Add bias
+
+        // Drop the bias row from the delta if it is not the output layer
+        if (i < this->weights.size() - 1) {
+            deltas[deltaLen - 1 - i]->deleteCol();
+        }
+
+        gradient *= *deltas[deltaLen - 1 - i];
+
+        // Add the gradient to the total
+        *gradients[i] += gradient;
+    }
+
+    // Increment the number of iterations
+    iterations++;
+
+    // Clean up the deltas
+    for (int i = 0; i < deltas.size(); i++) {
+        delete deltas[i];
+    }
 }
