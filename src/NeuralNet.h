@@ -63,7 +63,7 @@ class FeedForwardNeuralNet
 
         GLuint invoke(vector<float> inputs);                        // Feed inputs through the network. Return the output SSBO
         void destroy(void); // Free memory
-        void backPropagate(Matrix& expected);                       // Back propagate the error
+        void backPropagate(Matrix& expected, bool clear = false);   // Back propagate the error
         void descendGradient(void);                                 // Descend the gradient
 };
 
