@@ -87,6 +87,9 @@ class Matrix
         void addCol(float val);
         void addCol(void); // Add a column of zeros
 
+        void deleteRow();
+        void deleteCol();
+
         void setData(vector<float> data);
         void setData(float val);
         void setData(void); // Set all data to zero

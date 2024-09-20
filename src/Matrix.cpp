@@ -442,6 +442,21 @@ void Matrix::addCol(void) {
     this->transposeSelf();
 }
 
+void Matrix::deleteRow(void) {
+    this->rows--;
+    this->data.resize(this->rows * this->cols);
+
+    // Copy the data from the vector to the compute buffer object
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->matCBOs[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * this->data.size(), this->data.data(), GL_DYNAMIC_COPY);
+}
+
+void Matrix::deleteCol(void) {
+    this->transposeSelf();
+    this->deleteRow();
+    this->transposeSelf();
+}
+
 void Matrix::setData(vector<float> data) {
     assert(data.size() == this->rows * this->cols);
 
