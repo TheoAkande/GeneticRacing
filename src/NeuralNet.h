@@ -37,7 +37,7 @@ class FeedForwardNeuralNet
         vector<int> architecture;           // Number of nodes in each layer
         vector<Matrix *> weights;           // Pointers to each layer's weights
         Matrix *ffOutputs;                  // Outputs that get fed forward
-        vector<vector<float> *> outputs;    // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
+        vector<Matrix *> outputs;           // Outputs of each layer. Note: it is not time efficient to store all outputs, but could be useful for backprop?
         GLuint uLoc;                        // Uniform location
         bool softmax;                       // Whether to apply softmax to the output (if so, add extra layer)
 
