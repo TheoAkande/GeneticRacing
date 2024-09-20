@@ -144,7 +144,8 @@ void FeedForwardNeuralNet::backPropagate(Matrix& expected, bool clear) {
     }
 
     // Calculate the error
-    Matrix& errorDelta = expected - *ffOutputs;
+    Matrix& errorDelta = 
+        expected - Matrix(*this->outputs[this->outputs.size() - 1], 1, this->outputs[this->outputs.size() - 1]->size());
 
     // Apply the derivative of the ReLU function to last outputs
     ffOutputs->map(ReLUder);
