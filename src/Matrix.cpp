@@ -233,6 +233,9 @@ Matrix& Matrix::transpose(void) {
 }
 
 Matrix& Matrix::operator+(Matrix &m) {
+    // Check if the matrices have the same dimensions
+    assert(this->rows == m.rows && this->cols == m.cols);
+
     // Invoke the addition shader
     this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
@@ -241,6 +244,9 @@ Matrix& Matrix::operator+(Matrix &m) {
 }
 
 Matrix& Matrix::operator-(Matrix &m) {
+    // Check if the matrices have the same dimensions
+    assert(this->rows == m.rows && this->cols == m.cols);
+
     // Invoke the addition shader
     this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
@@ -268,10 +274,16 @@ Matrix& Matrix::operator*(float val) {
 }
 
 Matrix& Matrix::operator/(float val) {
+    // No division by zero
+    assert(val != 0.0f);
+
     return *this * (1.0f / val);
 }
 
 Matrix& Matrix::operator+=(Matrix &m) {
+    // Check if the matrices have the same dimensions
+    assert(this->rows == m.rows && this->cols == m.cols);
+
     // Invoke the addition shader
     this->invokeShader(additionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
@@ -281,6 +293,9 @@ Matrix& Matrix::operator+=(Matrix &m) {
 }
 
 Matrix& Matrix::operator-=(Matrix &m) {
+    // Check if the matrices have the same dimensions
+    assert(this->rows == m.rows && this->cols == m.cols);
+
     // Invoke the addition shader
     this->invokeShader(subtractionShader, &m, this->rows * this->cols, this->rows * this->cols);
 
@@ -319,6 +334,8 @@ Matrix& Matrix::operator*=(float val) {
 }
 
 Matrix& Matrix::operator/=(float val) {
+    // No division by zero
+
     return *this *= (1.0f / val);
 }
 
