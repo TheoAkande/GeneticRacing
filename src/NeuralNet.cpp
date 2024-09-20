@@ -1,7 +1,7 @@
 #include "NeuralNet.h"
 
 float FeedForwardNeuralNet::randomWeightRange = 1.0f;
-GLuint FeedForwardNeuralNet::RElUshader;
+GLuint FeedForwardNeuralNet::RElUshader, FeedForwardNeuralNet::ReLUder;
 bool FeedForwardNeuralNet::initialized = false;
 
 // Private
@@ -62,6 +62,7 @@ void FeedForwardNeuralNet::loadWeights(string path) {
 void FeedForwardNeuralNet::setupClass(void) {
     // Load the invocation shader
     RElUshader = Utils::createShaderProgram("shaders/neuralNet/RElU.glsl");
+    ReLUder = Utils::createShaderProgram("shaders/neuralNet/ReLUderriv.glsl");
 
     initialized = true;
 }
